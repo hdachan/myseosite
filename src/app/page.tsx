@@ -1,35 +1,18 @@
-// app/page.tsx
-// app/page.tsx
+// app/page.tsx ← 최종 완벽 버전
 import Hero from "@/components/Hero";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  // 기본 SEO
   title: "서울 출발 DMZ 투어 당일치기 | 최저가 예약, 제3터널+도라전망대",
   description:
     "서울 출발 DMZ 투어 전문. 제3터널, 도라전망대, 도라산역, 통일촌 방문. 전문 한국어 가이드 동행, 점심 포함, 매일 출발 보장. 2025년 최신 가격 및 실시간 예약 가능.",
 
-  // 2025년 필수 추가 항목들
-  robots: {
-    index: true, // 이 페이지 구글에 노출 O
-    follow: true, // 내부 링크도 따라가게 O
-    googleBot: {
-      index: true,
-      follow: true,
-    },
-  },
+  // ← 이 두 줄만 삭제 또는 주석 처리 (layout이 알아서 해줌)
+  // alternates: { canonical: "https://yourdomain.com" },
+  // verification: { google: "..." },
 
-  alternates: {
-    canonical: "https://yourdomain.com", // ← 실제 도메인으로 변경 필수!
-  },
+  robots: { index: true, follow: true }, // 이거만 남겨도 충분
 
-  verification: {
-    google: "여기에_구글서치콘솔_인증코드_넣기", // 예: "abc123xyz..."
-    // naver: "네이버서치어드바이저코드",           // 있으면 추가
-    // other: { bing: "빙코드" },
-  },
-
-  // Open Graph (카톡, 페이스북 등)
   openGraph: {
     title: "서울 DMZ 투어 당일치기 | 제3터널+도라전망대 포함",
     description: "하루 만에 보는 분단의 현장. 서울 호텔 픽업+점심 포함",
@@ -41,18 +24,16 @@ export const metadata: Metadata = {
         alt: "DMZ 제3터널 입구와 도라전망대 전경",
       },
     ],
-    url: "https://yourdomain.com",
-    type: "website",
+    // url: "https://yourdomain.com", ← 이 줄도 삭제 (layout의 metadataBase가 자동 처리)
     locale: "ko_KR",
+    type: "website",
   },
 
-  // Twitter Card
   twitter: {
     card: "summary_large_image",
     title: "서울 DMZ 투어 당일치기",
     description: "제3터널 들어가고 북녘 땅 직접 보는 바로 그 투어!",
     images: ["/og-dmz.jpg"],
-    creator: "@your_twitter_id",
   },
 };
 
