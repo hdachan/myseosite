@@ -1,12 +1,12 @@
-// app/robots.ts
-export default function robots() {
+// src/app/robots.ts
+import { MetadataRoute } from "next";
+
+export default function robots(): MetadataRoute.Robots {
   return {
-    rules: [
-      {
-        userAgent: "*",
-        allow: "/",
-      },
-    ],
-    sitemap: "https://mysite.com/sitemap.xml",
+    rules: {
+      userAgent: "*",
+      allow: "/",
+    },
+    sitemap: "https://mysite.com/sitemap.xml", // 실제 도메인으로 변경
   };
 }
