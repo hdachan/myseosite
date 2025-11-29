@@ -1,4 +1,4 @@
-// src/app/layout.tsx — 2025년 한국 DMZ 투어 사이트 최고 수준 SEO 완성
+// src/app/layout.tsx — 서울시티투어 빨간 Footer 완성본 (기존 코드 100% 유지)
 import type { Metadata } from "next";
 import "./globals.css";
 import Link from "next/link";
@@ -6,7 +6,7 @@ import Image from "next/image";
 import { Menu, X } from "lucide-react";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://mysite.com"), // ← 실제 도메인으로 바꾸세요! 예: https://seouldmz.kr
+  metadataBase: new URL("https://mysite.com"), // ← 나중에 실제 도메인으로 변경하세요!
   title: {
     default: "DMZ 관광 — 서울 DMZ 투어",
     template: "%s | DMZ 관광",
@@ -22,9 +22,8 @@ export const metadata: Metadata = {
     "판문점 투어",
     "비무장지대 관광",
   ],
-  // canonical은 Next.js가 자동으로 현재 URL로 만들어줍니다 → 건들지 마세요!
   alternates: {
-    canonical: "/", // 이거 하나만 있으면 모든 페이지 자동 정규화
+    canonical: "/",
   },
   robots: {
     index: true,
@@ -49,10 +48,9 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <head>
-        {/* 파비콘 */}
         <link rel="icon" href="/favicon.ico" />
 
-        {/* 구조화 데이터 (JSON-LD) - 구글 리치 결과 + 순위 폭발 ↑ */}
+        {/* 구조화 데이터 (JSON-LD) */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -94,6 +92,7 @@ export default function RootLayout({
       <body className="bg-white text-gray-900 min-h-screen">
         <input type="checkbox" id="mobile-menu" className="hidden" />
 
+        {/* ==================== HEADER ==================== */}
         <header className="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm border-b border-gray-200">
           <nav className="max-w-7xl mx-auto flex items-center justify-between py-4 px-6">
             <Link href="/" className="flex-shrink-0">
@@ -162,7 +161,7 @@ export default function RootLayout({
             </div>
           </nav>
 
-          {/* 모바일 메뉴 */}
+          {/* 모바일 풀스크린 메뉴 */}
           <div className="fixed inset-0 z-40 bg-white h-screen -translate-y-full [:checked_&]:translate-y-0 transition-transform duration-500 ease-in-out lg:hidden pointer-events-none [:checked_&]:pointer-events-auto">
             <div className="flex items-center justify-between p-6 border-b">
               <Link href="/">
@@ -222,9 +221,81 @@ export default function RootLayout({
           </div>
         </header>
 
+        {/* ==================== MAIN CONTENT ==================== */}
         <main className="pt-24">
           <div className="max-w-4xl mx-auto p-4">{children}</div>
         </main>
+
+        {/* ==================== SEOUL CITY TOUR STYLE RED FOOTER ==================== */}
+        <footer className="bg-red-700 text-white py-12 mt-20">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="flex flex-col lg:flex-row justify-between items-start gap-12">
+              {/* 왼쪽 정보 */}
+              <div className="flex-1">
+                <h3 className="text-2xl font-bold mb-8">COMPANY INFO</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-10 text-sm leading-loose">
+                  <div className="space-y-3">
+                    <p>회사명 : (주)서울씨티투어</p>
+                    <p>대표자 : 박도영</p>
+                    <p>E-mail : mail@seoulcitytour.net</p>
+                    <p>TEL : 02-774-3345</p>
+                    <p className="text-red-200">
+                      통신 판매업 신고 번호 서울종로-0710호
+                    </p>
+                  </div>
+                  <div className="space-y-3">
+                    <p>
+                      계좌번호 : 신한은행 100 - 023 - 904290 | 예금주
+                      (주)서울씨티투어
+                    </p>
+                    <p>사업자등록 번호 : 507-88-02244</p>
+                    <p>
+                      주소 : 서울 특별시 종로구 인사동 194-4 하나로빌딩 507호
+                    </p>
+                    <p>FAX : 02-774-8223</p>
+                    <p>관광 사업자 등록 번호 2008-000002</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* 오른쪽 로고 */}
+              <div className="flex-shrink-0">
+                <Image
+                  src="/images/logo-white.png" // ← 흰색 로고 파일 준비하세요!
+                  alt="Seoul City Tour"
+                  width={300}
+                  height={90}
+                  className="object-contain"
+                />
+              </div>
+            </div>
+
+            {/* 하단 정책 링크 & 카피라이트 */}
+            <div className="mt-12 pt-8 border-t border-red-600 flex flex-col md:flex-row justify-between items-center gap-6 text-sm">
+              <div className="flex flex-wrap items-center gap-4">
+                <Link href="/privacy" className="hover:underline">
+                  이메일주소무단수집거부
+                </Link>
+                <span className="text-red-300">|</span>
+                <Link href="/terms" className="hover:underline">
+                  개인정보보호정책
+                </Link>
+                <span className="text-red-300">|</span>
+                <Link href="/policy" className="hover:underline">
+                  이용약관
+                </Link>
+                <span className="text-red-300">|</span>
+                <Link href="/sitemap" className="hover:underline">
+                  사이트맵
+                </Link>
+              </div>
+              <p className="text-center">
+                COPYRIGHT (C) 2004-2025 SEOUL CITY TOUR Co., LTD. ALL RIGHTS
+                RESERVED
+              </p>
+            </div>
+          </div>
+        </footer>
       </body>
     </html>
   );
