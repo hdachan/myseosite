@@ -223,7 +223,11 @@ export default function RootLayout({
 
         {/* ==================== MAIN CONTENT ==================== */}
         <main className="pt-24">
-          <div className="max-w-4xl mx-auto p-4">{children}</div>
+          {/* 이 줄만 삭제하거나 주석 처리하면 끝! */}
+          {/* <div className="max-w-4xl mx-auto p-4">{children}</div> */}
+
+          {/* 이렇게 바꾸기 */}
+          {children}
         </main>
 
         {/* ==================== SEOUL CITY TOUR STYLE RED FOOTER ==================== */}

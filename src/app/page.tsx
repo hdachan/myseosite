@@ -1,5 +1,6 @@
 // src/app/page.tsx
-import Hero from "@/components/Hero";
+import HeroCarousel from "@/components/HeroCarousel";
+import CityTourSection from "@/components/CityTourSection";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -32,28 +33,11 @@ export const metadata: Metadata = {
 export default function Home() {
   return (
     <>
-      <Hero />
+      {/* 1. 상단 기업체 전용 투어 캐러셀 (가로 스와이프) */}
+      <HeroCarousel />
 
-      <article className="max-w-4xl mx-auto py-16 px-4">
-        <h1 className="text-3xl md:text-5xl font-bold text-center mb-8">
-          서울 출발 DMZ 투어 당일치기
-        </h1>
-
-        <section className="mb-12">
-          <h2 className="text-2xl font-bold mb-4">
-            왜 DMZ 투어를 해야 할까요?
-          </h2>
-          <p className="text-gray-700 leading-relaxed">
-            한국전쟁 이후 70년간 사람의 발길이 닿지 않아 세계에서 가장 잘 보존된
-            비무장지대(DMZ). 제3침투터널을 직접 걸어보고, 도라전망대에서
-            망원경으로 북한 마을과 개성공단을 바라보며, 분단의 현실을 생생하게
-            느낄 수 있는 유일한 기회입니다.
-          </p>
-        </section>
-
-        {/* 나머지 내용은 그대로 유지 */}
-        {/* ... */}
-      </article>
+      {/* 2. 서울 시티 투어 섹션 (탭 + 카드 4개 가로 스와이프) */}
+      <CityTourSection />
     </>
   );
 }
