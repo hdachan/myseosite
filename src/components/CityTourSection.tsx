@@ -1,270 +1,242 @@
 "use client";
 
-import { useState, useRef } from "react";
-import {
-  ChevronLeft,
-  ChevronRight,
-  Clock,
-  Users,
-  Star,
-  MapPin,
-} from "lucide-react";
+import React from "react";
+import { ChevronLeft, ChevronRight, Star, MapPin } from "lucide-react";
 
-const tours = {
-  dmz: [
+interface TourPackage {
+  id: number;
+  image: string;
+  title: string;
+  location: string;
+  duration: string;
+  tags: string[];
+  price: string;
+  rating: number;
+}
+
+const LuxuryTourSection = () => {
+  const [currentIndex, setCurrentIndex] = React.useState(0);
+
+  const tourPackages: TourPackage[] = [
     {
       id: 1,
-      title: "DMZ 제3땅굴 + 도라전망대 투어",
-      duration: "8시간",
-      groupSize: "최대 40명",
-      rating: 4.8,
-      reviews: 1247,
-      price: "₩85,000",
-      location: "서울 출발",
-      image: "/dmz-tour-1.jpg",
-      highlights: ["제3땅굴 입장", "도라전망대", "점심 포함"],
+      image:
+        "https://images.unsplash.com/photo-1525625293386-3f8f99389edd?w=800&h=1000&fit=crop",
+      title: "싱가포르 프리미엄",
+      location: "싱가포르",
+      duration: "5일",
+      tags: ["노쇼핑", "노팁", "특급호텔"],
+      price: "1,249,900",
+      rating: 4.9,
     },
     {
       id: 2,
-      title: "DMZ + 임진각 평화누리공원",
-      duration: "7시간",
-      groupSize: "최대 35명",
-      rating: 4.7,
-      reviews: 892,
-      price: "₩75,000",
-      location: "서울 출발",
-      image: "/dmz-tour-2.jpg",
-      highlights: ["임진각", "자유의 다리", "평화누리공원"],
+      image:
+        "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=800&h=1000&fit=crop",
+      title: "튀르키예 그랜드 투어",
+      location: "터키",
+      duration: "9일",
+      rating: 4.8,
+      tags: ["전문인솔자", "국내선2회", "5성급"],
+      price: "2,329,000",
     },
     {
       id: 3,
-      title: "JSA 판문점 투어 (특별허가)",
-      duration: "9시간",
-      groupSize: "최대 30명",
-      rating: 4.9,
-      reviews: 1589,
-      price: "₩125,000",
-      location: "서울 출발",
-      image: "/dmz-tour-3.jpg",
-      highlights: ["판문점", "공동경비구역", "귀순용사 브리핑"],
+      image:
+        "https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=800&h=1000&fit=crop",
+      title: "치앙마이 로얄 에디션",
+      location: "태국",
+      duration: "6일",
+      rating: 4.7,
+      tags: ["노팁", "럭셔리 리조트", "스파포함"],
+      price: "1,119,900",
     },
     {
       id: 4,
-      title: "DMZ 풀코스 (땅굴+JSA)",
-      duration: "10시간",
-      groupSize: "최대 25명",
-      rating: 4.9,
-      reviews: 743,
-      price: "₩155,000",
-      location: "서울 출발",
-      image: "/dmz-tour-4.jpg",
-      highlights: ["제3땅굴", "판문점", "도라산역", "2식 포함"],
+      image:
+        "https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=800&h=1000&fit=crop",
+      title: "발리 프라이빗 빌라",
+      location: "인도네시아",
+      duration: "5일",
+      rating: 5.0,
+      tags: ["자유여행", "프라이빗풀", "올인클루시브"],
+      price: "899,900",
     },
-  ],
-  seoul: [
-    {
-      id: 5,
-      title: "서울 고궁 투어 (경복궁+북촌)",
-      duration: "5시간",
-      groupSize: "최대 30명",
-      rating: 4.7,
-      reviews: 2134,
-      price: "₩55,000",
-      location: "서울 시내",
-      image: "/seoul-tour-1.jpg",
-      highlights: ["경복궁", "북촌한옥마을", "인사동"],
-    },
-    {
-      id: 6,
-      title: "강남 현대 서울 투어",
-      duration: "4시간",
-      groupSize: "최대 35명",
-      rating: 4.6,
-      reviews: 1567,
-      price: "₩45,000",
-      location: "강남역",
-      image: "/seoul-tour-2.jpg",
-      highlights: ["코엑스", "강남거리", "K-POP 스퀘어"],
-    },
-    {
-      id: 7,
-      title: "서울 나이트 투어",
-      duration: "3시간",
-      groupSize: "최대 40명",
-      rating: 4.8,
-      reviews: 998,
-      price: "₩40,000",
-      location: "명동 출발",
-      image: "/seoul-tour-3.jpg",
-      highlights: ["남산타워", "한강야경", "동대문"],
-    },
-    {
-      id: 8,
-      title: "전통시장 + 먹방 투어",
-      duration: "4시간",
-      groupSize: "최대 20명",
-      rating: 4.9,
-      reviews: 1876,
-      price: "₩65,000",
-      location: "광장시장",
-      image: "/seoul-tour-4.jpg",
-      highlights: ["광장시장", "전통음식 5종", "막걸리 시음"],
-    },
-  ],
-};
+  ];
 
-export default function CityTourSection() {
-  const [activeTab, setActiveTab] = useState<"dmz" | "seoul">("dmz");
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const [isMobile, setIsMobile] = React.useState(false);
 
-  const scroll = (direction: "left" | "right") => {
-    if (scrollRef.current) {
-      const scrollAmount = 350;
-      scrollRef.current.scrollBy({
-        left: direction === "left" ? -scrollAmount : scrollAmount,
-        behavior: "smooth",
-      });
-    }
-  };
+  React.useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
-  const activeTours = tours[activeTab];
+  const itemsPerView = isMobile ? 1 : 4;
+  const maxIndex = Math.max(0, tourPackages.length - itemsPerView);
+
+  const handlePrev = () => setCurrentIndex((prev) => Math.max(0, prev - 1));
+  const handleNext = () =>
+    setCurrentIndex((prev) => Math.min(maxIndex, prev + 1));
 
   return (
-    <section className="py-16 bg-white">
-      <div className="max-w-7xl mx-auto px-6">
-        {/* Section Header */}
-        <div className="text-center mb-10">
-          <h2 className="text-4xl font-bold text-gray-900 mb-3">
-            인기 투어 프로그램
+    <div className="w-full bg-gradient-to-b from-slate-50 to-white py-12 md:py-20">
+      <div className="max-w-7xl mx-auto px-4 md:px-6">
+        {/* 헤더 섹션 */}
+        <div className="text-center mb-8 md:mb-16">
+          <div className="inline-block px-4 md:px-6 py-1.5 md:py-2 bg-amber-50 border border-amber-200 mb-3 md:mb-4">
+            <span className="text-amber-800 text-xs md:text-sm font-medium tracking-wider">
+              LUXURY COLLECTION
+            </span>
+          </div>
+          <h2 className="text-2xl md:text-4xl lg:text-5xl font-light text-gray-900 mb-2 md:mb-4">
+            프리미엄 여행 컬렉션
           </h2>
-          <p className="text-lg text-gray-600">
-            전문 가이드와 함께하는 한국 역사·문화 체험
+          <p className="text-gray-600 text-base md:text-lg font-light">
+            당신만을 위한 특별한 여정
           </p>
         </div>
 
-        {/* Tabs */}
-        <div className="flex justify-center gap-4 mb-8">
-          <button
-            onClick={() => setActiveTab("dmz")}
-            className={`px-8 py-3 rounded-lg font-semibold transition-all ${
-              activeTab === "dmz"
-                ? "bg-blue-600 text-white shadow-md"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-            }`}
-          >
-            DMZ 투어
-          </button>
-          <button
-            onClick={() => setActiveTab("seoul")}
-            className={`px-8 py-3 rounded-lg font-semibold transition-all ${
-              activeTab === "seoul"
-                ? "bg-blue-600 text-white shadow-md"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-            }`}
-          >
-            서울 시티 투어
-          </button>
-        </div>
-
-        {/* Carousel Container */}
+        {/* 투어 카드 슬라이더 */}
         <div className="relative">
+          {/* 네비게이션 버튼 */}
           <button
-            onClick={() => scroll("left")}
-            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 bg-white shadow-lg rounded-full p-2 hover:bg-gray-50 transition-colors"
-            aria-label="Scroll left"
+            onClick={handlePrev}
+            disabled={currentIndex === 0}
+            className="absolute -left-2 md:-left-6 top-1/2 -translate-y-1/2 z-30 bg-white/90 backdrop-blur-sm p-2 md:p-4 rounded-full shadow-2xl border border-gray-100 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white transition-all duration-300 hover:scale-110"
           >
-            <ChevronLeft className="w-6 h-6 text-gray-700" />
+            <ChevronLeft className="w-5 h-5 md:w-6 md:h-6 text-gray-800" />
+          </button>
+          <button
+            onClick={handleNext}
+            disabled={currentIndex >= maxIndex}
+            className="absolute -right-2 md:-right-6 top-1/2 -translate-y-1/2 z-30 bg-white/90 backdrop-blur-sm p-2 md:p-4 rounded-full shadow-2xl border border-gray-100 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white transition-all duration-300 hover:scale-110"
+          >
+            <ChevronRight className="w-5 h-5 md:w-6 md:h-6 text-gray-800" />
           </button>
 
-          <div
-            ref={scrollRef}
-            className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4"
-            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-          >
-            {activeTours.map((tour) => (
-              <div
-                key={tour.id}
-                className="flex-none w-80 bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-xl transition-shadow"
-              >
-                <div className="h-48 bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
-                  <span className="text-gray-500 text-sm">
-                    {tour.title} 이미지
-                  </span>
-                </div>
-
-                <div className="p-5">
-                  <h3 className="font-bold text-lg text-gray-900 mb-3 line-clamp-2">
-                    {tour.title}
-                  </h3>
-
-                  <div className="space-y-2 mb-4">
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <Clock className="w-4 h-4" />
-                      <span>{tour.duration}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <Users className="w-4 h-4" />
-                      <span>{tour.groupSize}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <MapPin className="w-4 h-4" />
-                      <span>{tour.location}</span>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-1 mb-3">
-                    <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                    <span className="font-semibold text-gray-900">
-                      {tour.rating}
-                    </span>
-                    <span className="text-sm text-gray-500">
-                      ({tour.reviews.toLocaleString()})
-                    </span>
-                  </div>
-
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {tour.highlights.map((highlight, idx) => (
-                      <span
-                        key={idx}
-                        className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded"
+          <div className="overflow-hidden px-1">
+            <div
+              className="flex transition-transform duration-700 ease-out gap-3 md:gap-6"
+              style={{
+                transform: isMobile
+                  ? `translateX(calc(-${currentIndex * 100}% - ${
+                      currentIndex * 0.75
+                    }rem))`
+                  : `translateX(-${currentIndex * (100 / itemsPerView)}%)`,
+              }}
+            >
+              {tourPackages.map((tour) => (
+                <div
+                  key={tour.id}
+                  className="flex-shrink-0"
+                  style={{
+                    width: isMobile
+                      ? "100%"
+                      : `calc((100% - ${
+                          (itemsPerView - 1) * 1.5
+                        }rem) / ${itemsPerView})`,
+                  }}
+                >
+                  <div className="group cursor-pointer">
+                    {/* 이미지 컨테이너 */}
+                    <div className="relative overflow-hidden mb-4 md:mb-6">
+                      <div
+                        className="w-full h-64 md:h-80 lg:h-96 bg-cover bg-center transition-all duration-700 group-hover:scale-110"
+                        style={{ backgroundImage: `url(${tour.image})` }}
                       >
-                        {highlight}
-                      </span>
-                    ))}
-                  </div>
+                        {/* 그라데이션 오버레이 */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-black/0 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-500" />
 
-                  <div className="flex items-center justify-between pt-4 border-t border-gray-200">
-                    <div>
-                      <div className="text-xs text-gray-500">1인당</div>
-                      <div className="text-2xl font-bold text-gray-900">
-                        {tour.price}
+                        {/* 레이팅 배지 */}
+                        <div className="absolute top-3 md:top-4 right-3 md:right-4 bg-white/95 backdrop-blur-sm px-2.5 md:px-3 py-1 md:py-1.5 rounded-full flex items-center gap-1 md:gap-1.5 shadow-lg">
+                          <Star className="w-3 h-3 md:w-4 md:h-4 fill-amber-400 text-amber-400" />
+                          <span className="text-xs md:text-sm font-semibold text-gray-900">
+                            {tour.rating}
+                          </span>
+                        </div>
+
+                        {/* 위치 배지 */}
+                        <div className="absolute bottom-3 md:bottom-4 left-3 md:left-4 bg-white/95 backdrop-blur-sm px-3 md:px-4 py-1.5 md:py-2 rounded-full flex items-center gap-1.5 md:gap-2 md:opacity-0 md:group-hover:opacity-100 transition-all duration-500 md:transform md:translate-y-4 md:group-hover:translate-y-0">
+                          <MapPin className="w-3 h-3 md:w-4 md:h-4 text-gray-700" />
+                          <span className="text-xs md:text-sm font-medium text-gray-900">
+                            {tour.location}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                    <button className="bg-blue-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
-                      예약하기
-                    </button>
+
+                    {/* 정보 영역 */}
+                    <div className="space-y-2 md:space-y-4">
+                      {/* 기간 표시 */}
+                      <div className="text-amber-700 text-xs md:text-sm font-medium tracking-wide">
+                        {tour.duration}
+                      </div>
+
+                      {/* 타이틀 */}
+                      <h3 className="text-lg md:text-xl lg:text-2xl font-light text-gray-900 tracking-tight group-hover:text-amber-800 transition-colors duration-300 line-clamp-2">
+                        {tour.title}
+                      </h3>
+
+                      {/* 태그들 */}
+                      <div className="flex flex-wrap gap-1.5 md:gap-2">
+                        {tour.tags.map((tag, i) => (
+                          <span
+                            key={i}
+                            className="text-[10px] md:text-xs px-2 md:px-3 py-1 md:py-1.5 bg-gray-50 text-gray-700 border border-gray-200 font-light tracking-wide"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+
+                      {/* 가격 및 예약 버튼 */}
+                      <div className="flex items-end justify-between pt-3 md:pt-4 border-t border-gray-200">
+                        <div>
+                          <div className="text-[10px] md:text-xs text-gray-500 mb-0.5 md:mb-1 font-light">
+                            1인 기준
+                          </div>
+                          <div className="flex items-baseline gap-0.5 md:gap-1">
+                            <span className="text-xl md:text-2xl lg:text-3xl font-light text-gray-900">
+                              {parseInt(tour.price).toLocaleString()}
+                            </span>
+                            <span className="text-sm md:text-base text-gray-600 font-light">
+                              원
+                            </span>
+                          </div>
+                        </div>
+                        <button className="px-4 md:px-6 py-2 md:py-2.5 bg-gray-900 text-white text-xs md:text-sm tracking-wide hover:bg-amber-800 transition-all duration-300 group-hover:px-5 md:group-hover:px-8 whitespace-nowrap">
+                          상세보기
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-
-          <button
-            onClick={() => scroll("right")}
-            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 bg-white shadow-lg rounded-full p-2 hover:bg-gray-50 transition-colors"
-            aria-label="Scroll right"
-          >
-            <ChevronRight className="w-6 h-6 text-gray-700" />
-          </button>
         </div>
 
-        {/* View All Button */}
-        <div className="text-center mt-10">
-          <button className="border-2 border-gray-300 text-gray-700 px-8 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-colors">
-            전체 투어 보기
-          </button>
+        {/* 인디케이터 */}
+        <div className="flex justify-center gap-1.5 md:gap-2 mt-8 md:mt-12">
+          {Array.from({ length: maxIndex + 1 }).map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => setCurrentIndex(idx)}
+              className={`h-1 rounded-full transition-all duration-300 ${
+                currentIndex === idx
+                  ? "w-6 md:w-8 bg-amber-800"
+                  : "w-3 md:w-4 bg-gray-300"
+              }`}
+            />
+          ))}
         </div>
       </div>
-    </section>
+    </div>
   );
-}
+};
+
+export default LuxuryTourSection;

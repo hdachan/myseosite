@@ -1,6 +1,10 @@
 // src/app/page.tsx
+
+import LuxuryDMZSection from "@/components/LuxuryDMZSection";
 import HeroCarousel from "@/components/HeroCarousel";
 import CityTourSection from "@/components/CityTourSection";
+import ContactReservationSection from "@/components/ContactReservationSection";
+
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -35,9 +39,12 @@ export default function Home() {
     <>
       {/* 1. 상단 기업체 전용 투어 캐러셀 (가로 스와이프) */}
       <HeroCarousel />
-
       {/* 2. 서울 시티 투어 섹션 (탭 + 카드 4개 가로 스와이프) */}
       <CityTourSection />
+      {/* 3. 프리미엄섹션 */}
+      <LuxuryDMZSection />
+      {/* 4. 상담세션 */}
+      <ContactReservationSection />
     </>
   );
 }

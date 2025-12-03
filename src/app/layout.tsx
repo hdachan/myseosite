@@ -1,4 +1,4 @@
-// src/app/layout.tsx — 서울시티투어 빨간 Footer 완성본 (기존 코드 100% 유지)
+// src/app/layout.tsx — 완전 수정본 (기업/단체투어 → 관광지 정보로 변경 완료)
 import type { Metadata } from "next";
 import "./globals.css";
 import Link from "next/link";
@@ -6,7 +6,7 @@ import Image from "next/image";
 import { Menu, X } from "lucide-react";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://mysite.com"), // ← 나중에 실제 도메인으로 변경하세요!
+  metadataBase: new URL("https://mysite.com"),
   title: {
     default: "DMZ 관광 — 서울 DMZ 투어",
     template: "%s | DMZ 관광",
@@ -22,9 +22,7 @@ export const metadata: Metadata = {
     "판문점 투어",
     "비무장지대 관광",
   ],
-  alternates: {
-    canonical: "/",
-  },
+  alternates: { canonical: "/" },
   robots: {
     index: true,
     follow: true,
@@ -49,8 +47,6 @@ export default function RootLayout({
     <html lang="ko">
       <head>
         <link rel="icon" href="/favicon.ico" />
-
-        {/* 구조화 데이터 (JSON-LD) */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -106,13 +102,14 @@ export default function RootLayout({
               />
             </Link>
 
+            {/* 데스크톱 메뉴 */}
             <div className="hidden lg:flex items-center bg-gray-100 rounded-full px-4 lg:px-8 py-2.5 border border-gray-300 gap-2">
               {[
                 "/",
                 "/company",
                 "/package",
                 "/private",
-                "/group",
+                "/attractions", // ← 여기 변경 (기존 /group)
                 "/review",
                 "/medical",
               ].map((href, i) => {
@@ -121,7 +118,7 @@ export default function RootLayout({
                   "회사소개",
                   "패키지관광",
                   "Private 투어",
-                  "기업/단체투어",
+                  "관광지 정보", // ← 메뉴 이름 변경
                   "고객후기",
                   "의료관광",
                 ];
@@ -161,7 +158,7 @@ export default function RootLayout({
             </div>
           </nav>
 
-          {/* 모바일 풀스크린 메뉴 */}
+          {/* 모바일 메뉴 */}
           <div className="fixed inset-0 z-40 bg-white h-screen -translate-y-full [:checked_&]:translate-y-0 transition-transform duration-500 ease-in-out lg:hidden pointer-events-none [:checked_&]:pointer-events-auto">
             <div className="flex items-center justify-between p-6 border-b">
               <Link href="/">
@@ -183,7 +180,7 @@ export default function RootLayout({
                 "회사소개",
                 "패키지관광",
                 "Private 투어",
-                "기업/단체투어",
+                "관광지 정보", // ← 모바일도 변경
                 "고객후기",
                 "의료관광",
               ].map((label, i) => (
@@ -198,7 +195,7 @@ export default function RootLayout({
                             "company",
                             "package",
                             "private",
-                            "group",
+                            "attractions",
                             "review",
                             "medical",
                           ][i]
@@ -221,20 +218,12 @@ export default function RootLayout({
           </div>
         </header>
 
-        {/* ==================== MAIN CONTENT ==================== */}
-        <main className="pt-24">
-          {/* 이 줄만 삭제하거나 주석 처리하면 끝! */}
-          {/* <div className="max-w-4xl mx-auto p-4">{children}</div> */}
+        <main>{children}</main>
 
-          {/* 이렇게 바꾸기 */}
-          {children}
-        </main>
-
-        {/* ==================== SEOUL CITY TOUR STYLE RED FOOTER ==================== */}
+        {/* ==================== RED FOOTER ==================== */}
         <footer className="bg-red-700 text-white py-12 mt-20">
           <div className="max-w-7xl mx-auto px-6">
             <div className="flex flex-col lg:flex-row justify-between items-start gap-12">
-              {/* 왼쪽 정보 */}
               <div className="flex-1">
                 <h3 className="text-2xl font-bold mb-8">COMPANY INFO</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-10 text-sm leading-loose">
@@ -262,10 +251,9 @@ export default function RootLayout({
                 </div>
               </div>
 
-              {/* 오른쪽 로고 */}
               <div className="flex-shrink-0">
                 <Image
-                  src="/images/logo-white.png" // ← 흰색 로고 파일 준비하세요!
+                  src="/images/logo-white.png"
                   alt="Seoul City Tour"
                   width={300}
                   height={90}
@@ -274,7 +262,6 @@ export default function RootLayout({
               </div>
             </div>
 
-            {/* 하단 정책 링크 & 카피라이트 */}
             <div className="mt-12 pt-8 border-t border-red-600 flex flex-col md:flex-row justify-between items-center gap-6 text-sm">
               <div className="flex flex-wrap items-center gap-4">
                 <Link href="/privacy" className="hover:underline">
