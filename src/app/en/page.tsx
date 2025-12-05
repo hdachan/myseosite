@@ -1,8 +1,9 @@
 // src/app/page.tsx
-
+import GlobalReviewsSection from "@/components/GlobalReviewsSection";
 import FeaturedAccommodations from "@/components/FeaturedAccommodations";
 import HeroCarousel1 from "@/components/HeroCarousel1";
 import IconCategorySection from "@/components/IconCategorySection";
+import TourPackagesSection from "@/components/TourPackagesSection";
 
 import { Metadata } from "next";
 
@@ -40,6 +41,8 @@ export default function Home() {
       <HeroCarousel1 />
       <IconCategorySection />
       <FeaturedAccommodations />
+      <TourPackagesSection />
+      <GlobalReviewsSection /> {/* 새로 추가 */}
     </>
   );
 }

@@ -1,14 +1,18 @@
 // src/components/FeaturedAccommodations.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, MapPin, Star } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 const accommodations = [
   {
     id: 1,
     name: "아파트호텔 스타어 미아스토",
+    location: "폴란드, 바르샤바",
+    rating: 4.8,
+    reviews: 324,
     price: 191718,
     image:
       "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=832&h=520&fit=crop",
@@ -16,6 +20,9 @@ const accommodations = [
   {
     id: 2,
     name: "7시즌스 아파트먼트 부다페스트",
+    location: "헝가리, 부다페스트",
+    rating: 4.9,
+    reviews: 512,
     price: 246516,
     image:
       "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=832&h=520&fit=crop",
@@ -23,6 +30,9 @@ const accommodations = [
   {
     id: 3,
     name: "레만 로크",
+    location: "스위스, 제네바",
+    rating: 5.0,
+    reviews: 89,
     price: 969203,
     image:
       "https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=832&h=520&fit=crop",
@@ -30,6 +40,9 @@ const accommodations = [
   {
     id: 4,
     name: "3 Epoques Apartments by Adrez",
+    location: "프랑스, 파리",
+    rating: 4.7,
+    reviews: 267,
     price: 218270,
     image:
       "https://images.unsplash.com/photo-1595846519845-68e298c2edd8?w=832&h=520&fit=crop",
@@ -37,6 +50,9 @@ const accommodations = [
   {
     id: 5,
     name: "서울 명동 스테이",
+    location: "한국, 서울",
+    rating: 4.6,
+    reviews: 428,
     price: 156000,
     image:
       "https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=832&h=520&fit=crop",
@@ -44,6 +60,9 @@ const accommodations = [
   {
     id: 6,
     name: "부산 해운대 호텔",
+    location: "한국, 부산",
+    rating: 4.8,
+    reviews: 391,
     price: 198000,
     image:
       "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=832&h=520&fit=crop",
@@ -51,124 +70,209 @@ const accommodations = [
 ];
 
 export default function FeaturedAccommodations() {
-  const [currentPage, setCurrentPage] = useState(0);
-  const itemsPerPage = 2;
-  const totalPages = Math.ceil(accommodations.length / itemsPerPage);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [itemsPerView, setItemsPerView] = useState(1);
 
-  const nextPage = () => setCurrentPage((p) => (p + 1 + p) % totalPages);
-  const prevPage = () =>
-    setCurrentPage((p) => (p - 1 + totalPages) % totalPages);
+  useEffect(() => {
+    const updateItemsPerView = () => {
+      if (window.innerWidth >= 1024) {
+        setItemsPerView(2); // lg 이상: 2개
+      } else if (window.innerWidth >= 768) {
+        setItemsPerView(2); // md: 2개
+      } else {
+        setItemsPerView(1); // 모바일: 1개
+      }
+    };
 
-  const currentItems = accommodations.slice(
-    currentPage * itemsPerPage,
-    (currentPage + 1) * itemsPerPage
+    updateItemsPerView();
+    window.addEventListener("resize", updateItemsPerView);
+    return () => window.removeEventListener("resize", updateItemsPerView);
+  }, []);
+
+  const nextSlide = () => {
+    setCurrentIndex((prev) => (prev + 1) % accommodations.length);
+  };
+
+  const prevSlide = () => {
+    setCurrentIndex(
+      (prev) => (prev - 1 + accommodations.length) % accommodations.length
+    );
+  };
+
+  const visibleItems = Array.from(
+    { length: itemsPerView },
+    (_, i) => accommodations[(currentIndex + i) % accommodations.length]
   );
 
   return (
-    <section className="relative py-24 overflow-hidden bg-white min-h-screen">
-      {/* 배경 이미지 */}
+    <section className="relative py-24 lg:py-32 overflow-hidden bg-gradient-to-br from-purple-50 via-white to-pink-50">
+      {/* 미세한 배경 패턴 */}
       <div className="absolute inset-0 z-0">
         <Image
           src="https://images.unsplash.com/photo-1583562835057-a62d1beffbf3?w=1600"
-          alt="Korean background"
+          alt=""
           fill
-          className="object-cover opacity-10"
+          className="object-cover opacity-5"
           priority
         />
       </div>
 
-      {/* 왼쪽 하단 일러스트 – 이게 핵심! */}
-      <div className="absolute left-0 bottom-0 z-30 pointer-events-none">
+      {/* 왼쪽 하단 일러스트 */}
+      <div className="absolute inset-0 z-10 pointer-events-none">
         <Image
           src="/images/card_koreaimg_v2.png"
           alt="K-culture illustration"
           width={1200}
           height={1200}
-          className="w-[340px] sm:w-[420px] md:w-[520px] lg:w-[640px] h-auto 
-                     drop-shadow-2xl opacity-65
-                     translate-x-[-8%] translate-y-[12%]" // 진짜 모서리에 딱 붙이면서 살짝 안으로
+          className="absolute bottom-0 left-0 w-[40vw] max-w-[480px] h-auto object-bottom object-left translate-x-[-10%] translate-y-[15%] sm:translate-x-[-5%] sm:translate-y-[10%] drop-shadow-2xl opacity-70"
           priority
         />
       </div>
 
-      {/* 메인 콘텐츠 */}
       <div className="relative z-20 max-w-7xl mx-auto px-6 lg:px-8">
-        <div className="grid grid-cols-12 gap-8 items-start">
-          {/* 왼쪽 텍스트 */}
-          <div className="col-span-12 md:col-span-4">
-            <p className="text-sm uppercase tracking-widest text-gray-600 mb-4">
-              Recommended Travel
-            </p>
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-12 leading-tight">
-              K-culture tour
-            </h2>
+        <div className="grid grid-cols-12 gap-8 lg:gap-16 items-start">
+          {/* 왼쪽 텍스트 영역 */}
+          <div className="col-span-12 md:col-span-5 lg:col-span-4">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
+            >
+              <p className="text-sm uppercase tracking-widest text-purple-700 font-medium mb-4">
+                Recommended Travel
+              </p>
+              <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-8 leading-tight">
+                K-culture tour
+              </h2>
+              <p className="text-lg text-gray-600 mb-12 max-w-md">
+                한국의 전통과 현대가 공존하는 특별한 숙소들을 만나보세요.
+              </p>
 
-            <div className="flex gap-4">
-              <button
-                onClick={prevPage}
-                className="bg-[#8B4789] p-4 rounded-full shadow-xl hover:bg-[#7a3d78] transition"
-              >
-                <ChevronLeft className="w-6 h-6 text-white" />
-              </button>
-              <button
-                onClick={nextPage}
-                className="bg-[#8B4789] p-4 rounded-full shadow-xl hover:bg-[#7a3d78] transition"
-              >
-                <ChevronRight className="w-6 h-6 text-white" />
-              </button>
-            </div>
+              {/* 네비게이션 버튼 */}
+              <div className="flex gap-4">
+                <button
+                  onClick={prevSlide}
+                  aria-label="Previous accommodation"
+                  className="group bg-white p-4 rounded-lg shadow-lg hover:shadow-xl hover:bg-purple-50 transition-all duration-300 border border-purple-100"
+                >
+                  <ChevronLeft className="w-6 h-6 text-purple-700 group-hover:text-purple-900" />
+                </button>
+                <button
+                  onClick={nextSlide}
+                  aria-label="Next accommodation"
+                  className="group bg-purple-600 p-4 rounded-lg shadow-lg hover:shadow-xl hover:bg-purple-700 transition-all duration-300"
+                >
+                  <ChevronRight className="w-6 h-6 text-white" />
+                </button>
+              </div>
+            </motion.div>
           </div>
 
-          {/* 오른쪽 카드 */}
-          <div className="col-span-12 md:col-span-8">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-              {currentItems.map((item) => (
-                <div
-                  key={item.id}
-                  className="bg-white rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition duration-300"
-                >
-                  <div className="relative h-64">
-                    <Image
-                      src={item.image}
-                      alt={item.name}
-                      fill
-                      className="object-cover hover:scale-110 transition duration-700"
-                    />
-                  </div>
-                  <div className="p-6">
-                    <h3 className="text-xl font-semibold mb-4 line-clamp-2">
-                      {item.name}
-                    </h3>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-baseline gap-3">
-                        <span className="text-3xl font-bold">
-                          ${(item.price / 1000).toFixed(2)}
-                        </span>
-                        <span className="text-gray-400 line-through">
-                          ${((item.price * 1.1) / 1000).toFixed(2)}
-                        </span>
-                      </div>
-                      <span className="text-[#C41E3A] font-bold text-lg">
-                        10% OFF
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+          {/* 오른쪽 카드 슬라이더 */}
+          <div className="col-span-12 md:col-span-7 lg:col-span-8">
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="relative"
+            >
+              <div
+                className={`grid gap-6 ${
+                  itemsPerView === 1
+                    ? "grid-cols-1 max-w-lg mx-auto md:max-w-none"
+                    : "grid-cols-1 md:grid-cols-2"
+                }`}
+              >
+                <AnimatePresence mode="popLayout">
+                  {visibleItems.map((item, index) => (
+                    <motion.div
+                      key={`${item.id}-${currentIndex}-${index}`}
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.9 }}
+                      transition={{ duration: 0.4, ease: "easeOut" }}
+                      className="group"
+                    >
+                      <div className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 border border-gray-100">
+                        {/* 고정 높이 이미지 영역 */}
+                        <div className="relative h-64 overflow-hidden">
+                          <Image
+                            src={item.image}
+                            alt={item.name}
+                            fill
+                            sizes="(max-width: 768px) 100vw, 50vw"
+                            className="object-cover group-hover:scale-110 transition-transform duration-700"
+                          />
+                          {/* Gradient overlay */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-            {/* 페이지네이션 */}
-            <div className="flex justify-center gap-3 mt-12">
-              {Array.from({ length: totalPages }).map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setCurrentPage(i)}
-                  className={`h-2.5 rounded-full transition-all duration-300 ${
-                    currentPage === i ? "bg-[#8B4789] w-12" : "bg-gray-300 w-3"
-                  }`}
-                />
-              ))}
-            </div>
+                          {/* 할인 배지 */}
+                          <div className="absolute top-4 right-4 bg-gradient-to-r from-red-500 to-pink-500 text-white px-3 py-1.5 rounded-lg text-sm font-bold shadow-lg">
+                            10% OFF
+                          </div>
+
+                          {/* 평점 배지 */}
+                          <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-lg shadow-md flex items-center gap-1.5">
+                            <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                            <span className="text-sm font-bold text-gray-900">
+                              {item.rating}
+                            </span>
+                            <span className="text-xs text-gray-500">
+                              ({item.reviews})
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* 고정 높이 텍스트 영역 */}
+                        <div className="p-6 h-44 flex flex-col">
+                          {/* 위치 */}
+                          <div className="flex items-center gap-1.5 text-gray-500 mb-3">
+                            <MapPin className="w-4 h-4" />
+                            <span className="text-sm">{item.location}</span>
+                          </div>
+
+                          {/* 숙소명 */}
+                          <h3 className="text-xl font-bold text-gray-900 mb-auto line-clamp-2 group-hover:text-purple-700 transition leading-snug">
+                            {item.name}
+                          </h3>
+
+                          {/* 가격 */}
+                          <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                            <div className="flex items-baseline gap-2">
+                              <span className="text-3xl font-bold text-purple-700">
+                                ₩{Math.floor((item.price * 0.9) / 1000)}k
+                              </span>
+                              <span className="text-base text-gray-400 line-through">
+                                ₩{Math.floor(item.price / 1000)}k
+                              </span>
+                            </div>
+                            <span className="text-sm text-gray-500">/박</span>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+              </div>
+
+              {/* 도트 인디케이터 */}
+              <div className="flex justify-center gap-2.5 mt-10">
+                {accommodations.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setCurrentIndex(i)}
+                    className={`transition-all duration-300 rounded-full ${
+                      i === currentIndex
+                        ? "bg-purple-600 w-10 h-2.5"
+                        : "bg-gray-300 w-2.5 h-2.5 hover:bg-gray-400"
+                    }`}
+                    aria-label={`Go to slide ${i + 1}`}
+                  />
+                ))}
+              </div>
+            </motion.div>
           </div>
         </div>
       </div>
