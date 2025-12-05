@@ -1,6 +1,8 @@
 // src/app/page.tsx
 
+import FeaturedAccommodations from "@/components/FeaturedAccommodations";
 import HeroCarousel1 from "@/components/HeroCarousel1";
+import IconCategorySection from "@/components/IconCategorySection";
 
 import { Metadata } from "next";
 
@@ -36,6 +38,8 @@ export default function Home() {
     <>
       {/* 1. 상단 기업체 전용 투어 캐러셀 (가로 스와이프) */}
       <HeroCarousel1 />
+      <IconCategorySection />
+      <FeaturedAccommodations />
     </>
   );
 }
