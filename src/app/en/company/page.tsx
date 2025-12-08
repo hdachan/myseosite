@@ -1,31 +1,56 @@
-// src/app/en/company/page.tsx
-
+import React from "react";
 import Image from "next/image";
 import { Award, Users, Globe, Heart } from "lucide-react";
 
 export default function CompanyPage() {
   return (
     <div className="pt-24">
-      {/* Hero Section */}
-      <section className="relative h-[300px] md:h-[400px] bg-gradient-to-r from-red-900 to-red-700">
-        <div className="absolute inset-0 bg-black/20"></div>
-        <div className="relative max-w-7xl mx-auto px-6 h-full flex flex-col justify-center items-center text-center text-white">
-          <h1 className="text-4xl md:text-5xl font-bold mb-3">About Us</h1>
-          <p className="text-lg md:text-xl text-gray-100">
+      {/* Hero Section with Overlapping Design */}
+      <div className="relative pb-32">
+        {/* Background Image with Overlay */}
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{
+            backgroundImage: "url('/images/background_korea_pt2.jpg')",
+          }}
+        ></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-red-700/80 via-red-800/80 to-red-900/80"></div>
+
+        <div className="container mx-auto px-6 py-12 md:py-16 relative">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-3 md:mb-4 tracking-wide">
+            About Us
+          </h1>
+          <p className="text-red-100 text-base md:text-lg max-w-2xl">
             Your Trusted Travel Partner Since 2004
           </p>
         </div>
-      </section>
 
-      {/* Company Overview */}
-      <section className="py-16 md:py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid md:grid-cols-2 gap-12 lg:gap-16 items-center">
+        {/* Decorative line */}
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-red-900 via-red-600 to-red-900"></div>
+
+        {/* Breadcrumb - overlapping design */}
+        <div className="absolute bottom-0 left-0 right-0">
+          <div className="container mx-auto px-6">
+            <div className="bg-white rounded-t-3xl shadow-2xl px-8 py-5 inline-block border-t-4 border-red-800">
+              <div className="flex items-center gap-2 text-sm font-semibold">
+                <span className="text-red-800">🏠</span>
+                <span className="text-gray-400">/</span>
+                <span className="text-red-800">About Us</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Company Overview - Overlapping Content */}
+      <section className="container mx-auto px-4 md:px-6 -mt-16 md:-mt-20 relative z-10 pb-16">
+        <div className="bg-white rounded-2xl md:rounded-3xl shadow-2xl p-6 md:p-8 lg:p-12 border-t-4 border-red-800">
+          <div className="grid md:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-center">
             <div>
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6 leading-tight">
+              <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 md:mb-6 leading-tight">
                 The Best City Tour Company in Korea
               </h2>
-              <div className="space-y-5 text-gray-700 leading-relaxed text-base">
+              <div className="space-y-4 md:space-y-5 text-gray-700 leading-relaxed text-sm md:text-base">
                 <p>
                   Seoul City Tour is the best city tour company in Korea with
                   experienced experts. We've been providing excellent quality
@@ -43,7 +68,7 @@ export default function CompanyPage() {
               </div>
             </div>
 
-            <div className="relative h-[350px] md:h-[450px] rounded-2xl overflow-hidden shadow-2xl">
+            <div className="relative h-[300px] md:h-[350px] lg:h-[450px] rounded-xl md:rounded-2xl overflow-hidden shadow-2xl">
               <Image
                 src="/images/company-intro.jpg"
                 alt="Seoul City Tour"
@@ -56,7 +81,7 @@ export default function CompanyPage() {
         </div>
       </section>
 
-      {/* Our Team - 영어 버전 + 임시 사진 */}
+      {/* Our Team */}
       <section className="py-24 bg-gray-50">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16">
@@ -69,7 +94,6 @@ export default function CompanyPage() {
           </div>
 
           <div className="grid md:grid-cols-2 gap-12 items-start">
-            {/* 왼쪽: 팀 사진 (임시 placeholder 사용) */}
             <div className="relative h-[500px] rounded-2xl overflow-hidden shadow-2xl">
               <Image
                 src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80&w=2070"
@@ -80,7 +104,6 @@ export default function CompanyPage() {
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
             </div>
 
-            {/* 오른쪽: 팀 강점 (영어) */}
             <div className="space-y-6">
               {[
                 {

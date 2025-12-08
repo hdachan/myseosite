@@ -45,7 +45,7 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
     { href: "/en/company", label: "About Us" },
     { href: "/en/package", label: "Package Tours" },
     { href: "/en/private", label: "Private Tours" },
-    { href: "/en/attractions", label: "Attractions" },
+    // { href: "/en/attractions", label: "Attractions" },  ← 제거됨
     { href: "/en/contact", label: "Contact" },
   ];
 
@@ -94,7 +94,7 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
               />
             </Link>
 
-            {/* Desktop Menu - 한국 전통 느낌 */}
+            {/* Desktop Menu */}
             <div className="hidden lg:flex items-center gap-1">
               {menuItems.map(({ href, label }) => (
                 <Link
@@ -108,7 +108,7 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
               ))}
             </div>
 
-            {/* Language Switcher - 우아한 스타일 */}
+            {/* Language Switcher */}
             <div className="flex items-center gap-4">
               <div className="hidden sm:flex items-center gap-3 border-l-2 border-gray-300 pl-4">
                 <Link href="/ko">
@@ -120,7 +120,6 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
                   ENGLISH
                 </button>
               </div>
-
               <label
                 htmlFor="mobile-menu"
                 className="lg:hidden cursor-pointer p-2 z-50 text-red-800"
@@ -132,10 +131,9 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
           </nav>
         </div>
 
-        {/* Decorative line - 한국 전통 문양 느낌 */}
         <div className="h-1 bg-gradient-to-r from-red-900 via-red-700 to-red-900"></div>
 
-        {/* Mobile Menu - 전통적 느낌 */}
+        {/* Mobile Menu */}
         <div className="fixed inset-0 z-40 bg-white h-screen -translate-y-full peer-checked:translate-y-0 transition-transform duration-500 ease-in-out lg:hidden pointer-events-none peer-checked:pointer-events-auto">
           <div className="flex items-center justify-between p-6 border-b-2 border-red-800">
             <Link href="/en">
@@ -154,7 +152,6 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
               <X size={32} />
             </label>
           </div>
-
           <div className="flex flex-col items-center justify-center h-full pb-32 gap-10">
             {menuItems.map(({ href, label }) => (
               <Link
@@ -166,7 +163,6 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
                 <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-1 bg-red-800 transition-all duration-300 group-hover:w-full"></span>
               </Link>
             ))}
-
             <div className="mt-12 flex flex-col items-center gap-6">
               <Link href="/ko">
                 <button className="text-gray-700 hover:text-red-800 text-xl font-semibold transition-colors duration-300">
@@ -224,7 +220,6 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
               />
             </div>
           </div>
-
           <div className="mt-12 pt-8 border-t border-red-600 flex flex-col md:flex-row justify-between items-center gap-6 text-sm">
             <div className="flex flex-wrap items-center gap-4">
               <Link href="/en/privacy" className="hover:underline">
