@@ -9,8 +9,8 @@ import { motion, AnimatePresence } from "framer-motion";
 const accommodations = [
   {
     id: 1,
-    name: "아파트호텔 스타어 미아스토",
-    location: "폴란드, 바르샤바",
+    name: "Aparthotel Stare Miasto",
+    location: "Warsaw, Poland",
     rating: 4.8,
     reviews: 324,
     price: 191718,
@@ -19,8 +19,8 @@ const accommodations = [
   },
   {
     id: 2,
-    name: "7시즌스 아파트먼트 부다페스트",
-    location: "헝가리, 부다페스트",
+    name: "7Seasons Apartments Budapest",
+    location: "Budapest, Hungary",
     rating: 4.9,
     reviews: 512,
     price: 246516,
@@ -29,8 +29,8 @@ const accommodations = [
   },
   {
     id: 3,
-    name: "레만 로크",
-    location: "스위스, 제네바",
+    name: "Leman Locke",
+    location: "Geneva, Switzerland",
     rating: 5.0,
     reviews: 89,
     price: 969203,
@@ -40,7 +40,7 @@ const accommodations = [
   {
     id: 4,
     name: "3 Epoques Apartments by Adrez",
-    location: "프랑스, 파리",
+    location: "Paris, France",
     rating: 4.7,
     reviews: 267,
     price: 218270,
@@ -49,8 +49,8 @@ const accommodations = [
   },
   {
     id: 5,
-    name: "서울 명동 스테이",
-    location: "한국, 서울",
+    name: "Seoul Myeongdong Stay",
+    location: "Seoul, South Korea",
     rating: 4.6,
     reviews: 428,
     price: 156000,
@@ -59,8 +59,8 @@ const accommodations = [
   },
   {
     id: 6,
-    name: "부산 해운대 호텔",
-    location: "한국, 부산",
+    name: "Busan Haeundae Hotel",
+    location: "Busan, South Korea",
     rating: 4.8,
     reviews: 391,
     price: 198000,
@@ -76,11 +76,11 @@ export default function FeaturedAccommodations() {
   useEffect(() => {
     const updateItemsPerView = () => {
       if (window.innerWidth >= 1024) {
-        setItemsPerView(2); // lg 이상: 2개
+        setItemsPerView(2);
       } else if (window.innerWidth >= 768) {
-        setItemsPerView(2); // md: 2개
+        setItemsPerView(2);
       } else {
-        setItemsPerView(1); // 모바일: 1개
+        setItemsPerView(1);
       }
     };
 
@@ -105,7 +105,7 @@ export default function FeaturedAccommodations() {
   );
 
   return (
-    <section className="relative py-24 lg:py-32 overflow-hidden bg-gradient-to-br from-purple-50 via-white to-pink-50">
+    <section className="relative py-24 lg:py-32 overflow-hidden bg-gradient-to-br from-[#F8F1E7] via-white to-[#F8F1E7]">
       {/* 미세한 배경 패턴 */}
       <div className="absolute inset-0 z-0">
         <Image
@@ -139,7 +139,7 @@ export default function FeaturedAccommodations() {
               viewport={{ once: true }}
               transition={{ duration: 0.8 }}
             >
-              <p className="text-sm uppercase tracking-widest text-purple-700 font-medium mb-4">
+              <p className="text-sm uppercase tracking-widest text-[#8B1E26] font-medium mb-4">
                 Recommended Travel
               </p>
               <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-8 leading-tight">
@@ -154,14 +154,14 @@ export default function FeaturedAccommodations() {
                 <button
                   onClick={prevSlide}
                   aria-label="Previous accommodation"
-                  className="group bg-white p-4 rounded-lg shadow-lg hover:shadow-xl hover:bg-purple-50 transition-all duration-300 border border-purple-100"
+                  className="group bg-white p-4 rounded-lg shadow-lg hover:shadow-xl hover:bg-[#F8F1E7] transition-all duration-300 border border-[#D4A017]/30"
                 >
-                  <ChevronLeft className="w-6 h-6 text-purple-700 group-hover:text-purple-900" />
+                  <ChevronLeft className="w-6 h-6 text-[#8B1E26] group-hover:text-[#6E0D0D]" />
                 </button>
                 <button
                   onClick={nextSlide}
                   aria-label="Next accommodation"
-                  className="group bg-purple-600 p-4 rounded-lg shadow-lg hover:shadow-xl hover:bg-purple-700 transition-all duration-300"
+                  className="group bg-[#8B1E26] p-4 rounded-lg shadow-lg hover:shadow-xl hover:bg-[#6E0D0D] transition-all duration-300"
                 >
                   <ChevronRight className="w-6 h-6 text-white" />
                 </button>
@@ -208,14 +208,14 @@ export default function FeaturedAccommodations() {
                           {/* Gradient overlay */}
                           <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-                          {/* 할인 배지 */}
-                          <div className="absolute top-4 right-4 bg-gradient-to-r from-red-500 to-pink-500 text-white px-3 py-1.5 rounded-lg text-sm font-bold shadow-lg">
+                          {/* 할인 배지 - Main Brand Red */}
+                          <div className="absolute top-4 right-4 bg-gradient-to-r from-[#8B1E26] to-[#6E0D0D] text-white px-3 py-1.5 rounded-lg text-sm font-bold shadow-lg">
                             10% OFF
                           </div>
 
-                          {/* 평점 배지 */}
-                          <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-lg shadow-md flex items-center gap-1.5">
-                            <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                          {/* 평점 배지 - Accent Gold */}
+                          <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-lg shadow-md flex items-center gap-1.5 border border-[#D4A017]/20">
+                            <Star className="w-4 h-4 fill-[#D4A017] text-[#D4A017]" />
                             <span className="text-sm font-bold text-gray-900">
                               {item.rating}
                             </span>
@@ -234,14 +234,14 @@ export default function FeaturedAccommodations() {
                           </div>
 
                           {/* 숙소명 */}
-                          <h3 className="text-xl font-bold text-gray-900 mb-auto line-clamp-2 group-hover:text-purple-700 transition leading-snug">
+                          <h3 className="text-xl font-bold text-gray-900 mb-auto line-clamp-2 group-hover:text-[#8B1E26] transition leading-snug">
                             {item.name}
                           </h3>
 
                           {/* 가격 */}
                           <div className="flex items-center justify-between pt-4 border-t border-gray-100">
                             <div className="flex items-baseline gap-2">
-                              <span className="text-3xl font-bold text-purple-700">
+                              <span className="text-3xl font-bold text-[#8B1E26]">
                                 ₩{Math.floor((item.price * 0.9) / 1000)}k
                               </span>
                               <span className="text-base text-gray-400 line-through">
@@ -265,8 +265,8 @@ export default function FeaturedAccommodations() {
                     onClick={() => setCurrentIndex(i)}
                     className={`transition-all duration-300 rounded-full ${
                       i === currentIndex
-                        ? "bg-purple-600 w-10 h-2.5"
-                        : "bg-gray-300 w-2.5 h-2.5 hover:bg-gray-400"
+                        ? "bg-[#8B1E26] w-10 h-2.5"
+                        : "bg-gray-300 w-2.5 h-2.5 hover:bg-[#D4A017]"
                     }`}
                     aria-label={`Go to slide ${i + 1}`}
                   />

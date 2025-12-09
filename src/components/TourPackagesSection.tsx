@@ -101,7 +101,7 @@ export default function TourPackagesSection() {
   const activeCategory = tourCategories.find((cat) => cat.id === activeTab);
 
   return (
-    <section className="relative py-20 lg:py-28 bg-gradient-to-b from-gray-50 to-white">
+    <section className="relative py-20 lg:py-28 bg-gradient-to-b from-[#F8F1E7] to-white">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         {/* 헤더 - 왼쪽 정렬 */}
         <motion.div
@@ -111,7 +111,7 @@ export default function TourPackagesSection() {
           transition={{ duration: 0.6 }}
           className="mb-12"
         >
-          <p className="text-sm uppercase tracking-widest text-purple-700 font-medium mb-3">
+          <p className="text-sm uppercase tracking-widest text-[#8B1E26] font-medium mb-3">
             Popular Tours
           </p>
           <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 max-w-4xl">
@@ -136,8 +136,8 @@ export default function TourPackagesSection() {
               onClick={() => setActiveTab(category.id)}
               className={`px-8 py-4 rounded-lg font-semibold text-base transition-all duration-300 whitespace-nowrap ${
                 activeTab === category.id
-                  ? "bg-purple-600 text-white shadow-lg"
-                  : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-200"
+                  ? "bg-[#8B1E26] text-white shadow-lg hover:bg-[#6E0D0D]"
+                  : "bg-white text-gray-700 hover:bg-[#F8F1E7] border border-[#D4A017]/30"
               }`}
             >
               {category.title}
@@ -164,7 +164,7 @@ export default function TourPackagesSection() {
             >
               <div className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 border border-gray-100 h-full flex flex-col">
                 {/* 이미지 영역 */}
-                <div className="relative h-64 overflow-hidden bg-gray-200">
+                <div className="relative h-56 overflow-hidden bg-gray-200">
                   <Image
                     src={tour.image}
                     alt={tour.title}
@@ -173,13 +173,13 @@ export default function TourPackagesSection() {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
 
-                  {/* 배지 */}
+                  {/* 배지 - Main Brand Red & Accent Gold */}
                   {tour.badge && (
                     <div
                       className={`absolute top-4 left-4 ${
                         tour.badgeColor === "orange"
-                          ? "bg-gradient-to-r from-orange-500 to-yellow-500"
-                          : "bg-gradient-to-r from-red-500 to-pink-500"
+                          ? "bg-gradient-to-r from-[#D4A017] to-[#8B1E26]"
+                          : "bg-gradient-to-r from-[#8B1E26] to-[#6E0D0D]"
                       } text-white px-4 py-2 rounded-lg font-bold shadow-lg text-sm`}
                     >
                       {tour.badge}
@@ -188,33 +188,33 @@ export default function TourPackagesSection() {
                 </div>
 
                 {/* 콘텐츠 영역 */}
-                <div className="p-6 flex flex-col flex-grow">
-                  <h3 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2 group-hover:text-purple-700 transition-colors leading-snug">
+                <div className="p-5 flex flex-col flex-grow">
+                  <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-[#8B1E26] transition-colors leading-snug">
                     {tour.title}
                   </h3>
 
-                  <p className="text-sm text-gray-600 mb-6 line-clamp-3 leading-relaxed flex-grow">
+                  <p className="text-sm text-gray-600 mb-4 line-clamp-2 leading-relaxed flex-grow">
                     {tour.description}
                   </p>
 
                   {/* 하단 정보 */}
-                  <div className="space-y-4 pt-4 border-t border-gray-100">
+                  <div className="space-y-3 pt-3 border-t border-gray-100">
                     <div className="flex items-center gap-2 text-gray-600">
-                      <Users className="w-5 h-5" />
-                      <span className="text-sm font-medium">
+                      <Users className="w-4 h-4 text-[#8B1E26]" />
+                      <span className="text-xs font-medium">
                         최소 {tour.minPerson}인부터 출발
                       </span>
                     </div>
 
                     <div className="flex items-end justify-between">
                       <div>
-                        <div className="text-3xl font-bold text-purple-700">
+                        <div className="text-2xl font-bold text-[#8B1E26]">
                           ₩{tour.price.toLocaleString()}
                         </div>
-                        <div className="text-sm text-gray-500">1인당</div>
+                        <div className="text-xs text-gray-500">1인당</div>
                       </div>
                       {tour.priceNote && (
-                        <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+                        <span className="text-xs text-[#8B1E26] bg-[#F8F1E7] px-2 py-1 rounded-full font-medium">
                           {tour.priceNote}
                         </span>
                       )}
@@ -222,15 +222,15 @@ export default function TourPackagesSection() {
 
                     {tour.alternatePrice && (
                       <div className="text-right">
-                        <span className="text-lg font-semibold text-purple-600">
+                        <span className="text-base font-semibold text-[#8B1E26]">
                           ₩{tour.alternatePrice.toLocaleString()} ~
                         </span>
-                        <span className="text-sm text-gray-500 ml-1">/p</span>
+                        <span className="text-xs text-gray-500 ml-1">/p</span>
                       </div>
                     )}
                   </div>
 
-                  <button className="mt-6 w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-4 rounded-xl transition-all duration-300 shadow-md hover:shadow-xl transform hover:scale-105">
+                  <button className="mt-4 w-full bg-[#8B1E26] hover:bg-[#6E0D0D] text-white font-semibold py-3 rounded-xl transition-all duration-300 shadow-md hover:shadow-xl transform hover:scale-105 text-sm">
                     View Details
                   </button>
                 </div>
