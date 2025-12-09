@@ -1,4 +1,7 @@
+"use client";
+
 import React from "react";
+import Link from "next/link";
 
 export default function PackageTourPage() {
   const packageTours = [
@@ -59,7 +62,6 @@ export default function PackageTourPage() {
   return (
     <div className="min-h-screen bg-gray-50 pt-24">
       {/* Hero Section - 심플하고 컴팩트 */}
-      {/* Hero Section with Overlapping Design (Unified Style) */}
       <div className="relative pb-32">
         {/* Background Image with Overlay */}
         <div
@@ -106,9 +108,10 @@ export default function PackageTourPage() {
           {/* Cards Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
             {packageTours.map((tour) => (
-              <div
+              <Link
+                href={`/en/package/${tour.id}`}
                 key={tour.id}
-                className="bg-white rounded-xl overflow-hidden shadow hover:shadow-lg transition-all duration-300 cursor-pointer border border-gray-200 hover:border-red-800 group"
+                className="bg-white rounded-xl overflow-hidden shadow hover:shadow-lg transition-all duration-300 cursor-pointer border border-gray-200 hover:border-red-800 group block"
               >
                 {/* Image */}
                 <div className="relative h-48 bg-gray-200 overflow-hidden">
@@ -187,7 +190,7 @@ export default function PackageTourPage() {
                     </svg>
                   </button>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>

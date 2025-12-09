@@ -45,7 +45,6 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
     { href: "/en/company", label: "About Us" },
     { href: "/en/package", label: "Package Tours" },
     { href: "/en/private", label: "Private Tours" },
-    // { href: "/en/attractions", label: "Attractions" },  ← 제거됨
     { href: "/en/contact", label: "Contact" },
   ];
 
