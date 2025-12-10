@@ -114,7 +114,7 @@ export default function TourPackagesSection() {
           <p className="text-sm uppercase tracking-widest text-[#8B1E26] font-medium mb-3">
             Popular Tours
           </p>
-          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 max-w-4xl">
+          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight max-w-4xl">
             Best Tour Packages
           </h2>
           <p className="text-lg text-gray-600 max-w-3xl">
@@ -156,7 +156,7 @@ export default function TourPackagesSection() {
           {activeCategory?.tours.map((tour, index) => (
             <motion.div
               key={tour.id}
-              initial={{ opacity: 0, y: index * 0.15 }}
+              initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: index * 0.1 }}

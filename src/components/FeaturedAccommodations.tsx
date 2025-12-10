@@ -105,9 +105,9 @@ export default function FeaturedAccommodations() {
   );
 
   return (
-    <section className="relative py-24 lg:py-32 overflow-hidden bg-gradient-to-br from-[#F8F1E7] via-white to-[#F8F1E7]">
+    <section className="relative py-20 lg:py-28 bg-gradient-to-br from-[#F8F1E7] via-white to-[#F8F1E7]">
       {/* 미세한 배경 패턴 */}
-      <div className="absolute inset-0 z-0">
+      <div className="absolute inset-0 z-0 overflow-hidden">
         <Image
           src="https://images.unsplash.com/photo-1583562835057-a62d1beffbf3?w=1600"
           alt=""
@@ -117,40 +117,28 @@ export default function FeaturedAccommodations() {
         />
       </div>
 
-      {/* 왼쪽 하단 일러스트 */}
-      <div className="absolute inset-0 z-10 pointer-events-none">
-        <Image
-          src="/images/card_koreaimg_v2.png"
-          alt="K-culture illustration"
-          width={1200}
-          height={1200}
-          className="absolute bottom-0 left-0 w-[40vw] max-w-[480px] h-auto object-bottom object-left translate-x-[-10%] translate-y-[15%] sm:translate-x-[-5%] sm:translate-y-[10%] drop-shadow-2xl opacity-70"
-          priority
-        />
-      </div>
-
       <div className="relative z-20 max-w-7xl mx-auto px-6 lg:px-8">
-        <div className="grid grid-cols-12 gap-8 lg:gap-16 items-start">
+        <div className="grid grid-cols-12 gap-8 lg:gap-16 items-start relative z-10">
           {/* 왼쪽 텍스트 영역 */}
           <div className="col-span-12 md:col-span-5 lg:col-span-4">
             <motion.div
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.8 }}
+              transition={{ duration: 0.6 }}
             >
-              <p className="text-sm uppercase tracking-widest text-[#8B1E26] font-medium mb-4">
+              <p className="text-sm uppercase tracking-widest text-[#8B1E26] font-medium mb-3">
                 Recommended Travel
               </p>
-              <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-8 leading-tight">
+              <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight">
                 K-culture tour
               </h2>
-              <p className="text-lg text-gray-600 mb-12 max-w-md">
+              <p className="text-lg text-gray-600 max-w-3xl">
                 한국의 전통과 현대가 공존하는 특별한 숙소들을 만나보세요.
               </p>
 
               {/* 네비게이션 버튼 */}
-              <div className="flex gap-4">
+              <div className="flex gap-4 mt-12">
                 <button
                   onClick={prevSlide}
                   aria-label="Previous accommodation"
@@ -172,14 +160,14 @@ export default function FeaturedAccommodations() {
           {/* 오른쪽 카드 슬라이더 */}
           <div className="col-span-12 md:col-span-7 lg:col-span-8">
             <motion.div
-              initial={{ opacity: 0, y: 40 }}
+              initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.8, delay: 0.2 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
               className="relative"
             >
               <div
-                className={`grid gap-6 ${
+                className={`grid gap-8 ${
                   itemsPerView === 1
                     ? "grid-cols-1 max-w-lg mx-auto md:max-w-none"
                     : "grid-cols-1 md:grid-cols-2"
@@ -197,7 +185,7 @@ export default function FeaturedAccommodations() {
                     >
                       <div className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 border border-gray-100">
                         {/* 고정 높이 이미지 영역 */}
-                        <div className="relative h-64 overflow-hidden">
+                        <div className="relative h-56 overflow-hidden">
                           <Image
                             src={item.image}
                             alt={item.name}
@@ -226,29 +214,29 @@ export default function FeaturedAccommodations() {
                         </div>
 
                         {/* 고정 높이 텍스트 영역 */}
-                        <div className="p-6 h-44 flex flex-col">
+                        <div className="p-5 h-44 flex flex-col">
                           {/* 위치 */}
-                          <div className="flex items-center gap-1.5 text-gray-500 mb-3">
+                          <div className="flex items-center gap-1.5 text-gray-500 mb-2">
                             <MapPin className="w-4 h-4" />
                             <span className="text-sm">{item.location}</span>
                           </div>
 
                           {/* 숙소명 */}
-                          <h3 className="text-xl font-bold text-gray-900 mb-auto line-clamp-2 group-hover:text-[#8B1E26] transition leading-snug">
+                          <h3 className="text-lg font-bold text-gray-900 mb-auto line-clamp-2 group-hover:text-[#8B1E26] transition leading-snug">
                             {item.name}
                           </h3>
 
                           {/* 가격 */}
-                          <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                          <div className="flex items-center justify-between pt-3 border-t border-gray-100">
                             <div className="flex items-baseline gap-2">
-                              <span className="text-3xl font-bold text-[#8B1E26]">
+                              <span className="text-2xl font-bold text-[#8B1E26]">
                                 ₩{Math.floor((item.price * 0.9) / 1000)}k
                               </span>
                               <span className="text-base text-gray-400 line-through">
                                 ₩{Math.floor(item.price / 1000)}k
                               </span>
                             </div>
-                            <span className="text-sm text-gray-500">/박</span>
+                            <span className="text-xs text-gray-500">/박</span>
                           </div>
                         </div>
                       </div>
@@ -258,7 +246,7 @@ export default function FeaturedAccommodations() {
               </div>
 
               {/* 도트 인디케이터 */}
-              <div className="flex justify-center gap-2.5 mt-10">
+              <div className="flex justify-center gap-2.5 mt-12">
                 {accommodations.map((_, i) => (
                   <button
                     key={i}
@@ -274,6 +262,18 @@ export default function FeaturedAccommodations() {
               </div>
             </motion.div>
           </div>
+        </div>
+
+        {/* 일러스트 - 섹션 밖으로 나가서 왼쪽 하단에 표시 */}
+        <div className="absolute bottom-0 left-6 lg:left-[calc((100%-1280px)/2+1.5rem)] z-0 pointer-events-none">
+          <Image
+            src="/images/card_koreaimg_v2.png"
+            alt="K-culture illustration"
+            width={1200}
+            height={1200}
+            className="w-[50vw] max-w-[300px] md:w-[40vw] md:max-w-[380px] lg:w-[35vw] lg:max-w-[450px] h-auto object-bottom object-left translate-y-[50%] md:translate-y-[55%] lg:translate-y-[50%] drop-shadow-2xl opacity-70"
+            priority
+          />
         </div>
       </div>
     </section>
