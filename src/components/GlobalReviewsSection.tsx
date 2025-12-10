@@ -123,7 +123,7 @@ export default function GlobalReviewsSection() {
 
   return (
     <section className="relative py-20 lg:py-28 bg-gradient-to-b from-white to-[#F8F1E7] overflow-hidden">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-8 lg:px-14">
         {/* 헤더 */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -132,16 +132,18 @@ export default function GlobalReviewsSection() {
           transition={{ duration: 0.6 }}
           className="mb-12"
         >
-          <p className="text-sm uppercase tracking-widest text-[#8B1E26] font-medium mb-3">
+          <p className="text-xs uppercase tracking-widest text-[#8B1E26] font-medium mb-2">
             Global Reviews
           </p>
-          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight max-w-4xl">
+
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 leading-tight max-w-4xl">
             Trusted by Travelers{" "}
             <span className="bg-gradient-to-r from-[#8B1E26] to-[#D4A017] bg-clip-text text-transparent">
               Worldwide
             </span>
           </h2>
-          <p className="text-lg text-gray-600 max-w-3xl">
+
+          <p className="text-base text-gray-600 max-w-3xl">
             Friendly Guides · Safe Itinerary · Top-Rated Experience
           </p>
         </motion.div>
