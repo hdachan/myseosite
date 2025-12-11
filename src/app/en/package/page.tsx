@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
 
 export default function PackageTourPage() {
   const packageTours = [
@@ -69,9 +68,9 @@ export default function PackageTourPage() {
         />
         <div className="absolute inset-0 bg-gradient-to-br from-red-700/80 via-red-800/80 to-red-900/80" />
 
-        <div className="container mx-auto px-6 py-12 md:py-16 relative">
+        <div className="max-w-6xl mx-auto px-4 py-12 md:py-16 relative">
           <div className="flex items-center gap-3 mb-3">
-            <span className="text-5xl">Backpack</span>
+            <span className="text-5xl">🎒</span>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white tracking-wide">
               Group Activity Tours
             </h1>
@@ -85,15 +84,14 @@ export default function PackageTourPage() {
         <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-red-900 via-red-600 to-red-900" />
       </div>
 
-      {/* Content - 중앙 집중 (왼쪽 하얀 조각 완전 삭제) */}
+      {/* Content */}
       <div className="max-w-6xl mx-auto px-4 -mt-16 relative z-10 pb-16">
         <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 border-t-2 border-red-800">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {packageTours.map((tour) => (
-              <Link
-                href={`/en/package/${tour.id}`}
+              <div
                 key={tour.id}
-                className="bg-white rounded-xl overflow-hidden shadow hover:shadow-xl transition-all duration-300 border border-gray-200 hover:border-red-800 group block h-full flex flex-col"
+                className="bg-white rounded-xl overflow-hidden shadow hover:shadow-xl transition-all duration-300 border border-gray-200 hover:border-red-800 group cursor-pointer h-full flex flex-col"
               >
                 {/* Image */}
                 <div className="relative h-48 bg-gray-200 overflow-hidden flex-shrink-0">
@@ -172,7 +170,7 @@ export default function PackageTourPage() {
                     </svg>
                   </button>
                 </div>
-              </Link>
+              </div>
             ))}
           </div>
         </div>
