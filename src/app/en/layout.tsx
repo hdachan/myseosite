@@ -395,14 +395,14 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
               </Link>
               <span className="text-gray-600 hidden md:inline">|</span>
               <Link
-                href="/en/terms"
+                href="/en/policy"
                 className="text-gray-400 hover:text-red-400 transition"
               >
                 Privacy Policy
               </Link>
               <span className="text-gray-600 hidden md:inline">|</span>
               <Link
-                href="/en/policy"
+                href="/en/terms"
                 className="text-gray-400 hover:text-red-400 transition"
               >
                 Terms of Service
