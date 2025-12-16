@@ -1,303 +1,565 @@
-// src/app/en/package/[id]/page.tsx
+"use client";
 
-import React from "react";
+import React, { useState } from "react";
 import {
   Star,
   Heart,
   Share2,
-  MapPin,
   Clock,
   Users,
   Calendar,
+  CheckCircle2,
+  MapPin,
+  Info,
+  ChevronLeft,
+  ChevronRight,
   Award,
+  Shield,
+  RefreshCw,
+  Minus,
+  Plus,
+  ChevronUp,
+  ChevronDown,
+  Search,
+  X,
 } from "lucide-react";
 
-const packageTours = [
-  {
+export default function PackageDetailPage() {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [adults, setAdults] = useState(0);
+  const [children, setChildren] = useState(0);
+  const [selectedOption, setSelectedOption] = useState("");
+  const [packageDetailsOpen, setPackageDetailsOpen] = useState(true);
+  const [pickupOpen, setPickupOpen] = useState(true);
+
+  const tour = {
     id: 1,
     title: "DMZ Tour - The 3rd Infiltration Tunnel Tour",
-    image:
-      "https://images.unsplash.com/photo-1583562835057-a62d1beffbf3?w=800&h=600&fit=crop",
-    rating: 4.5,
+    images: [
+      "https://images.unsplash.com/photo-1583562835057-a62d1beffbf3?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1517154421773-0529f29ea451?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1524230572899-a752b3835840?w=1200&h=800&fit=crop",
+    ],
+    rating: 4.8,
     reviews: 1287,
-    tags: ["DMZ", "History", "Full Day", "Guided Tour"],
-    tourName: "DMZ Full Day Experience",
+    tags: ["베스트셀러", "즉시 확정"],
+    duration: "7시간",
     minimumPax: 1,
-    duration: "7 hours",
-    timeRequired: "08:00-15:00",
-    originalPrice: 70000,
-    discount: 10,
-    price: 63000,
-    description:
-      "임진각 평화누리 공원, 자유의 다리, 제3땅굴, DMZ 영상관/전시실, 도라전망대를 방문하는 투어입니다. 한국전쟁의 역사와 분단의 현실을 직접 체험할 수 있는 특별한 경험을 제공합니다.",
-    highlights: [
-      "제3땅굴 직접 탐험",
-      "도라전망대에서 북한 바라보기",
-      "DMZ 전문 가이드 동행",
-      "호텔 픽업/드롭 포함",
+    packageOptions: [
+      {
+        id: "special-a",
+        name: "스페셜 A - 서울 시티 & 궁궐 일일 투어",
+        badge: "KRW1,000 할인",
+        price: 63000,
+        details: [
+          "어트랙션/명소 입장: 남이섬, 쁘띠프랑스",
+          "영어 가이드",
+          "교통편",
+        ],
+      },
+      {
+        id: "special-b",
+        name: "스페셜 B - 쇼핑 투어",
+        badge: "KRW1,000 할인",
+        price: 58000,
+        details: ["어트랙션/명소 입장: 명동, 동대문", "영어 가이드", "교통편"],
+      },
+      {
+        id: "special-c",
+        name: "Special C - 남이섬 투어",
+        badge: "KRW1,000 할인",
+        price: 72000,
+        details: [
+          "어트랙션/명소 입장: 남이섬, 쁘띠프랑스",
+          "영어 가이드",
+          "교통편",
+        ],
+        excluded: ["기타 개인 경비", "팁", "보험"],
+      },
     ],
-    includes: ["전문 가이드", "입장료", "왕복 교통편", "점심 식사"],
-  },
-  {
-    id: 2,
-    title: "Nami Island + Petite France Private Tour",
-    image:
-      "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&h=600&fit=crop",
-    rating: 4.9,
-    reviews: 2156,
-    tags: ["Nami Island", "Petite France", "K-Drama", "Private"],
-    tourName: "Winter Sonata Location Tour",
-    minimumPax: 2,
-    duration: "10 hours",
-    timeRequired: "09:00-19:00",
-    originalPrice: 135000,
-    discount: 15,
-    price: 114750,
     description:
-      "겨울연가 촬영지 남이섬과 프랑스 마을 쁘띠프랑스를 방문하는 프라이빗 투어입니다.",
-    highlights: [
-      "남이섬 자유 시간",
-      "쁘띠프랑스 포토 타임",
-      "전용 차량 제공",
-      "한식 점심 포함",
+      "한국의 분단 역사를 직접 체험할 수 있는 DMZ 투어입니다. 제3땅굴을 탐험하고 도라전망대에서 북한을 바라보는 특별한 경험을 제공합니다.",
+    includes: [
+      "전문 한국어/영어 가이드",
+      "왕복 교통편 (에어컨 버스)",
+      "모든 입장료",
+      "한식 점심 식사",
     ],
-    includes: ["전용 차량", "전문 드라이버", "입장료", "점심 식사"],
-  },
-];
+    excludes: ["개인 경비", "여행자 보험", "추가 음료 및 간식"],
+    meetingPoint: "주요 호텔 픽업 서비스 제공",
+    cancellation: "투어 시작 24시간 전까지 무료 취소",
+  };
 
-export default async function PackageDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
-  const tourId = Number(id);
-  const tour = packageTours.find((item) => item.id === tourId);
-
-  if (!tour) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-2xl font-bold">
-        Tour not found
-      </div>
+  const nextImage = () => {
+    setCurrentImageIndex((prev) =>
+      prev === tour.images.length - 1 ? 0 : prev + 1
     );
-  }
+  };
 
-  const discountedPrice = tour.originalPrice * (1 - tour.discount / 100);
+  const prevImage = () => {
+    setCurrentImageIndex((prev) =>
+      prev === 0 ? tour.images.length - 1 : prev - 1
+    );
+  };
+
+  const selectedPackage = tour.packageOptions.find(
+    (opt) => opt.id === selectedOption
+  );
+  const totalPrice = selectedPackage
+    ? selectedPackage.price * (adults + children)
+    : 0;
+
+  const handleReset = () => {
+    setSelectedOption("");
+    setAdults(0);
+    setChildren(0);
+  };
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Hero Image */}
-      <div className="relative w-full h-[400px] md:h-[500px]">
+      {/* Image Gallery */}
+      <div className="relative w-full h-96 md:h-[500px] bg-black">
         <img
-          src={tour.image}
+          src={tour.images[currentImageIndex]}
           alt={tour.title}
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
 
-        {/* Floating Action Buttons */}
-        <div className="absolute top-6 right-6 flex gap-3">
-          <button className="p-3 bg-white rounded-full shadow-lg hover:bg-gray-50 transition">
+        <button
+          onClick={prevImage}
+          className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/90 hover:bg-white rounded-full flex items-center justify-center transition shadow-lg"
+        >
+          <ChevronLeft className="w-6 h-6 text-gray-800" />
+        </button>
+        <button
+          onClick={nextImage}
+          className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/90 hover:bg-white rounded-full flex items-center justify-center transition shadow-lg"
+        >
+          <ChevronRight className="w-6 h-6 text-gray-800" />
+        </button>
+
+        <div className="absolute bottom-4 right-4 bg-black/60 text-white px-3 py-1 rounded-full text-sm">
+          {currentImageIndex + 1} / {tour.images.length}
+        </div>
+
+        <div className="absolute top-4 right-4 flex gap-2">
+          <button className="w-10 h-10 bg-white rounded-full flex items-center justify-center hover:bg-gray-100 transition shadow-lg">
             <Heart className="w-5 h-5 text-gray-700" />
           </button>
-          <button className="p-3 bg-white rounded-full shadow-lg hover:bg-gray-50 transition">
+          <button className="w-10 h-10 bg-white rounded-full flex items-center justify-center hover:bg-gray-100 transition shadow-lg">
             <Share2 className="w-5 h-5 text-gray-700" />
           </button>
         </div>
       </div>
 
+      {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Content */}
-          <div className="lg:col-span-2">
-            {/* Title & Rating */}
-            <div className="mb-6">
-              <div className="flex flex-wrap gap-2 mb-3">
-                {tour.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="px-3 py-1 bg-[#F8F1E7] text-[#8B1E26] rounded-full text-xs font-medium"
-                  >
-                    {tag}
-                  </span>
-                ))}
+        <div className="space-y-6">
+          {/* Tags & Title */}
+          <div className="flex gap-2">
+            {tour.tags.map((tag, i) => (
+              <span
+                key={i}
+                className="px-3 py-1 bg-orange-100 text-orange-600 rounded text-sm font-semibold"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+
+          <div>
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">
+              {tour.title}
+            </h1>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1">
+                <Star className="w-5 h-5 fill-orange-400 text-orange-400" />
+                <span className="font-bold text-lg">{tour.rating}</span>
               </div>
-
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                {tour.title}
-              </h1>
-
-              <div className="flex items-center gap-4 flex-wrap">
-                <div className="flex items-center gap-1">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <Star
-                      key={star}
-                      className={`w-5 h-5 ${
-                        star <= Math.floor(tour.rating)
-                          ? "fill-[#D4A017] text-[#D4A017]"
-                          : "text-gray-300"
-                      }`}
-                    />
-                  ))}
-                  <span className="ml-2 text-lg font-bold text-gray-900">
-                    {tour.rating}
-                  </span>
-                </div>
-                <span className="text-gray-600">
-                  ({tour.reviews.toLocaleString()} reviews)
-                </span>
-              </div>
-            </div>
-
-            {/* Trust Badge */}
-            <div className="bg-[#F8F1E7] border-l-4 border-[#D4A017] p-4 rounded-lg mb-6">
-              <div className="flex items-center gap-2">
-                <Award className="w-5 h-5 text-[#8B1E26]" />
-                <p className="text-sm font-semibold text-gray-800">
-                  99% of travelers recommend this experience
-                </p>
-              </div>
-            </div>
-
-            {/* Description */}
-            <div className="mb-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">About</h2>
-              <p className="text-gray-700 leading-relaxed mb-4">
-                {tour.description}
-              </p>
-            </div>
-
-            {/* Highlights */}
-            <div className="mb-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                Tour Highlights
-              </h2>
-              <ul className="space-y-3">
-                {tour.highlights.map((highlight, index) => (
-                  <li key={index} className="flex items-start gap-3">
-                    <div className="w-6 h-6 rounded-full bg-[#8B1E26] flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <span className="text-white text-xs">✓</span>
-                    </div>
-                    <span className="text-gray-700">{highlight}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* What's Included */}
-            <div className="mb-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                What's Included
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {tour.includes.map((item, index) => (
-                  <div key={index} className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center">
-                      <span className="text-green-600 font-bold">✓</span>
-                    </div>
-                    <span className="text-gray-700">{item}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Free Cancellation */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8">
-              <p className="text-blue-800 font-semibold">Free Cancellation</p>
-              <p className="text-blue-700 text-sm mt-1">
-                Cancel up to 24 hours before tour starts. See Details.
-              </p>
+              <span className="text-gray-500">
+                ({tour.reviews.toLocaleString()}개 리뷰)
+              </span>
             </div>
           </div>
 
-          {/* Right Sidebar - Booking Card */}
-          <div className="lg:col-span-1">
-            <div className="sticky top-24">
-              <div className="bg-white border-2 border-gray-200 rounded-2xl p-6 shadow-lg">
-                {/* Price */}
-                <div className="mb-6">
-                  <div className="flex items-baseline gap-2 mb-2">
-                    <span className="text-gray-500 line-through text-lg">
-                      ₩{tour.originalPrice.toLocaleString()}
-                    </span>
-                    <span className="bg-[#8B1E26] text-white px-2 py-1 rounded text-xs font-bold">
-                      {tour.discount}% OFF
-                    </span>
-                  </div>
-                  <div className="text-4xl font-bold text-[#8B1E26]">
-                    ₩{discountedPrice.toLocaleString()}
-                  </div>
-                  <p className="text-gray-600 text-sm mt-1">per person</p>
-                </div>
-
-                {/* Quick Info */}
-                <div className="space-y-4 mb-6 pb-6 border-b border-gray-200">
-                  <div className="flex items-center gap-3">
-                    <Clock className="w-5 h-5 text-gray-500" />
-                    <div>
-                      <p className="text-sm text-gray-600">Duration</p>
-                      <p className="font-semibold text-gray-900">
-                        {tour.duration}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <Calendar className="w-5 h-5 text-gray-500" />
-                    <div>
-                      <p className="text-sm text-gray-600">Time</p>
-                      <p className="font-semibold text-gray-900">
-                        {tour.timeRequired}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <Users className="w-5 h-5 text-gray-500" />
-                    <div>
-                      <p className="text-sm text-gray-600">Minimum</p>
-                      <p className="font-semibold text-gray-900">
-                        {tour.minimumPax} person{tour.minimumPax > 1 ? "s" : ""}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Form */}
-                <div className="space-y-4 mb-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Select Date
-                    </label>
-                    <input
-                      type="date"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8B1E26] focus:border-transparent outline-none"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Number of People
-                    </label>
-                    <select className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8B1E26] focus:border-transparent outline-none">
-                      <option>1 person</option>
-                      <option>2 people</option>
-                      <option>3 people</option>
-                      <option>4+ people</option>
-                    </select>
-                  </div>
-                </div>
-
-                {/* CTA Button */}
-                <button className="w-full bg-[#8B1E26] hover:bg-[#6E0D0D] text-white font-bold py-4 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 mb-3">
-                  Reserve Now
-                </button>
-
-                <p className="text-center text-xs text-gray-500">
-                  You won't be charged yet
-                </p>
+          {/* Trust Badges */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-gray-200">
+              <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <CheckCircle2 className="w-5 h-5 text-green-600" />
+              </div>
+              <div>
+                <p className="font-semibold text-sm text-gray-900">즉시 확정</p>
+                <p className="text-xs text-gray-600">예약 후 바로 확정</p>
               </div>
             </div>
+            <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-gray-200">
+              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <Shield className="w-5 h-5 text-blue-600" />
+              </div>
+              <div>
+                <p className="font-semibold text-sm text-gray-900">안전 보장</p>
+                <p className="text-xs text-gray-600">안전한 여행</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 p-3 bg-white rounded-lg border border-gray-200">
+              <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <RefreshCw className="w-5 h-5 text-purple-600" />
+              </div>
+              <div>
+                <p className="font-semibold text-sm text-gray-900">무료 취소</p>
+                <p className="text-xs text-gray-600">24시간 전까지</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Package Options Section with Sidebar */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Left: Package Options */}
+            <div className={selectedOption ? "lg:col-span-2" : "lg:col-span-3"}>
+              <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-xl font-bold text-gray-900 border-l-4 border-orange-500 pl-3">
+                    패키지 옵션
+                  </h3>
+                  <button
+                    onClick={handleReset}
+                    className="text-sm text-blue-600 hover:underline"
+                  >
+                    재설정
+                  </button>
+                </div>
+
+                <div className="mb-6">
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="font-semibold text-gray-900">
+                      날짜 및 패키지 옵션 선택
+                    </h4>
+                    <button className="px-4 py-2 bg-orange-500 text-white rounded-lg text-sm font-medium hover:bg-orange-600 transition flex items-center gap-2">
+                      <Calendar className="w-4 h-4" />
+                      이용 가능 날짜 확인
+                    </button>
+                  </div>
+
+                  <p className="text-sm text-gray-600 mb-4">
+                    투어 일자를 선택하세요.
+                  </p>
+
+                  <div className="space-y-3">
+                    <p className="text-sm font-semibold text-gray-700">
+                      옵션 선택
+                    </p>
+                    {tour.packageOptions.map((opt) => (
+                      <label
+                        key={opt.id}
+                        className={`block p-4 rounded-lg border-2 cursor-pointer transition ${
+                          selectedOption === opt.id
+                            ? "border-orange-500 bg-white shadow-md"
+                            : "border-gray-200 bg-white hover:border-gray-300"
+                        }`}
+                      >
+                        <div className="flex items-start gap-3">
+                          <input
+                            type="radio"
+                            name="package"
+                            value={opt.id}
+                            checked={selectedOption === opt.id}
+                            onChange={(e) => setSelectedOption(e.target.value)}
+                            className="mt-1"
+                          />
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="font-medium text-gray-900">
+                                {opt.name}
+                              </span>
+                              {opt.badge && (
+                                <span className="px-2 py-0.5 bg-orange-500 text-white text-xs rounded font-semibold">
+                                  {opt.badge}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {selectedOption && (
+                  <>
+                    <div className="space-y-4 mb-6">
+                      <p className="text-sm font-semibold text-gray-700">
+                        수량
+                      </p>
+
+                      <div className="flex items-center justify-between p-4 bg-white rounded-lg border border-gray-200">
+                        <span className="font-medium text-gray-900">성인</span>
+                        <div className="flex items-center gap-4">
+                          <button
+                            onClick={() => setAdults(Math.max(0, adults - 1))}
+                            className="w-10 h-10 rounded border-2 border-gray-300 flex items-center justify-center hover:bg-gray-50 transition"
+                          >
+                            <Minus className="w-5 h-5 text-gray-600" />
+                          </button>
+                          <span className="w-12 text-center font-semibold text-lg">
+                            {adults}
+                          </span>
+                          <button
+                            onClick={() => setAdults(adults + 1)}
+                            className="w-10 h-10 rounded border-2 border-gray-300 flex items-center justify-center hover:bg-gray-50 transition"
+                          >
+                            <Plus className="w-5 h-5 text-gray-600" />
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between p-4 bg-white rounded-lg border border-gray-200">
+                        <span className="font-medium text-gray-900">
+                          아동(만 2-9세)
+                        </span>
+                        <div className="flex items-center gap-4">
+                          <button
+                            onClick={() =>
+                              setChildren(Math.max(0, children - 1))
+                            }
+                            className="w-10 h-10 rounded border-2 border-gray-300 flex items-center justify-center hover:bg-gray-50 transition"
+                          >
+                            <Minus className="w-5 h-5 text-gray-600" />
+                          </button>
+                          <span className="w-12 text-center font-semibold text-lg">
+                            {children}
+                          </span>
+                          <button
+                            onClick={() => setChildren(children + 1)}
+                            className="w-10 h-10 rounded border-2 border-gray-300 flex items-center justify-center hover:bg-gray-50 transition"
+                          >
+                            <Plus className="w-5 h-5 text-gray-600" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-baseline justify-between mb-6 pb-6 border-b border-gray-200">
+                      <div>
+                        <span className="text-3xl font-bold text-gray-900">
+                          $ {(totalPrice / 1000).toFixed(2)}
+                        </span>
+                        <p className="text-xs text-gray-500 mt-1">
+                          개당 선택하신 옵션 금액 선택해주세요.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-3">
+                      <button className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-4 rounded-lg transition shadow-lg">
+                        장바구니 담기
+                      </button>
+                      <button className="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 rounded-lg transition shadow-lg">
+                        바로 예약
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* Right: Detail Info Sidebar */}
+            {selectedOption && (
+              <div className="lg:col-span-1">
+                <div className="space-y-4">
+                  {/* Package Details */}
+                  <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                    <button
+                      onClick={() => setPackageDetailsOpen(!packageDetailsOpen)}
+                      className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition"
+                    >
+                      <h3 className="font-bold text-gray-900">
+                        패키지 상세정보
+                      </h3>
+                      {packageDetailsOpen ? (
+                        <ChevronUp className="w-5 h-5" />
+                      ) : (
+                        <ChevronDown className="w-5 h-5" />
+                      )}
+                    </button>
+
+                    {packageDetailsOpen && selectedPackage && (
+                      <div className="px-4 pb-4 space-y-4">
+                        <div>
+                          <div className="flex items-start gap-2 mb-2">
+                            <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                            <div>
+                              <p className="font-semibold text-sm text-gray-900 mb-1">
+                                포함
+                              </p>
+                              <ul className="space-y-1">
+                                {selectedPackage.details.map((detail, i) => (
+                                  <li key={i} className="text-sm text-gray-700">
+                                    {detail}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          </div>
+                        </div>
+
+                        {selectedPackage.excluded && (
+                          <div>
+                            <div className="flex items-start gap-2">
+                              <X className="w-5 h-5 text-gray-400 flex-shrink-0 mt-0.5" />
+                              <div>
+                                <p className="font-semibold text-sm text-gray-900 mb-1">
+                                  불포함
+                                </p>
+                                <ul className="space-y-1">
+                                  {selectedPackage.excluded.map((item, i) => (
+                                    <li
+                                      key={i}
+                                      className="text-sm text-gray-700"
+                                    >
+                                      {item}
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Pickup Info */}
+                  <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                    <button
+                      onClick={() => setPickupOpen(!pickupOpen)}
+                      className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition"
+                    >
+                      <h3 className="font-bold text-gray-900">
+                        픽업/미팅 정보
+                      </h3>
+                      {pickupOpen ? (
+                        <ChevronUp className="w-5 h-5" />
+                      ) : (
+                        <ChevronDown className="w-5 h-5" />
+                      )}
+                    </button>
+
+                    {pickupOpen && (
+                      <div className="px-4 pb-4 space-y-4">
+                        <div>
+                          <p className="font-semibold text-sm text-gray-900 mb-3">
+                            출발
+                          </p>
+                          <div className="relative mb-3">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                            <input
+                              type="text"
+                              placeholder="이용 가능한 장소 검색"
+                              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none"
+                            />
+                          </div>
+
+                          <div className="flex items-start gap-2 p-3 bg-blue-50 rounded-lg">
+                            <Clock className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                            <div>
+                              <p className="font-semibold text-sm text-gray-900">
+                                07:30 - 08:00
+                              </p>
+                              <p className="text-xs text-gray-600 mt-1">
+                                Seoul 내 모든 지역에서 이용 가능
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Additional Info */}
+                  <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                    <div className="flex gap-2 flex-wrap">
+                      <span className="px-3 py-1 bg-white text-blue-700 rounded-full text-xs font-medium border border-blue-200">
+                        내일부터 이용 가능
+                      </span>
+                      <span className="px-3 py-1 bg-white text-blue-700 rounded-full text-xs font-medium border border-blue-200">
+                        24시간 전 취소 가능
+                      </span>
+                      <span className="px-3 py-1 bg-white text-gray-700 rounded-full text-xs font-medium border border-gray-200">
+                        최소 그룹 규모: 4인
+                      </span>
+                      <span className="px-3 py-1 bg-white text-gray-700 rounded-full text-xs font-medium border border-gray-200">
+                        예약 즉시 확정
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Description */}
+          <div className="bg-white p-6 rounded-xl border border-gray-200">
+            <h2 className="text-xl font-bold text-gray-900 mb-3">
+              액티비티 소개
+            </h2>
+            <p className="text-gray-700 leading-relaxed">{tour.description}</p>
+          </div>
+
+          {/* Includes/Excludes */}
+          <div className="bg-white p-6 rounded-xl border border-gray-200">
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
+                  <CheckCircle2 className="w-5 h-5 text-green-600" />
+                  포함 사항
+                </h3>
+                <ul className="space-y-2">
+                  {tour.includes.map((item, i) => (
+                    <li
+                      key={i}
+                      className="flex items-center gap-2 text-sm text-gray-700"
+                    >
+                      <div className="w-1.5 h-1.5 bg-green-600 rounded-full" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
+                  <Info className="w-5 h-5 text-gray-400" />
+                  불포함 사항
+                </h3>
+                <ul className="space-y-2">
+                  {tour.excludes.map((item, i) => (
+                    <li
+                      key={i}
+                      className="flex items-center gap-2 text-sm text-gray-700"
+                    >
+                      <div className="w-1.5 h-1.5 bg-gray-400 rounded-full" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          {/* Meeting Point */}
+          <div className="bg-white p-6 rounded-xl border border-gray-200">
+            <h2 className="text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
+              <MapPin className="w-5 h-5 text-orange-500" />
+              미팅 포인트
+            </h2>
+            <p className="text-gray-700">{tour.meetingPoint}</p>
+          </div>
+
+          {/* Cancellation Policy */}
+          <div className="bg-green-50 border border-green-200 p-6 rounded-xl">
+            <h3 className="font-bold text-green-900 mb-2">취소 정책</h3>
+            <p className="text-green-800 text-sm">{tour.cancellation}</p>
           </div>
         </div>
       </div>
