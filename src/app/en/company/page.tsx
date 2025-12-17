@@ -1,5 +1,5 @@
 import React from "react";
-import { Award, Users, Globe, Heart } from "lucide-react";
+import { Award, Users, Globe, Headset, ShieldCheck } from "lucide-react";
 
 export default function CompanyPage() {
   return (
@@ -17,7 +17,7 @@ export default function CompanyPage() {
             About Us
           </h1>
           <p className="text-red-100 text-base md:text-lg max-w-2xl">
-            Your Trusted Travel Partner Since 2004
+            A Trusted Seoul Tour Operator Since 2004
           </p>
         </div>
 
@@ -31,22 +31,36 @@ export default function CompanyPage() {
           <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
             <div>
               <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 md:mb-6 leading-tight">
-                The Best City Tour Company in Korea
+                A Trusted Seoul-Based Tour Operator Since 2004
               </h2>
+
               <div className="space-y-4 md:space-y-5 text-gray-700 leading-relaxed text-sm md:text-base">
                 <p>
-                  Seoul City Tour is the best city tour company in Korea with
-                  experienced experts. We've been providing excellent quality
-                  services for tourists of all nationalities.
+                  Seoul City Tour is a Seoul-based inbound travel company
+                  providing professionally operated tour programs for
+                  international travelers visiting Korea. Since 2004, we have
+                  focused on delivering reliable, well-structured travel
+                  experiences rooted in local expertise.
                 </p>
+
                 <p>
-                  Seoul City Tour is specialized in daily package tours,
-                  arranging international convention tour programs, and VIP
-                  private tours in Korea.
+                  Our services include daily city tours, private and VIP travel
+                  programs, and customized itineraries for international
+                  conventions, corporate visits, and special-interest groups.
+                  Every program is designed and managed by experienced
+                  professionals familiar with the needs of global travelers.
                 </p>
+
+                <p>
+                  With a strong operational foundation and multilingual support,
+                  we work closely with global partners to ensure consistent
+                  quality, safety, and clear communication throughout each
+                  journey.
+                </p>
+
                 <p className="font-semibold text-red-700 pt-2">
-                  We promise to treat you with thoughtful consideration once you
-                  join us, Seoul City Tour.
+                  Our focus is not on promises, but on delivering dependable
+                  travel operations that our guests and partners can trust.
                 </p>
               </div>
             </div>
@@ -54,7 +68,7 @@ export default function CompanyPage() {
             <div className="relative h-[300px] md:h-[350px] lg:h-[450px] rounded-xl md:rounded-2xl overflow-hidden shadow-2xl">
               <img
                 src="https://images.unsplash.com/photo-1528605248644-14dd04022da1?w=800&h=600&fit=crop"
-                alt="Seoul City Tour"
+                alt="Seoul city tour with professional guide"
                 className="w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
@@ -65,34 +79,65 @@ export default function CompanyPage() {
 
       {/* CEO Message */}
       <section className="py-16 md:py-24 bg-gray-50">
-        <div className="max-w-4xl mx-auto px-4">
-          <div className="mb-8 md:mb-10">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="mb-8 md:mb-12">
             <p className="text-sm font-bold text-red-700 uppercase tracking-wider mb-3 flex items-center gap-2">
               <span className="w-8 h-0.5 bg-red-700" />
               CEO Message
             </p>
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 leading-tight">
-              A Value Beyond Travel
+              Responsibility Before Experience
             </h2>
           </div>
-          <div className="space-y-6 text-gray-700 leading-relaxed text-sm md:text-base mb-10">
-            <p>
-              HanatourITC is an inbound-specialized travel agency with a 100%
-              share owned by Hanatour.
-            </p>
-            <p>HanatourITC specializes in inbound and intrabound travel...</p>
-            <p>
-              In preparation for the upcoming changes in the inbound market
-              after COVID-19...
-            </p>
-          </div>
-          <div className="pt-8 border-t-2 border-gray-300">
-            <p className="text-sm text-gray-500 uppercase tracking-wide mb-2">
-              CEO
-            </p>
-            <p className="text-2xl md:text-3xl font-bold text-gray-900">
-              Park Do-young
-            </p>
+
+          {/* 콘텐츠 영역 */}
+          <div className="grid md:grid-cols-3 gap-10 items-start">
+            {/* CEO Photo */}
+            <div className="md:col-span-1 flex justify-center md:justify-start">
+              <div className="w-44 h-44 md:w-52 md:h-52 rounded-2xl overflow-hidden shadow-lg bg-gray-200">
+                <img
+                  src="https://via.placeholder.com/400x400?text=CEO+Photo"
+                  alt="CEO portrait"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </div>
+
+            {/* CEO Message Text */}
+            <div className="md:col-span-2">
+              <div className="max-w-5xl space-y-6 text-gray-700 leading-relaxed text-sm md:text-base">
+                <p>
+                  As a Seoul-based inbound tour operator, we believe that travel
+                  begins with trust. Our responsibility is not limited to
+                  designing itineraries — it extends to ensuring safety,
+                  transparency, and dependable support throughout every journey.
+                </p>
+
+                <p>
+                  Every tour we operate is led by licensed professionals and
+                  managed under established operational standards. Our team
+                  monitors each program closely and remains available to respond
+                  immediately should our guests require assistance.
+                </p>
+
+                <p>
+                  This commitment is embedded in our daily operations, and I
+                  take personal responsibility for maintaining these standards
+                  so that every traveler can experience Korea with confidence
+                  and peace of mind.
+                </p>
+              </div>
+
+              {/* 서명 영역 */}
+              <div className="pt-8 mt-10 border-t-2 border-gray-300">
+                <p className="text-sm text-gray-500 uppercase tracking-wide mb-2">
+                  CEO
+                </p>
+                <p className="text-2xl md:text-3xl font-bold text-gray-900">
+                  Park Do-young
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -100,38 +145,60 @@ export default function CompanyPage() {
       {/* Company History */}
       <section className="relative py-16 md:py-24 bg-gradient-to-br from-red-900 via-red-800 to-red-700">
         <div className="absolute inset-0 bg-black/20" />
+
         <div className="relative max-w-6xl mx-auto px-4">
           <div className="text-center mb-12 md:mb-16">
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4">
               Company History
             </h2>
             <p className="text-red-100 text-base md:text-lg">
-              Two decades of excellence in Korean tourism
+              Two decades of trusted inbound tourism operations in Korea
             </p>
           </div>
+
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
             {[
-              { year: "2004", event: "Seoul City Tour Co., Ltd. established" },
-              { year: "2008", event: "Obtained Tour Business Registration" },
-              { year: "2015", event: "Launched VIP private tour services" },
-              { year: "2018", event: "TripAdvisor Certificate of Excellence" },
-              { year: "2020", event: "Introduced COVID-safe tour protocols" },
-              { year: "2024", event: "Served over 50,000 satisfied customers" },
+              {
+                year: "2003 – 2008",
+                event:
+                  "Established as Mercury Travel Agency and rebranded as Seoul City Tour Co., Ltd., obtaining official travel business registration in Seoul.",
+              },
+              {
+                year: "2009",
+                event:
+                  "Appointed as official tour agency for Qantas Airways and designated as an exclusive China-operated agency by the Ministry of Culture, Sports and Tourism.",
+              },
+              {
+                year: "2010",
+                event:
+                  "Became the first inbound travel wholesaler in Korea and signed strategic partnerships with Expedia, Raymond Cruise, and multiple global travel companies.",
+              },
+              {
+                year: "2011 – 2014",
+                event:
+                  "Authorized to operate regular DMZ tours and awarded multiple Quality Certifications by the Ministry of Culture, Sports and Tourism.",
+              },
+              {
+                year: "2014",
+                event:
+                  "Successfully operated large-scale international events including ICM 2014, serving over 5,800 international delegates.",
+              },
+              {
+                year: "2019",
+                event:
+                  "Recognized as a Top Inbound FIT Travel Agency in Korea, strengthening our position as a trusted inbound tour operator.",
+              },
             ].map((item, idx) => (
               <div
                 key={idx}
                 className="bg-white p-6 md:p-8 rounded-xl shadow-2xl hover:shadow-3xl transform hover:-translate-y-2 transition-all duration-300"
               >
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 bg-red-700 rounded-full flex items-center justify-center flex-shrink-0">
-                    <span className="text-white font-bold text-lg">
-                      {idx + 1}
-                    </span>
-                  </div>
-                  <div className="text-2xl md:text-3xl font-bold text-red-700">
+                <div className="mb-4">
+                  <div className="text-xl md:text-2xl font-bold text-red-700">
                     {item.year}
                   </div>
                 </div>
+
                 <p className="text-sm md:text-base text-gray-700 leading-relaxed font-medium">
                   {item.event}
                 </p>
@@ -212,37 +279,38 @@ export default function CompanyPage() {
               Why Choose Us
             </h2>
             <p className="text-gray-600 text-base md:text-lg">
-              What makes Seoul City Tour special
+              A trusted tour company built on professionalism and responsibility
             </p>
           </div>
+
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
             {[
               {
                 icon: Award,
-                title: "Award Winning",
-                desc: "Certificate of Excellence and top ratings from global travelers",
+                title: "Licensed & Experienced Guides",
+                desc: "All tours are led by certified Korean tour guides with proven field experience.",
               },
               {
-                icon: Users,
-                title: "Expert Guides",
-                desc: "Professional guides with deep knowledge of Korean culture",
+                icon: ShieldCheck,
+                title: "Safety-First Operations",
+                desc: "Accident-free tour history with clean, regularly maintained tourist buses.",
+              },
+              {
+                icon: Headset,
+                title: "Clear & Fast Communication",
+                desc: "Quick responses and transparent support before, during, and after each tour.",
               },
               {
                 icon: Globe,
-                title: "Global Service",
-                desc: "Multi-language support for travelers from 100+ countries",
-              },
-              {
-                icon: Heart,
-                title: "Korean Hospitality",
-                desc: "Warm hearts and thoughtful personalized service",
+                title: "Trusted by Global Partners",
+                desc: "Long-term partnerships with international travel agencies and clients worldwide.",
               },
             ].map((item, idx) => {
               const Icon = item.icon;
               return (
                 <div
                   key={idx}
-                  className="bg-gray-50 p-6 md:p-8 rounded-xl text-center hover:bg-white hover:shadow-xl transition-all duration-300 border border-transparent hover:border-red-100"
+                  className="bg-gray-50 p-6 md:p-8 rounded-xl text-center transition-all duration-300 border border-gray-100"
                 >
                   <div className="bg-gradient-to-br from-red-600 to-red-700 w-16 h-16 md:w-20 md:h-20 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
                     <Icon className="w-8 h-8 md:w-10 md:h-10 text-white" />
@@ -265,16 +333,16 @@ export default function CompanyPage() {
         <div className="absolute inset-0 bg-black/10" />
         <div className="relative max-w-4xl mx-auto px-4 text-center">
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6">
-            Ready to Explore Korea?
+            Travel with Confidence
           </h2>
           <p className="text-red-100 mb-8 md:mb-10 text-base md:text-lg max-w-2xl mx-auto">
-            Book your tour today and experience the best of Korean culture and
-            history with Seoul City Tour
+            Plan your Korea trip with a professional team you can trust. Our
+            support team is always here to help.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
               href="/en/package"
-              className="bg-white text-red-700 px-10 md:px-12 py-3 md:py-4 rounded-lg font-bold hover:bg-gray-100 transition-all duration-300 shadow-2xl hover:shadow-3xl transform hover:-translate-y-1"
+              className="bg-white text-red-700 px-10 md:px-12 py-3 md:py-4 rounded-lg font-bold hover:bg-gray-100 transition-all duration-300 shadow-2xl transform hover:-translate-y-1"
             >
               View Tours
             </a>
@@ -282,7 +350,7 @@ export default function CompanyPage() {
               href="/en/contact"
               className="bg-transparent text-white border-2 border-white px-10 md:px-12 py-3 md:py-4 rounded-lg font-bold hover:bg-white hover:text-red-700 transition-all duration-300 transform hover:-translate-y-1"
             >
-              Contact Us
+              Contact Our Team
             </a>
           </div>
         </div>
