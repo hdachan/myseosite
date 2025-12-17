@@ -3,8 +3,10 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Link from "next/link";
 import Image from "next/image";
-import { Menu, X } from "lucide-react";
+import { Menu, X, ShoppingCart } from "lucide-react";
 import Script from "next/script";
+
+import ScrollToTop from "@/components/ScrollToTop";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://mysite.com"),
@@ -76,8 +78,6 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
         }}
       />
 
-      <input type="checkbox" id="mobile-menu" className="hidden peer" />
-
       {/* HEADER */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-white shadow-[0_2px_6px_rgba(0,0,0,0.06)]">
         {/* Mobile Toggle */}
@@ -120,6 +120,19 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
 
           {/* RIGHT SIDE */}
           <div className="flex items-center gap-5">
+            {/* SHOPPING CART */}
+            <Link
+              href="/en/cart"
+              className="relative p-2 text-gray-700 hover:text-red-800 transition"
+              aria-label="Shopping Cart"
+            >
+              <ShoppingCart size={24} />
+              {/* 장바구니 개수 배지 (선택사항) */}
+              <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                3
+              </span>
+            </Link>
+
             {/* LANG SWITCHER */}
             <div className="hidden sm:flex items-center gap-3 border-l border-gray-300 pl-4">
               <Link href="/ko">
@@ -194,6 +207,20 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
               </Link>
             ))}
 
+            {/* Mobile Cart Link */}
+            <Link
+              href="/en/cart"
+              className="text-3xl font-semibold text-gray-800 hover:text-red-800 transition relative group flex items-center gap-3"
+            >
+              <ShoppingCart size={32} />
+              Cart
+              <span
+                className="absolute -bottom-2 left-1/2 -translate-x-1/2 
+                     w-0 h-1 bg-red-800 transition-all duration-300 
+                     group-hover:w-full"
+              ></span>
+            </Link>
+
             {/* Mobile Language */}
             <div className="mt-10 flex flex-col items-center gap-5">
               <Link href="/ko">
@@ -220,7 +247,7 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
       <footer className="bg-gray-900 text-white py-16 mt-20">
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex flex-col lg:flex-row justify-between gap-12">
-            {/* 1. 회사 로고 및 대표/연락 정보 섹션 (좌측) */}
+            {/* 1. 회사 로고 및 대표/연락 정보 섹션 */}
             <div className="w-full lg:w-1/3 min-w-0">
               <Image
                 src="/images/logo-white.png"
@@ -236,13 +263,11 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
 
               <div className="space-y-3 text-sm text-gray-300">
                 <p>
-                  {/* <BuildingOffice2Icon className="w-4 h-4 mr-2 inline-block text-red-400" /> */}
                   <span className="font-medium text-white">CEO:</span> Park
                   Do-young
                 </p>
                 <p>
-                  {/* <EnvelopeIcon className="w-4 h-4 mr-2 inline-block text-red-400" /> */}
-                  <span className="font-medium text-white">Email:</span>
+                  <span className="font-medium text-white">Email:</span>{" "}
                   <a
                     href="mailto:mail@seoulcitytour.net"
                     className="hover:text-red-400 transition"
@@ -251,49 +276,41 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
                   </a>
                 </p>
                 <p>
-                  {/* <PhoneIcon className="w-4 h-4 mr-2 inline-block text-red-400" /> */}
                   <span className="font-medium text-white">Tel:</span>{" "}
                   +82-2-774-3345
                 </p>
                 <p className="flex items-start">
-                  {/* <MapPinIcon className="w-5 h-5 mr-3 text-red-400 flex-shrink-0 mt-0.5" /> */}
-                  <span className="font-medium text-white mr-2">Address:</span>{" "}
+                  <span className="font-medium text-white mr-2">Address:</span>
                   507, Hanaro Building, 194-4, Insadong, Jongno-gu, Seoul
                 </p>
               </div>
 
-              {/* 소셜 미디어 (접근성 높임) */}
               <h4 className="text-xl font-bold mb-4 mt-8">Follow Us</h4>
               <div className="flex space-x-4">
                 <a
                   href="#"
                   aria-label="Facebook"
-                  className="text-gray-400 hover:text-red-400 transition transform hover:scale-110"
-                >
-                  {/* <FaFacebook className="w-6 h-6" /> */}
-                </a>
+                  className="text-gray-400 hover:text-red-400 transition"
+                />
                 <a
                   href="#"
                   aria-label="Instagram"
-                  className="text-gray-400 hover:text-red-400 transition transform hover:scale-110"
-                >
-                  {/* <FaInstagram className="w-6 h-6" /> */}
-                </a>
+                  className="text-gray-400 hover:text-red-400 transition"
+                />
                 <a
                   href="#"
                   aria-label="YouTube"
-                  className="text-gray-400 hover:text-red-400 transition transform hover:scale-110"
-                >
-                  {/* <FaYoutube className="w-6 h-6" /> */}
-                </a>
+                  className="text-gray-400 hover:text-red-400 transition"
+                />
               </div>
             </div>
 
-            {/* 2. Quick Links 섹션 (중앙) */}
+            {/* 2. Quick Links 섹션 */}
             <div className="w-full lg:w-1/4 mt-6 lg:mt-0">
               <h4 className="text-xl font-bold mb-6 border-b-2 border-red-500 pb-1 inline-block">
                 Quick Links
               </h4>
+
               <ul className="space-y-3 text-gray-400 text-sm">
                 <li>
                   <Link
@@ -327,6 +344,8 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
                     Manage My Booking
                   </Link>
                 </li>
+
+                {/* Explore Tours */}
                 <li className="pt-2">
                   <h5 className="font-semibold text-white">Explore Tours</h5>
                 </li>
@@ -346,10 +365,20 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
                     K-Culture & K-Drama
                   </Link>
                 </li>
+
+                {/* Blog (단일 링크) */}
+                <li className="pt-4">
+                  <Link
+                    href="/en/blog"
+                    className="font-semibold text-white hover:text-red-400 transition"
+                  >
+                    Blog
+                  </Link>
+                </li>
               </ul>
             </div>
 
-            {/* 3. 법적/회계 정보 섹션 (우측, 필수 정보 집합) */}
+            {/* 3. Legal & Accounting */}
             <div className="w-full lg:w-1/3 mt-6 lg:mt-0">
               <h4 className="text-xl font-bold mb-6 border-b-2 border-red-500 pb-1 inline-block">
                 Legal & Accounting
@@ -357,7 +386,6 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
 
               <div className="space-y-3 text-sm text-gray-300">
                 <p className="text-yellow-400 font-medium">
-                  {/* <ShieldCheckIcon className="w-4 h-4 mr-2 inline-block text-yellow-400" /> */}
                   Business Registration No: 507-88-02244
                 </p>
                 <p className="text-yellow-400 font-medium">
@@ -368,7 +396,6 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
                 </p>
 
                 <p className="pt-3">
-                  {/* <BanknotesIcon className="w-4 h-4 mr-2 inline-block text-red-400" /> */}
                   <span className="font-medium text-white">Bank Account:</span>{" "}
                   Shinhan Bank 100-023-904290
                 </p>
@@ -384,37 +411,38 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
             </div>
           </div>
 
-          {/* 하단 정책 및 카피라이트 섹션 (변경 없음) */}
+          {/* 하단 정책 */}
           <div className="mt-16 pt-8 border-t border-gray-700">
             <div className="flex flex-wrap justify-center items-center gap-x-5 gap-y-2 text-sm mb-4">
               <Link
                 href="/en/privacy"
-                className="text-gray-400 hover:text-red-400 transition"
+                className="text-gray-400 hover:text-red-400"
               >
                 Email Collection Refusal Policy
               </Link>
               <span className="text-gray-600 hidden md:inline">|</span>
               <Link
                 href="/en/policy"
-                className="text-gray-400 hover:text-red-400 transition"
+                className="text-gray-400 hover:text-red-400"
               >
                 Privacy Policy
               </Link>
               <span className="text-gray-600 hidden md:inline">|</span>
               <Link
                 href="/en/terms"
-                className="text-gray-400 hover:text-red-400 transition"
+                className="text-gray-400 hover:text-red-400"
               >
                 Terms of Service
               </Link>
               <span className="text-gray-600 hidden md:inline">|</span>
               <Link
                 href="/en/sitemap"
-                className="text-gray-400 hover:text-red-400 transition"
+                className="text-gray-400 hover:text-red-400"
               >
                 Sitemap
               </Link>
             </div>
+
             <p className="text-center text-xs text-gray-500 mt-2">
               COPYRIGHT © 2004-2025 SEOUL CITY TOUR Co., LTD. All Rights
               Reserved.
@@ -422,6 +450,8 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </footer>
+
+      <ScrollToTop />
     </>
   );
 }
