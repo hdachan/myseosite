@@ -243,210 +243,105 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
 
       <main>{children}</main>
 
-      {/* FOOTER */}
-      <footer className="bg-gray-900 text-white py-16 mt-20">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex flex-col lg:flex-row justify-between gap-12">
-            {/* 1. 회사 로고 및 대표/연락 정보 섹션 */}
-            <div className="w-full lg:w-1/3 min-w-0">
-              <Image
-                src="/images/logo-white.png"
-                alt="Seoul City Tour"
-                width={220}
-                height={66}
-                className="object-contain mb-6"
-              />
-
-              <h4 className="text-xl font-bold mb-4 text-red-400">
-                Contact Info
-              </h4>
-
-              <div className="space-y-3 text-sm text-gray-300">
-                <p>
-                  <span className="font-medium text-white">CEO:</span> Park
-                  Do-young
-                </p>
-                <p>
-                  <span className="font-medium text-white">Email:</span>{" "}
-                  <a
-                    href="mailto:mail@seoulcitytour.net"
-                    className="hover:text-red-400 transition"
-                  >
-                    mail@seoulcitytour.net
-                  </a>
-                </p>
-                <p>
-                  <span className="font-medium text-white">Tel:</span>{" "}
-                  +82-2-774-3345
-                </p>
-                <p className="flex items-start">
-                  <span className="font-medium text-white mr-2">Address:</span>
-                  507, Hanaro Building, 194-4, Insadong, Jongno-gu, Seoul
-                </p>
-              </div>
-
-              <h4 className="text-xl font-bold mb-4 mt-8">Follow Us</h4>
-              <div className="flex space-x-4">
+      <footer className="bg-white border-t border-gray-200 mt-20">
+        <div className="max-w-7xl mx-auto px-6 py-14">
+          {/* Top */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 text-sm text-gray-600">
+            {/* Company */}
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-3">Company</h4>
+              <p className="text-sm text-gray-600 leading-relaxed">
+                Seoul City Tour Co., Ltd.
+                <br />
+                Insadong, Jongno-gu, Seoul, South Korea
+              </p>
+              <p className="mt-3 text-sm">
                 <a
-                  href="#"
-                  aria-label="Facebook"
-                  className="text-gray-400 hover:text-red-400 transition"
-                />
-                <a
-                  href="#"
-                  aria-label="Instagram"
-                  className="text-gray-400 hover:text-red-400 transition"
-                />
-                <a
-                  href="#"
-                  aria-label="YouTube"
-                  className="text-gray-400 hover:text-red-400 transition"
-                />
-              </div>
+                  href="mailto:mail@seoulcitytour.net"
+                  className="hover:underline"
+                >
+                  mail@seoulcitytour.net
+                </a>
+                <br />
+                Tel. +82-2-774-3345
+              </p>
             </div>
 
-            {/* 2. Quick Links 섹션 */}
-            <div className="w-full lg:w-1/4 mt-6 lg:mt-0">
-              <h4 className="text-xl font-bold mb-6 border-b-2 border-red-500 pb-1 inline-block">
-                Quick Links
-              </h4>
-
-              <ul className="space-y-3 text-gray-400 text-sm">
+            {/* Support */}
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-3">Support</h4>
+              <ul className="space-y-2">
                 <li>
-                  <Link
-                    href="/en/faq"
-                    className="hover:text-red-400 transition"
-                  >
-                    FAQ & Help Center
-                  </Link>
+                  <Link href="/en/faq">FAQ</Link>
                 </li>
                 <li>
-                  <Link
-                    href="/en/about"
-                    className="hover:text-red-400 transition"
-                  >
-                    About Us
-                  </Link>
+                  <Link href="/en/contact">Contact Us</Link>
                 </li>
                 <li>
-                  <Link
-                    href="/en/contact"
-                    className="hover:text-red-400 transition"
-                  >
-                    Contact Us
-                  </Link>
+                  <Link href="/en/my-bookings">Manage My Booking</Link>
                 </li>
                 <li>
-                  <Link
-                    href="/en/my-bookings"
-                    className="hover:text-red-400 transition"
-                  >
-                    Manage My Booking
+                  <Link href="/en/cancellation-policy">
+                    Cancellation & Refund Policy
                   </Link>
                 </li>
-
-                {/* Explore Tours */}
-                <li className="pt-2">
-                  <h5 className="font-semibold text-white">Explore Tours</h5>
-                </li>
-                <li>
-                  <Link
-                    href="/tours/dmz"
-                    className="hover:text-red-400 transition ml-3"
-                  >
-                    DMZ Tours
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/tours/k-drama"
-                    className="hover:text-red-400 transition ml-3"
-                  >
-                    K-Culture & K-Drama
-                  </Link>
-                </li>
-
-                {/* Blog (단일 링크) */}
-                <li className="pt-4">
-                  <Link
-                    href="/en/blog"
-                    className="font-semibold text-white hover:text-red-400 transition"
-                  >
+                <li className="pt-1">
+                  <Link href="/en/blog" className="font-medium">
                     Blog
                   </Link>
                 </li>
               </ul>
             </div>
 
-            {/* 3. Legal & Accounting */}
-            <div className="w-full lg:w-1/3 mt-6 lg:mt-0">
-              <h4 className="text-xl font-bold mb-6 border-b-2 border-red-500 pb-1 inline-block">
-                Legal & Accounting
-              </h4>
+            {/* Tours + Legal */}
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-3">Explore</h4>
+              <ul className="space-y-2 mb-6">
+                <li>
+                  <Link href="/tours/dmz">DMZ Tours</Link>
+                </li>
+                <li>
+                  <Link href="/tours/seoul-city">Seoul City Tours</Link>
+                </li>
+                <li>
+                  <Link href="/tours/private">Private Tours</Link>
+                </li>
+              </ul>
 
-              <div className="space-y-3 text-sm text-gray-300">
-                <p className="text-yellow-400 font-medium">
-                  Business Registration No: 507-88-02244
-                </p>
-                <p className="text-yellow-400 font-medium">
-                  Tour Business License: 2008-000002
-                </p>
-                <p className="text-yellow-400 font-medium">
-                  Mail-order License: Jongno-0710
-                </p>
-
-                <p className="pt-3">
-                  <span className="font-medium text-white">Bank Account:</span>{" "}
-                  Shinhan Bank 100-023-904290
-                </p>
-                <p>
-                  <span className="font-medium text-white">Holder:</span> Seoul
-                  City Tour Co., Ltd.
-                </p>
-                <p>
-                  <span className="font-medium text-white">FAX:</span>{" "}
-                  +82-2-774-8223
-                </p>
-              </div>
+              <ul className="space-y-1 text-xs text-gray-500">
+                <li>
+                  <Link href="/en/privacy">Privacy Policy</Link>
+                </li>
+                <li>
+                  <Link href="/en/terms">Terms of Service</Link>
+                </li>
+                <li className="pt-2">Business Reg. No: 507-88-02244</li>
+                <li>Tour License No: 2008-000002</li>
+              </ul>
             </div>
           </div>
 
-          {/* 하단 정책 */}
-          <div className="mt-16 pt-8 border-t border-gray-700">
-            <div className="flex flex-wrap justify-center items-center gap-x-5 gap-y-2 text-sm mb-4">
-              <Link
-                href="/en/privacy"
-                className="text-gray-400 hover:text-red-400"
-              >
-                Email Collection Refusal Policy
-              </Link>
-              <span className="text-gray-600 hidden md:inline">|</span>
-              <Link
-                href="/en/policy"
-                className="text-gray-400 hover:text-red-400"
-              >
-                Privacy Policy
-              </Link>
-              <span className="text-gray-600 hidden md:inline">|</span>
-              <Link
-                href="/en/terms"
-                className="text-gray-400 hover:text-red-400"
-              >
-                Terms of Service
-              </Link>
-              <span className="text-gray-600 hidden md:inline">|</span>
-              <Link
-                href="/en/sitemap"
-                className="text-gray-400 hover:text-red-400"
-              >
-                Sitemap
-              </Link>
+          {/* Bottom */}
+          <div className="mt-10 flex flex-col md:flex-row justify-between items-center gap-6 border-t border-gray-200 pt-6 text-xs text-gray-500">
+            {/* Payment */}
+            <div className="flex items-center gap-3">
+              <span>Visa</span>
+              <span>Mastercard</span>
+              <span>AMEX</span>
+              <span>Apple Pay</span>
+              <span>Google Pay</span>
             </div>
 
-            <p className="text-center text-xs text-gray-500 mt-2">
-              COPYRIGHT © 2004-2025 SEOUL CITY TOUR Co., LTD. All Rights
-              Reserved.
-            </p>
+            {/* Social */}
+            <div className="flex gap-4">
+              <a href="#">Instagram</a>
+              <a href="#">YouTube</a>
+              <a href="#">Facebook</a>
+            </div>
+          </div>
+
+          <div className="mt-4 text-center text-xs text-gray-400">
+            © 2004–2026 Seoul City Tour Co., Ltd. All Rights Reserved.
           </div>
         </div>
       </footer>
