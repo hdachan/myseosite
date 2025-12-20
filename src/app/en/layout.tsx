@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Menu, X, ShoppingCart } from "lucide-react";
 import Script from "next/script";
+import { Instagram, Youtube, Facebook } from "lucide-react";
 
 import ScrollToTop from "@/components/ScrollToTop";
 
@@ -250,12 +251,12 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
             {/* Company */}
             <div>
               <h4 className="font-semibold text-gray-900 mb-3">Company</h4>
-              <p className="text-sm text-gray-600 leading-relaxed">
+              <p className="leading-relaxed">
                 Seoul City Tour Co., Ltd.
                 <br />
                 Insadong, Jongno-gu, Seoul, South Korea
               </p>
-              <p className="mt-3 text-sm">
+              <p className="mt-3">
                 <a
                   href="mailto:mail@seoulcitytour.net"
                   className="hover:underline"
@@ -272,48 +273,70 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
               <h4 className="font-semibold text-gray-900 mb-3">Support</h4>
               <ul className="space-y-2">
                 <li>
-                  <Link href="/en/faq">FAQ</Link>
+                  <Link href="/en/faq" className="hover:text-gray-900">
+                    FAQ
+                  </Link>
                 </li>
                 <li>
-                  <Link href="/en/contact">Contact Us</Link>
+                  <Link href="/en/contact" className="hover:text-gray-900">
+                    Contact Us
+                  </Link>
                 </li>
                 <li>
-                  <Link href="/en/my-bookings">Manage My Booking</Link>
+                  <Link href="/en/my-bookings" className="hover:text-gray-900">
+                    Manage My Booking
+                  </Link>
                 </li>
                 <li>
-                  <Link href="/en/cancellation-policy">
+                  <Link
+                    href="/en/cancellation-policy"
+                    className="hover:text-gray-900"
+                  >
                     Cancellation & Refund Policy
                   </Link>
                 </li>
                 <li className="pt-1">
-                  <Link href="/en/blog" className="font-medium">
+                  <Link href="/en/blog" className="font-medium hover:underline">
                     Blog
                   </Link>
                 </li>
               </ul>
             </div>
 
-            {/* Tours + Legal */}
+            {/* Explore + Legal */}
             <div>
               <h4 className="font-semibold text-gray-900 mb-3">Explore</h4>
               <ul className="space-y-2 mb-6">
                 <li>
-                  <Link href="/tours/dmz">DMZ Tours</Link>
+                  <Link href="/en/tours/dmz" className="hover:text-gray-900">
+                    DMZ Tours
+                  </Link>
                 </li>
                 <li>
-                  <Link href="/tours/seoul-city">Seoul City Tours</Link>
+                  <Link
+                    href="/en/tours/seoul-city"
+                    className="hover:text-gray-900"
+                  >
+                    Seoul City Tours
+                  </Link>
                 </li>
                 <li>
-                  <Link href="/tours/private">Private Tours</Link>
+                  <Link href="/en/private" className="hover:text-gray-900">
+                    Private Tours
+                  </Link>
                 </li>
               </ul>
 
               <ul className="space-y-1 text-xs text-gray-500">
                 <li>
-                  <Link href="/en/privacy">Privacy Policy</Link>
+                  <Link href="/en/privacy" className="hover:underline">
+                    Privacy Policy
+                  </Link>
                 </li>
                 <li>
-                  <Link href="/en/terms">Terms of Service</Link>
+                  <Link href="/en/terms" className="hover:underline">
+                    Terms of Service
+                  </Link>
                 </li>
                 <li className="pt-2">Business Reg. No: 507-88-02244</li>
                 <li>Tour License No: 2008-000002</li>
@@ -324,22 +347,60 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
           {/* Bottom */}
           <div className="mt-10 flex flex-col md:flex-row justify-between items-center gap-6 border-t border-gray-200 pt-6 text-xs text-gray-500">
             {/* Payment */}
-            <div className="flex items-center gap-3">
-              <span>Visa</span>
-              <span>Mastercard</span>
-              <span>AMEX</span>
-              <span>Apple Pay</span>
-              <span>Google Pay</span>
+            <div className="flex items-center gap-4">
+              <Image
+                src="/payments/mastercard.svg"
+                alt="Mastercard"
+                width={40}
+                height={24}
+              />
+              <Image
+                src="/payments/visa.png"
+                alt="visa"
+                width={40}
+                height={24}
+              />
+              <Image
+                src="/payments/paypal.jpg"
+                alt="Mastercard"
+                width={40}
+                height={24}
+              />
             </div>
 
             {/* Social */}
             <div className="flex gap-4">
-              <a href="#">Instagram</a>
-              <a href="#">YouTube</a>
-              <a href="#">Facebook</a>
+              <a
+                href="https://instagram.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Instagram"
+                className="hover:text-gray-900 transition"
+              >
+                <Instagram className="w-5 h-5" />
+              </a>
+              <a
+                href="https://youtube.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="YouTube"
+                className="hover:text-gray-900 transition"
+              >
+                <Youtube className="w-5 h-5" />
+              </a>
+              <a
+                href="https://facebook.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Facebook"
+                className="hover:text-gray-900 transition"
+              >
+                <Facebook className="w-5 h-5" />
+              </a>
             </div>
           </div>
 
+          {/* Copyright */}
           <div className="mt-4 text-center text-xs text-gray-400">
             © 2004–2026 Seoul City Tour Co., Ltd. All Rights Reserved.
           </div>
