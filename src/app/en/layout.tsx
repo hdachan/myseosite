@@ -51,7 +51,7 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
       <Script
         id="jsonld-travelagency"
         type="application/ld+json"
-        strategy="afterInteractive"
+        strategy="beforeInteractive"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify({
             "@context": "https://schema.org",
@@ -69,6 +69,15 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
               addressRegion: "Seoul",
               addressCountry: "KR",
             },
+
+            /* ⭐⭐⭐⭐⭐ 핵심 추가 부분 */
+            aggregateRating: {
+              "@type": "AggregateRating",
+              ratingValue: "4.9",
+              reviewCount: "21044",
+              bestRating: "5",
+            },
+
             sameAs: [
               "https://www.instagram.com/yourinstagram",
               "https://www.facebook.com/yourfacebook",
@@ -77,7 +86,7 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
           }),
         }}
       />
-      {/* HEADER */}
+
       {/* HEADER */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-white shadow-[0_2px_6px_rgba(0,0,0,0.06)]">
         {/* Mobile Toggle */}

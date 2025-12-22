@@ -1,6 +1,3 @@
-// src/components/GlobalReviewsSection.tsx
-// 모바일에서 리뷰 좌우 슬라이드 완료 (전체 코드)
-
 "use client";
 
 import { useState } from "react";
@@ -102,7 +99,7 @@ const ReviewCard = ({ review }: { review: any }) => (
           {review.avatar}
         </div>
         <div>
-          <div className="font-bold text-gray-900 text-base">{review.name}</div>
+          <h3 className="font-bold text-gray-900 text-base">{review.name}</h3>
           <div className="text-gray-500 text-sm">
             {review.flag} {review.country}
           </div>
@@ -122,214 +119,218 @@ export default function GlobalReviewsSection() {
   const prev = () => setIndex((i) => (i - 1 + reviews.length) % reviews.length);
 
   return (
-    <section className="relative py-20 lg:py-28 bg-gradient-to-b from-white to-[#F8F1E7] overflow-hidden">
-      <div className="max-w-7xl mx-auto px-8 lg:px-14">
-        {/* 헤더 */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="mb-12"
-        >
-          <p className="text-xs uppercase tracking-widest text-[#8B1E26] font-medium mb-2">
-            Global Reviews
-          </p>
+    <>
+      <section className="relative py-20 lg:py-28 bg-gradient-to-b from-white to-[#F8F1E7] overflow-hidden">
+        <div className="max-w-7xl mx-auto px-8 lg:px-14">
+          {/* 헤더 */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="mb-12"
+          >
+            <p className="text-xs uppercase tracking-widest text-[#8B1E26] font-medium mb-2">
+              Global Reviews
+            </p>
 
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 leading-tight max-w-4xl">
-            Trusted by Travelers{" "}
-            <span className="bg-gradient-to-r from-[#8B1E26] to-[#D4A017] bg-clip-text text-transparent">
-              Worldwide
-            </span>
-          </h2>
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 leading-tight max-w-4xl">
+              Trusted by Travelers{" "}
+              <span className="bg-gradient-to-r from-[#8B1E26] to-[#D4A017] bg-clip-text text-transparent">
+                Worldwide
+              </span>
+            </h2>
 
-          <p className="text-base text-gray-600 max-w-3xl">
-            Friendly Guides · Safe Itinerary · Top-Rated Experience
-          </p>
-        </motion.div>
+            <p className="text-base text-gray-600 max-w-3xl">
+              Friendly Guides · Safe Itinerary · Top-Rated Experience
+            </p>
+          </motion.div>
 
-        {/* TripAdvisor Badge & Stats */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-          className="mb-12"
-        >
-          <div className="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
-            <div className="grid md:grid-cols-2 gap-0">
-              <div className="p-8 flex flex-col items-center justify-center border-r border-gray-100">
-                <a
-                  href="https://www.tripadvisor.com.ph/Attraction_Review-g294197-d4492012-Reviews-Seoul_City_Tour-Seoul.html"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group text-center"
-                >
-                  <div className="mb-4">
-                    <div className="bg-gradient-to-br from-[#00AF87] to-[#00D4AA] rounded-full w-20 h-20 mx-auto flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                      <svg
-                        className="w-12 h-12"
-                        viewBox="0 0 120 120"
-                        fill="none"
-                      >
-                        <circle cx="60" cy="45" r="6" fill="#1a1a1a" />
-                        <circle cx="45" cy="45" r="6" fill="#1a1a1a" />
-                        <circle cx="75" cy="45" r="6" fill="#1a1a1a" />
-                        <path
-                          d="M40 65 Q60 75 80 65"
-                          stroke="#1a1a1a"
-                          strokeWidth="5"
+          {/* TripAdvisor Badge & Stats */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="mb-12"
+          >
+            <div className="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
+              <div className="grid md:grid-cols-2 gap-0">
+                <div className="p-8 flex flex-col items-center justify-center border-r border-gray-100">
+                  <a
+                    href="https://www.tripadvisor.com.ph/Attraction_Review-g294197-d4492012-Reviews-Seoul_City_Tour-Seoul.html"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group text-center"
+                  >
+                    <div className="mb-4">
+                      <div className="bg-gradient-to-br from-[#00AF87] to-[#00D4AA] rounded-full w-20 h-20 mx-auto flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                        <svg
+                          className="w-12 h-12"
+                          viewBox="0 0 120 120"
                           fill="none"
-                        />
-                      </svg>
+                        >
+                          <circle cx="60" cy="45" r="6" fill="#1a1a1a" />
+                          <circle cx="45" cy="45" r="6" fill="#1a1a1a" />
+                          <circle cx="75" cy="45" r="6" fill="#1a1a1a" />
+                          <path
+                            d="M40 65 Q60 75 80 65"
+                            stroke="#1a1a1a"
+                            strokeWidth="5"
+                            fill="none"
+                          />
+                        </svg>
+                      </div>
                     </div>
-                  </div>
-                  <div className="text-sm text-[#00AF87] font-bold mb-2">
-                    TripAdvisor
-                  </div>
-                  <div className="text-base font-bold text-gray-800 mb-4">
-                    Certificate of Excellence
-                  </div>
-                  <div className="flex items-center justify-center gap-3 mb-2">
-                    <div className="flex gap-0.5">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <Star
-                          key={star}
-                          className="w-5 h-5 fill-[#D4A017] text-[#D4A017]"
-                        />
-                      ))}
+                    <div className="text-sm text-[#00AF87] font-bold mb-2">
+                      TripAdvisor
                     </div>
-                    <span className="text-3xl font-bold text-gray-900">
-                      4.9
-                    </span>
-                  </div>
-                  <div className="text-sm text-gray-500 font-medium">
-                    21,044 reviews
-                  </div>
-                </a>
-              </div>
+                    <div className="text-base font-bold text-gray-800 mb-4">
+                      Certificate of Excellence
+                    </div>
+                    <div className="flex items-center justify-center gap-3 mb-2">
+                      <div className="flex gap-0.5">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <Star
+                            key={star}
+                            className="w-5 h-5 fill-[#D4A017] text-[#D4A017]"
+                          />
+                        ))}
+                      </div>
+                      <span className="text-3xl font-bold text-gray-900">
+                        4.9
+                      </span>
+                    </div>
+                    <div className="text-sm text-gray-500 font-medium">
+                      21,044 reviews
+                    </div>
+                  </a>
+                </div>
 
-              <div className="grid grid-cols-2 gap-px bg-gray-100">
-                <div className="bg-white p-6 flex flex-col items-center justify-center">
-                  <div className="text-4xl font-bold bg-gradient-to-r from-[#8B1E26] to-[#D4A017] bg-clip-text text-transparent mb-2">
-                    98%
+                <div className="grid grid-cols-2 gap-px bg-gray-100">
+                  <div className="bg-white p-6 flex flex-col items-center justify-center">
+                    <div className="text-4xl font-bold bg-gradient-to-r from-[#8B1E26] to-[#D4A017] bg-clip-text text-transparent mb-2">
+                      98%
+                    </div>
+                    <div className="text-sm text-gray-600 font-medium">
+                      Recommended
+                    </div>
                   </div>
-                  <div className="text-sm text-gray-600 font-medium">
-                    Recommended
+                  <div className="bg-white p-6 flex flex-col items-center justify-center">
+                    <div className="text-4xl font-bold bg-gradient-to-r from-[#8B1E26] to-[#D4A017] bg-clip-text text-transparent mb-2">
+                      20K+
+                    </div>
+                    <div className="text-sm text-gray-600 font-medium">
+                      Excellent
+                    </div>
                   </div>
-                </div>
-                <div className="bg-white p-6 flex flex-col items-center justify-center">
-                  <div className="text-4xl font-bold bg-gradient-to-r from-[#8B1E26] to-[#D4A017] bg-clip-text text-transparent mb-2">
-                    20K+
+                  <div className="bg-white p-6 flex flex-col items-center justify-center">
+                    <div className="text-4xl font-bold bg-gradient-to-r from-[#8B1E26] to-[#D4A017] bg-clip-text text-transparent mb-2">
+                      #50
+                    </div>
+                    <div className="text-sm text-gray-600 font-medium">
+                      of 878 Tours
+                    </div>
                   </div>
-                  <div className="text-sm text-gray-600 font-medium">
-                    Excellent
-                  </div>
-                </div>
-                <div className="bg-white p-6 flex flex-col items-center justify-center">
-                  <div className="text-4xl font-bold bg-gradient-to-r from-[#8B1E26] to-[#D4A017] bg-clip-text text-transparent mb-2">
-                    #50
-                  </div>
-                  <div className="text-sm text-gray-600 font-medium">
-                    of 878 Tours
-                  </div>
-                </div>
-                <div className="bg-white p-6 flex flex-col items-center justify-center">
-                  <div className="text-4xl font-bold bg-gradient-to-r from-[#8B1E26] to-[#D4A017] bg-clip-text text-transparent mb-2">
-                    100+
-                  </div>
-                  <div className="text-sm text-gray-600 font-medium">
-                    Countries
+                  <div className="bg-white p-6 flex flex-col items-center justify-center">
+                    <div className="text-4xl font-bold bg-gradient-to-r from-[#8B1E26] to-[#D4A017] bg-clip-text text-transparent mb-2">
+                      100+
+                    </div>
+                    <div className="text-sm text-gray-600 font-medium">
+                      Countries
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        </motion.div>
+          </motion.div>
 
-        {/* 리뷰 영역 */}
-        <div className="relative mb-12">
-          {/* 데스크탑/태블릿: 그리드 */}
-          <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {reviews.map((review, idx) => (
-              <motion.div
-                key={idx}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: idx * 0.1 }}
-              >
-                <ReviewCard review={review} />
-              </motion.div>
-            ))}
-          </div>
-
-          {/* 모바일: 슬라이더 */}
-          <div className="md:hidden">
-            <div className="relative overflow-hidden">
-              <AnimatePresence mode="wait">
+          {/* 리뷰 영역 */}
+          <div className="relative mb-12">
+            {/* 데스크탑/태블릿: 그리드 */}
+            <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {reviews.map((review, idx) => (
                 <motion.div
-                  key={index}
-                  initial={{ opacity: 0, x: 300 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -300 }}
-                  transition={{ duration: 0.4 }}
-                  className="px-4"
+                  key={idx}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: idx * 0.1 }}
                 >
-                  <ReviewCard review={reviews[index]} />
+                  <ReviewCard review={review} />
                 </motion.div>
-              </AnimatePresence>
-            </div>
-
-            <button
-              onClick={prev}
-              aria-label="Previous review"
-              className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 p-2 rounded-full shadow-lg hover:shadow-xl"
-            >
-              <ChevronLeft className="w-6 h-6 text-[#8B1E26]" />
-            </button>
-            <button
-              onClick={next}
-              aria-label="Next review"
-              className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 p-2 rounded-full shadow-lg hover:shadow-xl"
-            >
-              <ChevronRight className="w-6 h-6 text-[#8B1E26]" />
-            </button>
-
-            <div className="flex justify-center gap-2 mt-8">
-              {reviews.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setIndex(i)}
-                  className={`transition-all rounded-full ${
-                    i === index ? "bg-[#8B1E26] w-8 h-2" : "bg-gray-300 w-2 h-2"
-                  }`}
-                  aria-label={`Go to review ${i + 1}`}
-                />
               ))}
             </div>
-          </div>
-        </div>
 
-        {/* CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center"
-        >
-          <a
-            href="https://www.tripadvisor.com.ph/Attraction_Review-g294197-d4492012-Reviews-Seoul_City_Tour-Seoul.html"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-3 px-8 py-4 bg-[#8B1E26] text-white font-semibold rounded-xl hover:bg-[#6E0D0D] transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+            {/* 모바일: 슬라이더 */}
+            <div className="md:hidden">
+              <div className="relative overflow-hidden">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, x: 300 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -300 }}
+                    transition={{ duration: 0.4 }}
+                    className="px-4"
+                  >
+                    <ReviewCard review={reviews[index]} />
+                  </motion.div>
+                </AnimatePresence>
+              </div>
+
+              <button
+                onClick={prev}
+                aria-label="Previous review"
+                className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 p-2 rounded-full shadow-lg hover:shadow-xl"
+              >
+                <ChevronLeft className="w-6 h-6 text-[#8B1E26]" />
+              </button>
+              <button
+                onClick={next}
+                aria-label="Next review"
+                className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 p-2 rounded-full shadow-lg hover:shadow-xl"
+              >
+                <ChevronRight className="w-6 h-6 text-[#8B1E26]" />
+              </button>
+
+              <div className="flex justify-center gap-2 mt-8">
+                {reviews.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setIndex(i)}
+                    className={`transition-all rounded-full ${
+                      i === index
+                        ? "bg-[#8B1E26] w-8 h-2"
+                        : "bg-gray-300 w-2 h-2"
+                    }`}
+                    aria-label={`Go to review ${i + 1}`}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* CTA */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center"
           >
-            <span>View All 21,044 Reviews</span>
-            <ArrowRight className="w-5 h-5" />
-          </a>
-        </motion.div>
-      </div>
-    </section>
+            <a
+              href="https://www.tripadvisor.com.ph/Attraction_Review-g294197-d4492012-Reviews-Seoul_City_Tour-Seoul.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-3 px-8 py-4 bg-[#8B1E26] text-white font-semibold rounded-xl hover:bg-[#6E0D0D] transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+            >
+              <span>View All 21,044 Reviews</span>
+              <ArrowRight className="w-5 h-5" />
+            </a>
+          </motion.div>
+        </div>
+      </section>
+    </>
   );
 }

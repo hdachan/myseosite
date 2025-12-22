@@ -21,8 +21,8 @@ export default function HeroCarousel1() {
 
   return (
     <div className="relative w-full overflow-hidden">
-      {/* 이미지 컨테이너 */}
-      <div className="relative w-full h-[800px] md:h-[900px]">
+      {/* 이미지 컨테이너 - CLS 방지 수정 */}
+      <div className="relative w-full aspect-[16/9] min-h-[600px] md:min-h-[800px] lg:min-h-[900px]">
         {/* 배경 이미지 */}
         <Image
           src="/images/background_v3.jpg"
@@ -34,18 +34,19 @@ export default function HeroCarousel1() {
           className="object-cover object-center z-0"
         />
 
-        {/* 어둡게 오버레이 - 검은색으로 변경 */}
+        {/* 어둡게 오버레이 */}
         <div className="absolute inset-0 bg-black/40 z-10"></div>
 
         {/* 중앙 콘텐츠 */}
         <div className="absolute inset-0 z-20 flex flex-col items-center justify-center px-4 text-center">
           <h1 className="text-white text-4xl md:text-6xl lg:text-7xl font-bold leading-tight mb-6 drop-shadow-2xl">
-            Do you want to
+            DMZ & Seoul Tours —
             <br />
             <span className="bg-gradient-to-r from-white to-[#D4A017] bg-clip-text text-transparent">
-              experience real Korea?
+              Experience the Real Korea
             </span>
           </h1>
+
           {/* 검색 박스 */}
           <div className="w-full max-w-2xl mb-8">
             <div className="flex bg-white rounded-2xl overflow-hidden shadow-2xl border border-gray-200 hover:border-[#D4A017]/50 transition-all duration-300">
