@@ -1,19 +1,37 @@
-// D:\myseosite\src\app\en\package\page.tsx
-"use client";
+// src/app/en/package/page.tsx
 
-import React, { useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
+import Image from "next/image";
 import {
   packageTours,
   getPackagesByCategory,
   type Category,
 } from "./packageData";
 
-export default function PackageTourPage() {
-  const [category, setCategory] = useState<Category>("ALL");
+export const metadata = {
+  title: "Korea Package Tours 2025 | Seoul DMZ, Daily & Ski Tours",
+  description:
+    "Best Korea group tours: DMZ Tour, Seoul Daily Tours, Nami Island, Ski Tours & K-Drama locations. Muslim-friendly options available. Book now with discounts!",
+  alternates: {
+    canonical: "https://yourdomain.com/en/package",
+  },
+  openGraph: {
+    title: "Korea Package Tours | DMZ, Seoul, Ski & Drama Tours",
+    description:
+      "Join top-rated Korea group tours: DMZ, Seoul city, Nami Island, ski resorts & filming locations.",
+    url: "https://yourdomain.com/en/package",
+    type: "website",
+  },
+};
 
-  const filteredTours = getPackagesByCategory(category);
+export default async function PackageTourPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ category?: string }>;
+}) {
+  const { category } = await searchParams;
+  const cat = (category?.toUpperCase() as Category) || "ALL";
+  const filteredTours = getPackagesByCategory(cat);
 
   return (
     <div className="min-h-screen bg-gray-50 pt-24">
@@ -23,10 +41,10 @@ export default function PackageTourPage() {
 
         <div className="max-w-6xl mx-auto px-4 py-12 md:py-16 relative">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white">
-            Group Activity Tours
+            Korea Group Tours & Packages
           </h1>
           <p className="text-red-100 mt-3">
-            Join a guided tour and experience the journey!
+            Seoul DMZ Tours, Daily Tours, Ski & K-Drama Experiences
           </p>
         </div>
 
@@ -36,7 +54,7 @@ export default function PackageTourPage() {
       {/* Main Content */}
       <div className="max-w-6xl mx-auto px-4 -mt-16 relative z-10 pb-16">
         <article className="bg-white rounded-2xl shadow-xl p-6 md:p-8 border-t-2 border-red-800">
-          {/* Breadcrumb Navigation */}
+          {/* Breadcrumb */}
           <nav aria-label="Breadcrumb" className="mb-6">
             <ol className="flex items-center gap-2 text-sm text-gray-600">
               <li>
@@ -62,19 +80,19 @@ export default function PackageTourPage() {
               ["DRAMA", "Drama Tour"],
               ["SKI", "Ski Tour"],
             ].map(([key, label]) => (
-              <button
+              <Link
                 key={key}
-                onClick={() => setCategory(key as Category)}
+                href={`/en/package${key === "ALL" ? "" : `?category=${key}`}`}
                 className={`px-4 py-2 rounded-full text-sm font-medium transition
                   ${
-                    category === key
+                    cat === key
                       ? "bg-red-700 text-white"
                       : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                   }`}
-                aria-pressed={category === key}
+                aria-pressed={cat === key}
               >
                 {label}
-              </button>
+              </Link>
             ))}
           </nav>
 
