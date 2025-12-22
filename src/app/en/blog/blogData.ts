@@ -15,7 +15,7 @@ export interface BlogPost {
 export const blogPosts: BlogPost[] = [
   {
     slug: "dmz-tour-why-it-matters",
-    title: "Why the DMZ Tour Is One of Korea’s Most Meaningful Experiences",
+    title: "Why the DMZ Tour Is One of Korea's Most Meaningful Experiences",
     description:
       "More than a tourist attraction — discover why visiting the DMZ offers deep historical insight and a powerful emotional experience.",
     category: "History & Culture",
@@ -69,10 +69,10 @@ of a divided nation.
 
 <!-- 인용문 -->
 <blockquote class="border-l-4 border-gray-400 pl-4 italic my-8 text-gray-700">
-  “You don’t just learn history at the DMZ — you feel it.”
+  "You don't just learn history at the DMZ — you feel it."
 </blockquote>
 
-<h2>What You’ll See on a DMZ Tour</h2>
+<h2>What You'll See on a DMZ Tour</h2>
 
 <ul>
   <li>The Third Infiltration Tunnel</li>
@@ -89,7 +89,7 @@ personal stories of separation and hope.
 <h2>Is the DMZ Tour Worth It?</h2>
 
 <p>
-Absolutely. Whether you’re interested in history, geopolitics, or human stories,
+Absolutely. Whether you're interested in history, geopolitics, or human stories,
 the DMZ offers a rare perspective you simply cannot get elsewhere.
 </p>
 `,
@@ -108,7 +108,7 @@ the DMZ offers a rare perspective you simply cannot get elsewhere.
       "https://images.unsplash.com/photo-1583562835057-a62d1beffbf3?w=800&h=500&fit=crop",
     tags: ["Travel Tips", "First Timer", "Guide"],
     content: `
-<h1>First Time in Korea? Essential Travel Tips You Need to Know</h1>
+<h2>First Time in Korea? Essential Travel Tips You Need to Know</h2>
 
 <p>Korea is an incredible destination, but it can be overwhelming for first-time visitors. Here are essential tips to make your trip smooth and enjoyable.</p>
 
@@ -138,7 +138,7 @@ the DMZ offers a rare perspective you simply cannot get elsewhere.
       "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&h=500&fit=crop",
     tags: ["K-Drama", "Filming Locations", "Entertainment"],
     content: `
-<h1>Visit These Iconic K-Drama Filming Locations</h1>
+<h2>Visit These Iconic K-Drama Filming Locations</h2>
 
 <p>K-dramas have made Korea famous worldwide. Now you can visit the actual locations where your favorite scenes were filmed!</p>
 
