@@ -11,18 +11,12 @@ import ScrollToTop from "@/components/ScrollToTop";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://mysite.com"),
-  title: { default: "DMZ Tour — Seoul DMZ Travel", template: "%s | DMZ Tour" },
+  title: {
+    default: "Korea DMZ Tours & Seoul Travel | DMZ Tour",
+    template: "%s | Korea DMZ Tour",
+  },
   description:
     "Seoul departure DMZ tour specialist. One-day course including the 3rd Tunnel, Dora Observatory, and Dorasan Station. Daily departure with lunch and English-speaking guide.",
-  keywords: [
-    "Seoul DMZ Tour",
-    "DMZ Day Trip",
-    "3rd Tunnel",
-    "Dora Observatory",
-    "Dorasan Station",
-    "Panmunjom Tour",
-    "Demilitarized Zone Tour",
-  ],
   alternates: {
     canonical: "/en",
     languages: {
@@ -75,21 +69,23 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
               addressRegion: "Seoul",
               addressCountry: "KR",
             },
+            sameAs: [
+              "https://www.instagram.com/yourinstagram",
+              "https://www.facebook.com/yourfacebook",
+              "https://www.youtube.com/youryoutube",
+            ],
           }),
         }}
       />
-
+      {/* HEADER */}
       {/* HEADER */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-white shadow-[0_2px_6px_rgba(0,0,0,0.06)]">
         {/* Mobile Toggle */}
         <input type="checkbox" id="mobile-menu" className="peer hidden" />
 
         {/* SLIM TOP BAR */}
-        <nav
-          className="max-w-7xl mx-auto flex items-center justify-between 
-                  px-6 lg:px-10 py-3 lg:py-4"
-        >
-          {/* LOGO (더 슬림하게) */}
+        <nav className="max-w-7xl mx-auto flex items-center justify-between px-6 lg:px-10 py-3 lg:py-4">
+          {/* LOGO */}
           <Link href="/en" className="flex items-center">
             <Image
               src="/images/logo.png"
@@ -106,15 +102,10 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
               <Link
                 key={href}
                 href={href}
-                className="relative px-3 py-2 text-[15px] font-medium text-gray-800
-                     hover:text-red-800 transition group"
+                className="relative px-3 py-2 text-[15px] font-medium text-gray-800 hover:text-red-800 transition group"
               >
                 {label}
-                <span
-                  className="absolute bottom-0 left-1/2 -translate-x-1/2 
-                           w-0 h-[2px] bg-red-800 transition-all duration-300 
-                           group-hover:w-3/4"
-                />
+                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-[2px] bg-red-800 transition-all duration-300 group-hover:w-3/4" />
               </Link>
             ))}
           </div>
@@ -128,7 +119,6 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
               aria-label="Shopping Cart"
             >
               <ShoppingCart size={24} />
-              {/* 장바구니 개수 배지 (선택사항) */}
               <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
                 3
               </span>
@@ -136,18 +126,17 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
 
             {/* LANG SWITCHER */}
             <div className="hidden sm:flex items-center gap-3 border-l border-gray-300 pl-4">
-              <Link href="/ko">
-                <button className="text-gray-700 hover:text-red-800 text-[14px] font-medium">
-                  한국어
-                </button>
+              <Link
+                href="/ko"
+                className="text-gray-700 hover:text-red-800 text-[14px] font-medium"
+              >
+                한국어
               </Link>
-              <Link href="/en">
-                <button
-                  className="bg-red-800 text-white px-4 py-1.5 rounded-md text-xs font-semibold 
-                             hover:bg-red-900 transition"
-                >
-                  EN
-                </button>
+              <Link
+                href="/en"
+                className="bg-red-800 text-white px-4 py-1.5 rounded-md text-xs font-semibold hover:bg-red-900 transition"
+              >
+                EN
               </Link>
             </div>
 
@@ -166,15 +155,8 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
         <div className="h-[2px] bg-gradient-to-r from-red-900 via-red-700 to-red-900" />
 
         {/* MOBILE MENU */}
-        <div
-          className="
-      fixed inset-0 bg-white z-40 h-screen 
-      -translate-y-full peer-checked:translate-y-0
-      transition-transform duration-500 ease-in-out
-      lg:hidden pointer-events-none peer-checked:pointer-events-auto
-    "
-        >
-          {/* Mobile top bar (slim) */}
+        <div className="fixed inset-0 bg-white z-40 h-screen -translate-y-full peer-checked:translate-y-0 transition-transform duration-500 ease-in-out lg:hidden pointer-events-none peer-checked:pointer-events-auto">
+          {/* Mobile top bar */}
           <div className="flex items-center justify-between p-5 border-b-2 border-red-800">
             <Link href="/en">
               <Image
@@ -185,7 +167,6 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
                 className="h-10 w-auto"
               />
             </Link>
-
             <label htmlFor="mobile-menu" className="p-2 text-red-800">
               <X size={30} />
             </label>
@@ -200,11 +181,7 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
                 className="text-3xl font-semibold text-gray-800 hover:text-red-800 transition relative group"
               >
                 {label}
-                <span
-                  className="absolute -bottom-2 left-1/2 -translate-x-1/2 
-                       w-0 h-1 bg-red-800 transition-all duration-300 
-                       group-hover:w-full"
-                ></span>
+                <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-1 bg-red-800 transition-all duration-300 group-hover:w-full"></span>
               </Link>
             ))}
 
@@ -215,34 +192,29 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
             >
               <ShoppingCart size={32} />
               Cart
-              <span
-                className="absolute -bottom-2 left-1/2 -translate-x-1/2 
-                     w-0 h-1 bg-red-800 transition-all duration-300 
-                     group-hover:w-full"
-              ></span>
+              <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-1 bg-red-800 transition-all duration-300 group-hover:w-full"></span>
             </Link>
 
             {/* Mobile Language */}
             <div className="mt-10 flex flex-col items-center gap-5">
-              <Link href="/ko">
-                <button className="text-gray-700 hover:text-red-800 text-xl font-semibold transition">
-                  한국어
-                </button>
+              <Link
+                href="/ko"
+                className="text-gray-700 hover:text-red-800 text-xl font-semibold transition"
+              >
+                한국어
               </Link>
-              <Link href="/en">
-                <button
-                  className="bg-red-800 text-white px-14 py-3 rounded-lg text-lg font-bold 
-                       hover:bg-red-900 shadow-md transition"
-                >
-                  ENGLISH
-                </button>
+              <Link
+                href="/en"
+                className="bg-red-800 text-white px-14 py-3 rounded-lg text-lg font-bold hover:bg-red-900 shadow-md transition"
+              >
+                ENGLISH
               </Link>
             </div>
           </div>
         </div>
       </header>
 
-      <main>{children}</main>
+      <main className="pt-20 lg:pt-24">{children}</main>
 
       <footer className="bg-white border-t border-gray-200 mt-20">
         <div className="max-w-7xl mx-auto px-6 py-14">
