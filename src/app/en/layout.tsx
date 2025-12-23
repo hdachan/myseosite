@@ -65,8 +65,9 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
             telephone: "+82-2-1234-5678",
             address: {
               "@type": "PostalAddress",
+              streetAddress: "507, Hanaro Building, 194-4 Insadong, Jongno-gu",
               addressLocality: "Seoul",
-              addressRegion: "Seoul",
+              postalCode: "03163",
               addressCountry: "KR",
             },
 

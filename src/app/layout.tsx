@@ -1,9 +1,9 @@
-// src/app/layout.tsx  ← 최종 정답 버전
+// src/app/layout.tsx
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   robots: {
-    index: false,
+    index: false, // 루트(/)는 리다이렉트용
     follow: true,
   },
 };
@@ -14,7 +14,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ko">
+    <html>
       <body>{children}</body>
     </html>
   );
