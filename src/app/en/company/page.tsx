@@ -3,7 +3,7 @@ import { Award, Users, Globe, Headset, ShieldCheck } from "lucide-react";
 
 export default function CompanyPage() {
   return (
-    <div className="min-h-screen bg-gray-50 pt-24">
+    <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
       <div className="relative pb-32">
         <div

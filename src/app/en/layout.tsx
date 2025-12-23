@@ -223,7 +223,7 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
-      <main className="pt-20 lg:pt-24">{children}</main>
+      <main className="pt-16">{children}</main>
 
       <footer className="bg-white border-t border-gray-200 mt-20">
         <div className="max-w-7xl mx-auto px-6 py-14">
