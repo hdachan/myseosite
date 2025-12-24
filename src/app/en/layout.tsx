@@ -70,15 +70,12 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
               postalCode: "03163",
               addressCountry: "KR",
             },
-
-            /* ⭐⭐⭐⭐⭐ 핵심 추가 부분 */
             aggregateRating: {
               "@type": "AggregateRating",
               ratingValue: "4.9",
               reviewCount: "21044",
               bestRating: "5",
             },
-
             sameAs: [
               "https://www.instagram.com/yourinstagram",
               "https://www.facebook.com/yourfacebook",
@@ -153,10 +150,16 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
             {/* HAMBURGER */}
             <label
               htmlFor="mobile-menu"
-              className="lg:hidden cursor-pointer p-2 text-red-800 z-50"
+              className="lg:hidden cursor-pointer p-2 text-red-800 relative w-10 h-10 flex items-center justify-center"
             >
-              <Menu size={28} className="peer-checked:hidden" />
-              <X size={28} className="hidden peer-checked:block" />
+              <Menu
+                size={28}
+                className="absolute transition-opacity peer-checked:opacity-0"
+              />
+              <X
+                size={28}
+                className="absolute opacity-0 transition-opacity peer-checked:opacity-100"
+              />
             </label>
           </div>
         </nav>
@@ -164,8 +167,11 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
         {/* Thin bottom line */}
         <div className="h-[2px] bg-gradient-to-r from-red-900 via-red-700 to-red-900" />
 
+        {/* MOBILE MENU BACKDROP */}
+        <div className="fixed inset-0 bg-black/50 z-40 hidden peer-checked:block lg:hidden" />
+
         {/* MOBILE MENU */}
-        <div className="fixed inset-0 bg-white z-40 h-screen -translate-y-full peer-checked:translate-y-0 transition-transform duration-500 ease-in-out lg:hidden pointer-events-none peer-checked:pointer-events-auto">
+        <div className="fixed inset-0 bg-white z-40 h-screen -translate-y-full peer-checked:translate-y-0 transition-transform duration-500 ease-in-out lg:hidden overflow-y-auto">
           {/* Mobile top bar */}
           <div className="flex items-center justify-between p-5 border-b-2 border-red-800">
             <Link href="/en">
@@ -177,7 +183,10 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
                 className="h-10 w-auto"
               />
             </Link>
-            <label htmlFor="mobile-menu" className="p-2 text-red-800">
+            <label
+              htmlFor="mobile-menu"
+              className="p-2 text-red-800 cursor-pointer"
+            >
               <X size={30} />
             </label>
           </div>
@@ -191,7 +200,7 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
                 className="text-3xl font-semibold text-gray-800 hover:text-red-800 transition relative group"
               >
                 {label}
-                <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-1 bg-red-800 transition-all duration-300 group-hover:w-full"></span>
+                <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-1 bg-red-800 transition-all duration-300 group-hover:w-full" />
               </Link>
             ))}
 
@@ -202,7 +211,7 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
             >
               <ShoppingCart size={32} />
               Cart
-              <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-1 bg-red-800 transition-all duration-300 group-hover:w-full"></span>
+              <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-1 bg-red-800 transition-all duration-300 group-hover:w-full" />
             </Link>
 
             {/* Mobile Language */}
@@ -224,13 +233,25 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
+      {/* Prevent body scroll when menu open */}
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `
+          const checkbox = document.getElementById('mobile-menu');
+          if (checkbox) {
+            checkbox.addEventListener('change', (e) => {
+              document.body.style.overflow = e.target.checked ? 'hidden' : '';
+            });
+          }
+        `,
+        }}
+      />
+
       <main className="pt-16">{children}</main>
 
       <footer className="bg-white border-t border-gray-200 mt-20">
         <div className="max-w-7xl mx-auto px-6 py-14">
-          {/* Top */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10 text-sm text-gray-600">
-            {/* Company */}
             <div>
               <h4 className="font-semibold text-gray-900 mb-3">Company</h4>
               <p className="leading-relaxed">
@@ -250,7 +271,6 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
               </p>
             </div>
 
-            {/* Support */}
             <div>
               <h4 className="font-semibold text-gray-900 mb-3">Support</h4>
               <ul className="space-y-2">
@@ -285,7 +305,6 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
               </ul>
             </div>
 
-            {/* Explore + Legal */}
             <div>
               <h4 className="font-semibold text-gray-900 mb-3">Explore</h4>
               <ul className="space-y-2 mb-6">
@@ -326,9 +345,7 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
             </div>
           </div>
 
-          {/* Bottom */}
           <div className="mt-10 flex flex-col md:flex-row justify-between items-center gap-6 border-t border-gray-200 pt-6 text-xs text-gray-500">
-            {/* Payment */}
             <div className="flex items-center gap-4">
               <Image
                 src="/payments/mastercard.svg"
@@ -350,7 +367,6 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
               />
             </div>
 
-            {/* Social */}
             <div className="flex gap-4">
               <a
                 href="https://instagram.com"
@@ -382,7 +398,6 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
             </div>
           </div>
 
-          {/* Copyright */}
           <div className="mt-4 text-center text-xs text-gray-400">
             © 2004–2026 Seoul City Tour Co., Ltd. All Rights Reserved.
           </div>

@@ -1,8 +1,9 @@
-// src/components/TourLayout.tsx (전체 코드 - 배경 이미지 복구 + SEO 최적화)
+// src/components/TourLayout.tsx (업데이트 버전)
 
 import Link from "next/link";
 import Image from "next/image";
 import { type PackageTour } from "@/app/en/package/packageData";
+import TourCard from "./TourCard";
 
 const categories = [
   { key: "ALL", label: "All Tours", path: "/en/package" },
@@ -91,81 +92,10 @@ export default function TourLayout({
             ))}
           </nav>
 
-          {/* Tour Cards Grid */}
+          {/* Tour Cards Grid - 이제 TourCard 컴포넌트 사용 */}
           <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {tours.map((tour) => (
-              <article key={tour.id} className="group">
-                <Link href={`/en/package/${tour.slug}`} className="block">
-                  <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 h-[380px] flex flex-col">
-                    <div className="relative h-[140px] overflow-hidden">
-                      <Image
-                        src={tour.image}
-                        alt={`${tour.title} - Korea tour package`}
-                        fill
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                        className="object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                      {tour.discount && (
-                        <div className="absolute top-2 right-2 bg-red-600 text-white px-2 py-1 rounded-lg text-xs font-bold shadow-md">
-                          {tour.discount}% OFF
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="p-4 flex flex-col flex-1">
-                      <div className="text-xs text-gray-500 mb-2">
-                        {tour.location}
-                      </div>
-                      <h2 className="text-base font-semibold text-gray-900 mb-2 line-clamp-2 leading-snug">
-                        {tour.title}
-                      </h2>
-                      <p className="text-xs text-gray-600 mb-3 line-clamp-2">
-                        {tour.description}
-                      </p>
-
-                      <div className="flex items-center gap-1 mb-3">
-                        <span className="text-yellow-500 text-sm">★</span>
-                        <span className="text-sm font-bold text-gray-900">
-                          {tour.rating}
-                        </span>
-                        <span className="text-xs text-gray-500">
-                          ({tour.reviews}) • {tour.bookings}
-                        </span>
-                      </div>
-
-                      <div className="mt-auto">
-                        {tour.discount ? (
-                          <>
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className="text-sm text-gray-400 line-through">
-                                $ {tour.originalPrice}
-                              </span>
-                              <span className="text-xs font-semibold text-red-600">
-                                {tour.discount}% OFF
-                              </span>
-                            </div>
-                            <div className="flex items-baseline gap-1.5">
-                              <span className="text-xl font-bold text-red-600">
-                                $ {tour.price}
-                              </span>
-                              <span className="text-sm text-gray-600">
-                                From
-                              </span>
-                            </div>
-                          </>
-                        ) : (
-                          <div className="flex items-baseline gap-1.5">
-                            <span className="text-xl font-bold text-gray-900">
-                              $ {tour.price}
-                            </span>
-                            <span className="text-sm text-gray-600">From</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              </article>
+            {tours.map((tour, index) => (
+              <TourCard key={tour.id} tour={tour} priority={index < 4} />
             ))}
           </section>
         </article>

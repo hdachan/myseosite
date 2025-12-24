@@ -1,78 +1,20 @@
-// src/components/FeaturedAccommodations.tsx
 "use client";
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import { ChevronLeft, ChevronRight, MapPin, Star } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-
-const accommodations = [
-  {
-    id: 1,
-    name: "Aparthotel Stare Miasto",
-    location: "Warsaw, Poland",
-    rating: 4.8,
-    reviews: 324,
-    price: 20202020,
-    image:
-      "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=832&h=520&fit=crop",
-  },
-  {
-    id: 2,
-    name: "7Seasons Apartments Budapest",
-    location: "Budapest, Hungary",
-    rating: 4.9,
-    reviews: 512,
-    price: 246516,
-    image:
-      "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=832&h=520&fit=crop",
-  },
-  {
-    id: 3,
-    name: "Leman Locke",
-    location: "Geneva, Switzerland",
-    rating: 5.0,
-    reviews: 89,
-    price: 969203,
-    image:
-      "https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=832&h=520&fit=crop",
-  },
-  {
-    id: 4,
-    name: "3 Epoques Apartments by Adrez",
-    location: "Paris, France",
-    rating: 4.7,
-    reviews: 267,
-    price: 218270,
-    image:
-      "https://images.unsplash.com/photo-1595846519845-68e298c2edd8?w=832&h=520&fit=crop",
-  },
-  {
-    id: 5,
-    name: "Seoul Myeongdong Stay",
-    location: "Seoul, South Korea",
-    rating: 4.6,
-    reviews: 428,
-    price: 156000,
-    image:
-      "https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=832&h=520&fit=crop",
-  },
-  {
-    id: 6,
-    name: "Busan Haeundae Hotel",
-    location: "Busan, South Korea",
-    rating: 4.8,
-    reviews: 391,
-    price: 198000,
-    image:
-      "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=832&h=520&fit=crop",
-  },
-];
+import { packageTours } from "@/app/en/package/packageData";
+import TourCard from "@/components/TourCard";
 
 export default function FeaturedAccommodations() {
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentPage, setCurrentPage] = useState(0);
   const [itemsPerView, setItemsPerView] = useState(1);
 
+  const MAX_ITEMS = 4;
+  const accommodations = packageTours.slice(0, MAX_ITEMS);
+
+  // 화면 크기에 따라 보여줄 카드 개수 설정
   useEffect(() => {
     const updateItemsPerView = () => {
       if (window.innerWidth >= 1024) {
@@ -89,20 +31,24 @@ export default function FeaturedAccommodations() {
     return () => window.removeEventListener("resize", updateItemsPerView);
   }, []);
 
+  // ✅ 페이지 단위 계산
+  const totalPages = Math.ceil(accommodations.length / itemsPerView);
+  const canPrev = currentPage > 0;
+  const canNext = currentPage < totalPages - 1;
+
   const nextSlide = () => {
-    setCurrentIndex((prev) => (prev + 1) % accommodations.length);
+    if (!canNext) return;
+    setCurrentPage((prev) => prev + 1);
   };
 
   const prevSlide = () => {
-    setCurrentIndex(
-      (prev) => (prev - 1 + accommodations.length) % accommodations.length
-    );
+    if (!canPrev) return;
+    setCurrentPage((prev) => prev - 1);
   };
 
-  const visibleItems = Array.from(
-    { length: itemsPerView },
-    (_, i) => accommodations[(currentIndex + i) % accommodations.length]
-  );
+  const startIndex = currentPage * itemsPerView;
+  const endIndex = startIndex + itemsPerView;
+  const visibleItems = accommodations.slice(startIndex, endIndex);
 
   return (
     <section className="relative pt-14 pb-32 lg:pt-20 lg:pb-44 bg-gradient-to-br from-[#F8F1E7] via-white to-[#F8F1E7]">
@@ -134,26 +80,39 @@ export default function FeaturedAccommodations() {
                 K-culture tour
               </h2>
               <p className="text-sm text-gray-600 max-w-3xl">
-                한국의 전통과 현대가 공존하는 특별한 숙소들을 만나보세요.
+                한국의 전통과 현대가 공존하는 특별한 투어를 만나보세요.
               </p>
 
               {/* 네비게이션 버튼 */}
-              <div className="flex gap-3 mt-6">
-                <button
-                  onClick={prevSlide}
-                  aria-label="Previous accommodation"
-                  className="group bg-white p-3 rounded-lg shadow-md hover:shadow-lg hover:bg-[#F8F1E7] transition-all duration-300 border border-[#D4A017]/30"
-                >
-                  <ChevronLeft className="w-5 h-5 text-[#8B1E26] group-hover:text-[#6E0D0D]" />
-                </button>
-                <button
-                  onClick={nextSlide}
-                  aria-label="Next accommodation"
-                  className="group bg-[#8B1E26] p-3 rounded-lg shadow-md hover:shadow-lg hover:bg-[#6E0D0D] transition-all duration-300"
-                >
-                  <ChevronRight className="w-5 h-5 text-white" />
-                </button>
-              </div>
+              {totalPages > 1 && (
+                <div className="flex gap-3 mt-6">
+                  <button
+                    onClick={prevSlide}
+                    disabled={!canPrev}
+                    className="group bg-white p-3 rounded-lg shadow-md hover:shadow-lg hover:bg-[#F8F1E7] transition-all duration-300 border border-[#D4A017]/30 disabled:opacity-30"
+                  >
+                    <ChevronLeft className="w-5 h-5 text-[#8B1E26]" />
+                  </button>
+                  <button
+                    onClick={nextSlide}
+                    disabled={!canNext}
+                    className="group bg-[#8B1E26] p-3 rounded-lg shadow-md hover:shadow-lg hover:bg-[#6E0D0D] transition-all duration-300 disabled:opacity-30"
+                  >
+                    <ChevronRight className="w-5 h-5 text-white" />
+                  </button>
+                </div>
+              )}
+
+              {/* 페이지 카운터 */}
+              {totalPages > 1 && (
+                <div className="mt-4 text-sm text-gray-600">
+                  <span className="font-semibold text-[#8B1E26]">
+                    {currentPage + 1}
+                  </span>
+                  <span className="mx-1">/</span>
+                  <span>{totalPages}</span>
+                </div>
+              )}
             </motion.div>
           </div>
 
@@ -175,90 +134,32 @@ export default function FeaturedAccommodations() {
                     : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
                 }`}
               >
-                <AnimatePresence mode="popLayout">
-                  {visibleItems.map((item, index) => (
+                <AnimatePresence mode="wait">
+                  {visibleItems.map((item) => (
                     <motion.div
-                      key={`${item.id}-${currentIndex}-${index}`}
-                      initial={{ opacity: 0, scale: 0.9 }}
+                      key={item.id}
+                      initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.9 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ duration: 0.4, ease: "easeOut" }}
-                      className="group"
                     >
-                      <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer">
-                        {/* 이미지 영역 */}
-                        <div className="relative aspect-[4/3] overflow-hidden">
-                          <Image
-                            src={item.image}
-                            alt={item.name}
-                            fill
-                            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                            className="object-cover group-hover:scale-105 transition-transform duration-500"
-                          />
-
-                          {/* 북마크 버튼 */}
-                          <button className="absolute top-3 right-3 w-9 h-9 bg-white/90 backdrop-blur-sm rounded-lg flex items-center justify-center hover:bg-white transition-colors shadow-sm">
-                            <svg
-                              className="w-5 h-5 text-gray-700"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
-                              />
-                            </svg>
-                          </button>
-                        </div>
-
-                        {/* 텍스트 영역 */}
-                        <div className="p-4 h-48 flex flex-col">
-                          <div className="text-sm text-gray-500 mb-2.5 font-normal">
-                            {item.location.split(",")[0]}
-                          </div>
-                          <h3 className="text-base font-medium text-gray-800 mb-auto line-clamp-2 leading-relaxed">
-                            {item.name}
-                          </h3>
-                          <div className="text-[22px] font-bold text-gray-900 mt-8">
-                            ₩{Math.floor(item.price / 1000).toLocaleString()}
-                          </div>
-                        </div>
-                      </div>
+                      <TourCard tour={item} />
                     </motion.div>
                   ))}
                 </AnimatePresence>
-              </div>
-
-              {/* 도트 인디케이터 */}
-              <div className="flex justify-center gap-2 mt-8">
-                {accommodations.map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setCurrentIndex(i)}
-                    className={`transition-all duration-300 rounded-full ${
-                      i === currentIndex
-                        ? "bg-[#8B1E26] w-8 h-2"
-                        : "bg-gray-300 w-2 h-2 hover:bg-[#D4A017]"
-                    }`}
-                    aria-label={`Go to slide ${i + 1}`}
-                  />
-                ))}
               </div>
             </motion.div>
           </div>
         </div>
 
-        {/* 일러스트 */}
+        {/* ✅ 일러스트 (원래 있던 그대로 복구) */}
         <div className="absolute bottom-0 left-6 lg:left-[calc((100%-1280px)/2+1.5rem)] z-0 pointer-events-none">
           <Image
             src="/images/card_koreaimg_v2.png"
             alt="K-culture illustration"
             width={1200}
             height={1200}
-            className="w-[50vw] max-w-[300px] md:w-[40vw] md:max-w-[380px] lg:w-[35vw] lg:max-w-[450px] h-auto object-bottom object-left translate-y-[40%] md:translate-y-[45%] lg:translate-y-[40%] drop-shadow-2xl opacity-70"
+            className="hidden md:block md:w-[40vw] md:max-w-[380px] lg:w-[35vw] lg:max-w-[450px] h-auto object-bottom object-left translate-y-[45%] lg:translate-y-[40%] drop-shadow-2xl opacity-70"
             priority
           />
         </div>

@@ -1,18 +1,19 @@
-// src/components/TourPackagesSection.tsx
+// src/components/TourPackagesSection.tsx (업데이트 버전)
 "use client";
 
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { motion } from "framer-motion";
 
 interface Tour {
   id: number;
-  badge: string;
-  badgeColor: string;
+  badge?: string;
+  badgeColor?: string;
   image: string;
   title: string;
   location: string;
-  minPerson: number;
+  minPerson?: number;
   price: number;
   description: string;
   originalPrice?: number;
@@ -23,12 +24,134 @@ interface Tour {
   reviewLabel?: string;
   priceNote?: string;
   alternatePrice?: number;
+  slug?: string;
 }
 
 interface TourCategory {
   id: string;
   title: string;
   tours: Tour[];
+}
+
+// SimpleTourCard 컴포넌트 - 홈페이지용 심플 버전
+function SimpleTourCard({ tour, index }: { tour: Tour; index: number }) {
+  const linkHref = tour.slug ? `/en/package/${tour.slug}` : "#";
+
+  return (
+    <motion.article
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.4, delay: index * 0.05 }}
+      className="group cursor-pointer"
+    >
+      <Link href={linkHref} className="block">
+        <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 h-[380px] flex flex-col">
+          {/* 이미지 섹션 */}
+          <div className="relative h-[140px] overflow-hidden flex-shrink-0">
+            <Image
+              src={tour.image}
+              alt={`${tour.title} - Korea tour package`}
+              fill
+              className="object-cover group-hover:scale-105 transition-transform duration-500"
+            />
+
+            {tour.badge && (
+              <div
+                className={`absolute top-2.5 left-2.5 ${
+                  tour.badgeColor === "orange" ? "bg-orange-500" : "bg-red-500"
+                } text-white px-2.5 py-0.5 rounded-full text-xs font-medium`}
+              >
+                {tour.badge}
+              </div>
+            )}
+
+            {tour.discount && (
+              <div className="absolute top-2 right-2 bg-red-600 text-white px-2 py-1 rounded-lg text-xs font-bold shadow-md">
+                {tour.discount}% OFF
+              </div>
+            )}
+          </div>
+
+          {/* 텍스트 컨텐츠 */}
+          <div className="p-4 flex flex-col flex-1">
+            <div className="text-xs text-gray-500 mb-2 font-normal">
+              {tour.location}
+            </div>
+
+            <h3 className="text-base font-semibold text-gray-900 mb-2 line-clamp-2 leading-snug">
+              {tour.title}
+            </h3>
+
+            <p className="text-xs text-gray-600 mb-3 line-clamp-2 leading-relaxed">
+              {tour.description}
+            </p>
+
+            {tour.rating && (
+              <div className="flex items-center gap-1 mb-3">
+                <span className="text-yellow-500 text-sm" aria-hidden="true">
+                  ★
+                </span>
+                <span className="text-sm font-bold text-gray-900">
+                  {tour.rating}
+                </span>
+                <span className="text-xs text-gray-500">
+                  ({tour.reviewCount})
+                </span>
+                <span className="text-xs text-gray-500">
+                  • {tour.reviewLabel}
+                </span>
+              </div>
+            )}
+
+            {/* 가격 */}
+            <div className="mt-auto">
+              {tour.discount ? (
+                <>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-sm text-gray-400 line-through">
+                      $ {tour.originalPrice}
+                    </span>
+                    <span className="text-xs font-semibold text-red-600">
+                      {tour.discount}% OFF
+                    </span>
+                  </div>
+                  <div className="flex items-baseline gap-1.5">
+                    <span className="text-xl font-bold text-red-600">
+                      $ {tour.price}
+                    </span>
+                    {tour.currency && (
+                      <span className="text-sm text-gray-600 font-medium">
+                        {tour.currency}
+                      </span>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-xl font-bold text-gray-900">
+                    {tour.currency
+                      ? `$ ${tour.price}`
+                      : `₩${tour.price.toLocaleString()}`}
+                  </span>
+                  {tour.currency && (
+                    <span className="text-sm text-gray-600 font-medium">
+                      {tour.currency}
+                    </span>
+                  )}
+                  {tour.alternatePrice && (
+                    <span className="text-xs text-gray-400 line-through">
+                      ₩{tour.alternatePrice.toLocaleString()}
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </Link>
+    </motion.article>
+  );
 }
 
 const tourCategories: TourCategory[] = [
@@ -53,6 +176,7 @@ const tourCategories: TourCategory[] = [
         reviewCount: 9,
         reviewLabel: "100+ bookings",
         description: "Available from tomorrow · Limited seats",
+        slug: "muslim-friendly-seoul-nami-island-day-tour",
       },
       {
         id: 2,
@@ -213,7 +337,10 @@ export default function TourPackagesSection() {
                 Best Tour Packages
               </h2>
             </div>
-            <button className="text-sm text-gray-600 hover:text-gray-900 font-medium flex items-center gap-1">
+            <Link
+              href="/en/package"
+              className="text-sm text-gray-600 hover:text-gray-900 font-medium flex items-center gap-1"
+            >
               More
               <svg
                 className="w-4 h-4"
@@ -228,7 +355,7 @@ export default function TourPackagesSection() {
                   d="M9 5l7 7-7 7"
                 />
               </svg>
-            </button>
+            </Link>
           </div>
         </motion.div>
 
@@ -255,7 +382,7 @@ export default function TourPackagesSection() {
           ))}
         </motion.div>
 
-        {/* 카드 그리드 */}
+        {/* 카드 그리드 - SimpleTourCard 사용 */}
         <motion.div
           key={activeTab}
           initial={{ opacity: 0 }}
@@ -264,117 +391,7 @@ export default function TourPackagesSection() {
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
         >
           {activeCategory?.tours.map((tour, index) => (
-            <motion.div
-              key={tour.id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: index * 0.05 }}
-              className="group cursor-pointer"
-            >
-              <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 h-[380px] flex flex-col">
-                <div className="relative h-[140px] overflow-hidden flex-shrink-0">
-                  <Image
-                    src={tour.image}
-                    alt={tour.title}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-
-                  {tour.badge && (
-                    <div
-                      className={`absolute top-2.5 left-2.5 ${
-                        tour.badgeColor === "orange"
-                          ? "bg-orange-500"
-                          : "bg-red-500"
-                      } text-white px-2.5 py-0.5 rounded-full text-xs font-medium`}
-                    >
-                      {tour.badge}
-                    </div>
-                  )}
-
-                  {/* 할인 뱃지 */}
-                  {tour.discount && (
-                    <div className="absolute top-2 right-2 bg-red-600 text-white px-2 py-1 rounded-lg text-xs font-bold shadow-md">
-                      {tour.discount}% OFF
-                    </div>
-                  )}
-                </div>
-
-                {/* 텍스트 */}
-                <div className="p-4 flex flex-col flex-1">
-                  <div className="text-xs text-gray-500 mb-2 font-normal">
-                    {tour.location}
-                  </div>
-
-                  <h3 className="text-base font-semibold text-gray-900 mb-2 line-clamp-2 leading-snug">
-                    {tour.title}
-                  </h3>
-
-                  <div className="text-xs text-gray-600 mb-3 line-clamp-2 leading-relaxed">
-                    {tour.description}
-                  </div>
-
-                  {tour.rating && (
-                    <div className="flex items-center gap-1 mb-3">
-                      <span className="text-yellow-500 text-sm">★</span>
-                      <span className="text-sm font-bold text-gray-900">
-                        {tour.rating}
-                      </span>
-                      <span className="text-xs text-gray-500">
-                        ({tour.reviewCount})
-                      </span>
-                      <span className="text-xs text-gray-500">
-                        • {tour.reviewLabel}
-                      </span>
-                    </div>
-                  )}
-
-                  <div className="mt-auto">
-                    {tour.discount ? (
-                      <>
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-sm text-gray-400 line-through">
-                            $ {tour.originalPrice}
-                          </span>
-                          <span className="text-xs font-semibold text-red-600">
-                            {tour.discount}% OFF
-                          </span>
-                        </div>
-                        <div className="flex items-baseline gap-1.5">
-                          <span className="text-xl font-bold text-red-600">
-                            $ {tour.price}
-                          </span>
-                          {tour.currency && (
-                            <span className="text-sm text-gray-600 font-medium">
-                              {tour.currency}
-                            </span>
-                          )}
-                        </div>
-                      </>
-                    ) : (
-                      <div className="flex items-baseline gap-1.5">
-                        <div className="text-xl font-bold text-gray-900">
-                          {tour.currency
-                            ? `$ ${tour.price}`
-                            : `₩${tour.price.toLocaleString()}`}
-                        </div>
-                        {tour.currency && (
-                          <div className="text-sm text-gray-600 font-medium">
-                            {tour.currency}
-                          </div>
-                        )}
-                        {tour.alternatePrice && (
-                          <div className="text-xs text-gray-400 line-through">
-                            ₩{tour.alternatePrice.toLocaleString()}
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </motion.div>
+            <SimpleTourCard key={tour.id} tour={tour} index={index} />
           ))}
         </motion.div>
       </div>
