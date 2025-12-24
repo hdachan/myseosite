@@ -84,18 +84,18 @@ const ReviewCard = ({ review }: { review: any }) => (
     <div className="flex items-center justify-between mb-4">
       <div className="flex gap-0.5">
         {[1, 2, 3, 4, 5].map((star) => (
-          <Star key={star} className="w-4 h-4 fill-[#D4A017] text-[#D4A017]" />
+          <Star key={star} className="w-4 h-4 fill-[#D97959] text-[#D97959]" />
         ))}
       </div>
       <span className="text-xs text-gray-400 font-medium">{review.date}</span>
     </div>
-    <Quote className="w-8 h-8 text-[#8B1E26]/20 mb-3" />
+    <Quote className="w-8 h-8 text-[#4A7C7E]/20 mb-3" />
     <p className="text-gray-700 text-sm leading-relaxed mb-6 flex-grow">
       {review.comment}
     </p>
     <div className="pt-4 border-t border-gray-100">
       <div className="flex items-center gap-3 mb-3">
-        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#8B1E26] to-[#D4A017] flex items-center justify-center text-white font-bold text-base shadow-md">
+        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#4A7C7E] to-[#D97959] flex items-center justify-center text-white font-bold text-base shadow-md">
           {review.avatar}
         </div>
         <div>
@@ -105,7 +105,7 @@ const ReviewCard = ({ review }: { review: any }) => (
           </div>
         </div>
       </div>
-      <span className="inline-block text-xs text-[#8B1E26] bg-[#F8F1E7] px-3 py-1.5 rounded-full font-medium">
+      <span className="inline-block text-xs text-[#4A7C7E] bg-[#F8F1E7] px-3 py-1.5 rounded-full font-medium">
         {review.tour}
       </span>
     </div>
@@ -130,13 +130,13 @@ export default function GlobalReviewsSection() {
             transition={{ duration: 0.6 }}
             className="mb-12"
           >
-            <p className="text-xs uppercase tracking-widest text-[#8B1E26] font-medium mb-2">
+            <p className="text-xs uppercase tracking-widest text-[#4A7C7E] font-medium mb-2">
               Global Reviews
             </p>
 
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 leading-tight max-w-4xl">
               Trusted by Travelers{" "}
-              <span className="bg-gradient-to-r from-[#8B1E26] to-[#D4A017] bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-[#4A7C7E] to-[#D97959] bg-clip-text text-transparent">
                 Worldwide
               </span>
             </h2>
@@ -193,7 +193,7 @@ export default function GlobalReviewsSection() {
                         {[1, 2, 3, 4, 5].map((star) => (
                           <Star
                             key={star}
-                            className="w-5 h-5 fill-[#D4A017] text-[#D4A017]"
+                            className="w-5 h-5 fill-[#D97959] text-[#D97959]"
                           />
                         ))}
                       </div>
@@ -209,7 +209,7 @@ export default function GlobalReviewsSection() {
 
                 <div className="grid grid-cols-2 gap-px bg-gray-100">
                   <div className="bg-white p-6 flex flex-col items-center justify-center">
-                    <div className="text-4xl font-bold bg-gradient-to-r from-[#8B1E26] to-[#D4A017] bg-clip-text text-transparent mb-2">
+                    <div className="text-4xl font-bold bg-gradient-to-r from-[#4A7C7E] to-[#D97959] bg-clip-text text-transparent mb-2">
                       98%
                     </div>
                     <div className="text-sm text-gray-600 font-medium">
@@ -217,7 +217,7 @@ export default function GlobalReviewsSection() {
                     </div>
                   </div>
                   <div className="bg-white p-6 flex flex-col items-center justify-center">
-                    <div className="text-4xl font-bold bg-gradient-to-r from-[#8B1E26] to-[#D4A017] bg-clip-text text-transparent mb-2">
+                    <div className="text-4xl font-bold bg-gradient-to-r from-[#4A7C7E] to-[#D97959] bg-clip-text text-transparent mb-2">
                       20K+
                     </div>
                     <div className="text-sm text-gray-600 font-medium">
@@ -225,7 +225,7 @@ export default function GlobalReviewsSection() {
                     </div>
                   </div>
                   <div className="bg-white p-6 flex flex-col items-center justify-center">
-                    <div className="text-4xl font-bold bg-gradient-to-r from-[#8B1E26] to-[#D4A017] bg-clip-text text-transparent mb-2">
+                    <div className="text-4xl font-bold bg-gradient-to-r from-[#4A7C7E] to-[#D97959] bg-clip-text text-transparent mb-2">
                       #50
                     </div>
                     <div className="text-sm text-gray-600 font-medium">
@@ -233,7 +233,7 @@ export default function GlobalReviewsSection() {
                     </div>
                   </div>
                   <div className="bg-white p-6 flex flex-col items-center justify-center">
-                    <div className="text-4xl font-bold bg-gradient-to-r from-[#8B1E26] to-[#D4A017] bg-clip-text text-transparent mb-2">
+                    <div className="text-4xl font-bold bg-gradient-to-r from-[#4A7C7E] to-[#D97959] bg-clip-text text-transparent mb-2">
                       100+
                     </div>
                     <div className="text-sm text-gray-600 font-medium">
@@ -284,14 +284,14 @@ export default function GlobalReviewsSection() {
                 aria-label="Previous review"
                 className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 p-2 rounded-full shadow-lg hover:shadow-xl"
               >
-                <ChevronLeft className="w-6 h-6 text-[#8B1E26]" />
+                <ChevronLeft className="w-6 h-6 text-[#4A7C7E]" />
               </button>
               <button
                 onClick={next}
                 aria-label="Next review"
                 className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 p-2 rounded-full shadow-lg hover:shadow-xl"
               >
-                <ChevronRight className="w-6 h-6 text-[#8B1E26]" />
+                <ChevronRight className="w-6 h-6 text-[#4A7C7E]" />
               </button>
 
               <div className="flex justify-center gap-2 mt-8">
@@ -301,7 +301,7 @@ export default function GlobalReviewsSection() {
                     onClick={() => setIndex(i)}
                     className={`transition-all rounded-full ${
                       i === index
-                        ? "bg-[#8B1E26] w-8 h-2"
+                        ? "bg-[#4A7C7E] w-8 h-2"
                         : "bg-gray-300 w-2 h-2"
                     }`}
                     aria-label={`Go to review ${i + 1}`}
@@ -323,7 +323,7 @@ export default function GlobalReviewsSection() {
               href="https://www.tripadvisor.com.ph/Attraction_Review-g294197-d4492012-Reviews-Seoul_City_Tour-Seoul.html"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-3 px-8 py-4 bg-[#8B1E26] text-white font-semibold rounded-xl hover:bg-[#6E0D0D] transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+              className="inline-flex items-center gap-3 px-8 py-4 bg-[#4A7C7E] text-white font-semibold rounded-xl hover:bg-[#3D6566] transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
             >
               <span>View All 21,044 Reviews</span>
               <ArrowRight className="w-5 h-5" />

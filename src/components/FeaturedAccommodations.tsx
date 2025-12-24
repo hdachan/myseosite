@@ -73,7 +73,7 @@ export default function FeaturedAccommodations() {
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
             >
-              <p className="text-xs uppercase tracking-wider text-[#8B1E26] font-medium mb-2">
+              <p className="text-xs uppercase tracking-wider text-[#4A7C7E] font-medium mb-2">
                 Recommended Travel
               </p>
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 leading-tight">
@@ -89,14 +89,14 @@ export default function FeaturedAccommodations() {
                   <button
                     onClick={prevSlide}
                     disabled={!canPrev}
-                    className="group bg-white p-3 rounded-lg shadow-md hover:shadow-lg hover:bg-[#F8F1E7] transition-all duration-300 border border-[#D4A017]/30 disabled:opacity-30"
+                    className="group bg-white p-3 rounded-lg shadow-md hover:shadow-lg hover:bg-[#F8F1E7] transition-all duration-300 border border-[#4A7C7E]/30 disabled:opacity-30"
                   >
-                    <ChevronLeft className="w-5 h-5 text-[#8B1E26]" />
+                    <ChevronLeft className="w-5 h-5 text-[#4A7C7E]" />
                   </button>
                   <button
                     onClick={nextSlide}
                     disabled={!canNext}
-                    className="group bg-[#8B1E26] p-3 rounded-lg shadow-md hover:shadow-lg hover:bg-[#6E0D0D] transition-all duration-300 disabled:opacity-30"
+                    className="group bg-[#4A7C7E] p-3 rounded-lg shadow-md hover:shadow-lg hover:bg-[#3D6566] transition-all duration-300 disabled:opacity-30"
                   >
                     <ChevronRight className="w-5 h-5 text-white" />
                   </button>
@@ -106,7 +106,7 @@ export default function FeaturedAccommodations() {
               {/* 페이지 카운터 */}
               {totalPages > 1 && (
                 <div className="mt-4 text-sm text-gray-600">
-                  <span className="font-semibold text-[#8B1E26]">
+                  <span className="font-semibold text-[#4A7C7E]">
                     {currentPage + 1}
                   </span>
                   <span className="mx-1">/</span>

@@ -47,7 +47,7 @@ export default function HeroCarousel1() {
             "
           >
             <span className="block">DMZ & Seoul Tours —</span>
-            <span className="block bg-gradient-to-r from-white to-[#D4A017] bg-clip-text text-transparent">
+            <span className="block bg-gradient-to-r from-white to-[#D4B896] bg-clip-text text-transparent">
               Experience the Real Korea
             </span>
           </h1>
@@ -58,7 +58,7 @@ export default function HeroCarousel1() {
               className="
                 flex bg-white rounded-xl sm:rounded-2xl overflow-hidden
                 shadow-2xl border border-gray-200
-                hover:border-[#D4A017]/50 transition-all duration-300
+                hover:border-[#4A7C7E]/50 transition-all duration-300
               "
             >
               {/* 입력 영역 */}
@@ -83,7 +83,7 @@ export default function HeroCarousel1() {
                 onClick={handleSearch}
                 aria-label="Search"
                 className="
-                  bg-[#8B1E26] hover:bg-[#6E0D0D]
+                  bg-[#4A7C7E] hover:bg-[#3D6566]
                   px-4 sm:px-8
                   transition-all duration-300
                   flex items-center justify-center
@@ -105,7 +105,7 @@ export default function HeroCarousel1() {
                     onClick={() => setSearchQuery(keyword)}
                     className="
                       text-xs sm:text-sm text-white/80
-                      hover:text-[#D4A017]
+                      hover:text-[#D97959]
                       bg-white/10 hover:bg-white/20
                       backdrop-blur-sm
                       px-3 py-1 rounded-full

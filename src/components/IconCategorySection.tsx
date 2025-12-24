@@ -38,7 +38,7 @@ export default function CategorySection() {
 
   return (
     <section
-      className="w-full py-16 md:py-20 lg:py-24 bg-gradient-to-b from-white to-gray-50"
+      className="w-full py-16 md:py-20 lg:py-24 bg-gradient-to-b from-white to-[#F8F1E7]"
       aria-labelledby="category-heading"
     >
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
@@ -50,7 +50,7 @@ export default function CategorySection() {
           transition={{ duration: 0.6 }}
           className="text-center mb-12 md:mb-16"
         >
-          <p className="text-sm uppercase tracking-widest text-[#8B1E26] font-medium mb-3">
+          <p className="text-sm uppercase tracking-widest text-[#4A7C7E] font-medium mb-3">
             What We Offer
           </p>
           <h2
@@ -80,13 +80,13 @@ export default function CategorySection() {
                   whileHover={{ scale: 1.05, y: -5 }}
                   whileTap={{ scale: 0.95 }}
                   transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                  className="relative w-full md:w-[150px] aspect-square max-w-[150px] rounded-2xl bg-gradient-to-br from-white to-gray-50 flex items-center justify-center shadow-md transition-all duration-300 group-hover:shadow-xl border border-gray-100 overflow-hidden"
+                  className="relative w-full md:w-[150px] aspect-square max-w-[150px] rounded-2xl bg-gradient-to-br from-white to-[#F8F1E7] flex items-center justify-center shadow-md transition-all duration-300 group-hover:shadow-xl border border-gray-100 overflow-hidden"
                 >
                   {/* Hover background */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-[#8B1E26]/5 to-[#D4A017]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#4A7C7E]/5 to-[#D97959]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
                   {/* Glow border */}
-                  <div className="absolute inset-0 rounded-2xl border-2 border-[#D4A017]/0 group-hover:border-[#D4A017]/30 transition-all duration-300" />
+                  <div className="absolute inset-0 rounded-2xl border-2 border-[#4A7C7E]/0 group-hover:border-[#4A7C7E]/30 transition-all duration-300" />
 
                   {/* Icon */}
                   <motion.div
@@ -105,7 +105,7 @@ export default function CategorySection() {
 
                   {/* Pulse effect */}
                   <motion.div
-                    className="absolute inset-0 rounded-2xl bg-[#D4A017]/10"
+                    className="absolute inset-0 rounded-2xl bg-[#4A7C7E]/10"
                     initial={{ scale: 0.8, opacity: 0 }}
                     whileHover={{ scale: 1.1, opacity: 0 }}
                     transition={{ duration: 0.6 }}
@@ -113,13 +113,13 @@ export default function CategorySection() {
                 </motion.div>
 
                 {/* Category title */}
-                <h3 className="mt-3 md:mt-4 text-center font-semibold tracking-wide text-sm md:text-base text-gray-700 group-hover:text-[#8B1E26] transition-colors duration-200 px-2">
+                <h3 className="mt-3 md:mt-4 text-center font-semibold tracking-wide text-sm md:text-base text-gray-700 group-hover:text-[#4A7C7E] transition-colors duration-200 px-2">
                   {cat.title}
                 </h3>
 
                 {/* Bottom indicator */}
                 <motion.div
-                  className="mt-2 h-0.5 bg-[#D4A017] rounded-full"
+                  className="mt-2 h-0.5 bg-[#4A7C7E] rounded-full"
                   initial={{ width: 0 }}
                   whileHover={{ width: "60px" }}
                   transition={{ duration: 0.3 }}

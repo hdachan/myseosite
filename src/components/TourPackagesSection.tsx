@@ -1,4 +1,4 @@
-// src/components/TourPackagesSection.tsx (업데이트 버전)
+// src/components/TourPackagesSection.tsx (최종 버전)
 "use client";
 
 import { useState } from "react";
@@ -59,15 +59,15 @@ function SimpleTourCard({ tour, index }: { tour: Tour; index: number }) {
             {tour.badge && (
               <div
                 className={`absolute top-2.5 left-2.5 ${
-                  tour.badgeColor === "orange" ? "bg-orange-500" : "bg-red-500"
-                } text-white px-2.5 py-0.5 rounded-full text-xs font-medium`}
+                  tour.badgeColor === "orange" ? "bg-[#E31E24]" : "bg-[#E31E24]"
+                } text-white px-2.5 py-0.5 rounded-full text-xs font-medium shadow-md`}
               >
                 {tour.badge}
               </div>
             )}
 
             {tour.discount && (
-              <div className="absolute top-2 right-2 bg-red-600 text-white px-2 py-1 rounded-lg text-xs font-bold shadow-md">
+              <div className="absolute top-2 right-2 bg-[#E31E24] text-white px-2 py-1 rounded-lg text-xs font-bold shadow-md">
                 {tour.discount}% OFF
               </div>
             )}
@@ -89,7 +89,7 @@ function SimpleTourCard({ tour, index }: { tour: Tour; index: number }) {
 
             {tour.rating && (
               <div className="flex items-center gap-1 mb-3">
-                <span className="text-yellow-500 text-sm" aria-hidden="true">
+                <span className="text-[#D97959] text-sm" aria-hidden="true">
                   ★
                 </span>
                 <span className="text-sm font-bold text-gray-900">
@@ -112,12 +112,12 @@ function SimpleTourCard({ tour, index }: { tour: Tour; index: number }) {
                     <span className="text-sm text-gray-400 line-through">
                       $ {tour.originalPrice}
                     </span>
-                    <span className="text-xs font-semibold text-red-600">
+                    <span className="text-xs font-semibold text-[#E31E24]">
                       {tour.discount}% OFF
                     </span>
                   </div>
                   <div className="flex items-baseline gap-1.5">
-                    <span className="text-xl font-bold text-red-600">
+                    <span className="text-xl font-bold text-[#E31E24]">
                       $ {tour.price}
                     </span>
                     {tour.currency && (
@@ -129,7 +129,7 @@ function SimpleTourCard({ tour, index }: { tour: Tour; index: number }) {
                 </>
               ) : (
                 <div className="flex items-baseline gap-1.5">
-                  <span className="text-xl font-bold text-gray-900">
+                  <span className="text-xl font-bold text-[#4A7C7E]">
                     {tour.currency
                       ? `$ ${tour.price}`
                       : `₩${tour.price.toLocaleString()}`}
@@ -330,7 +330,7 @@ export default function TourPackagesSection() {
         >
           <div className="flex items-center justify-between mb-6">
             <div>
-              <p className="text-xs uppercase tracking-wider text-[#8B1E26] font-medium mb-2">
+              <p className="text-xs uppercase tracking-wider text-[#4A7C7E] font-medium mb-2">
                 Popular Tours
               </p>
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">
@@ -339,7 +339,7 @@ export default function TourPackagesSection() {
             </div>
             <Link
               href="/en/package"
-              className="text-sm text-gray-600 hover:text-gray-900 font-medium flex items-center gap-1"
+              className="text-sm text-gray-600 hover:text-[#4A7C7E] font-medium flex items-center gap-1"
             >
               More
               <svg
@@ -373,8 +373,8 @@ export default function TourPackagesSection() {
               onClick={() => setActiveTab(category.id)}
               className={`px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${
                 activeTab === category.id
-                  ? "bg-gray-900 text-white"
-                  : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-200"
+                  ? "bg-[#4A7C7E] text-white"
+                  : "bg-white text-gray-700 hover:bg-[#F8F1E7] border border-gray-200"
               }`}
             >
               {category.title}

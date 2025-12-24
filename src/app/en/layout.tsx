@@ -109,10 +109,10 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
               <Link
                 key={href}
                 href={href}
-                className="relative px-3 py-2 text-[15px] font-medium text-gray-800 hover:text-red-800 transition group"
+                className="relative px-3 py-2 text-[15px] font-medium text-gray-800 hover:text-[#4A7C7E] transition group"
               >
                 {label}
-                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-[2px] bg-red-800 transition-all duration-300 group-hover:w-3/4" />
+                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-[2px] bg-[#4A7C7E] transition-all duration-300 group-hover:w-3/4" />
               </Link>
             ))}
           </div>
@@ -122,11 +122,11 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
             {/* SHOPPING CART */}
             <Link
               href="/en/cart"
-              className="relative p-2 text-gray-700 hover:text-red-800 transition"
+              className="relative p-2 text-gray-700 hover:text-[#4A7C7E] transition"
               aria-label="Shopping Cart"
             >
               <ShoppingCart size={24} />
-              <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+              <span className="absolute -top-1 -right-1 bg-[#E31E24] text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
                 3
               </span>
             </Link>
@@ -135,13 +135,13 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
             <div className="hidden sm:flex items-center gap-3 border-l border-gray-300 pl-4">
               <Link
                 href="/ko"
-                className="text-gray-700 hover:text-red-800 text-[14px] font-medium"
+                className="text-gray-700 hover:text-[#4A7C7E] text-[14px] font-medium"
               >
                 한국어
               </Link>
               <Link
                 href="/en"
-                className="bg-red-800 text-white px-4 py-1.5 rounded-md text-xs font-semibold hover:bg-red-900 transition"
+                className="bg-[#4A7C7E] text-white px-4 py-1.5 rounded-md text-xs font-semibold hover:bg-[#3D6566] transition"
               >
                 EN
               </Link>
@@ -150,7 +150,7 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
             {/* HAMBURGER */}
             <label
               htmlFor="mobile-menu"
-              className="lg:hidden cursor-pointer p-2 text-red-800 relative w-10 h-10 flex items-center justify-center"
+              className="lg:hidden cursor-pointer p-2 text-[#4A7C7E] relative w-10 h-10 flex items-center justify-center"
             >
               <Menu
                 size={28}
@@ -165,7 +165,7 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
         </nav>
 
         {/* Thin bottom line */}
-        <div className="h-[2px] bg-gradient-to-r from-red-900 via-red-700 to-red-900" />
+        <div className="h-[2px] bg-gradient-to-r from-[#4A7C7E] via-[#5A8C8E] to-[#4A7C7E]" />
 
         {/* MOBILE MENU BACKDROP */}
         <div className="fixed inset-0 bg-black/50 z-40 hidden peer-checked:block lg:hidden" />
@@ -173,7 +173,7 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
         {/* MOBILE MENU */}
         <div className="fixed inset-0 bg-white z-40 h-screen -translate-y-full peer-checked:translate-y-0 transition-transform duration-500 ease-in-out lg:hidden overflow-y-auto">
           {/* Mobile top bar */}
-          <div className="flex items-center justify-between p-5 border-b-2 border-red-800">
+          <div className="flex items-center justify-between p-5 border-b-2 border-[#4A7C7E]">
             <Link href="/en">
               <Image
                 src="/images/logo.png"
@@ -185,7 +185,7 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
             </Link>
             <label
               htmlFor="mobile-menu"
-              className="p-2 text-red-800 cursor-pointer"
+              className="p-2 text-[#4A7C7E] cursor-pointer"
             >
               <X size={30} />
             </label>
@@ -197,34 +197,34 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
               <Link
                 key={href}
                 href={href}
-                className="text-3xl font-semibold text-gray-800 hover:text-red-800 transition relative group"
+                className="text-3xl font-semibold text-gray-800 hover:text-[#4A7C7E] transition relative group"
               >
                 {label}
-                <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-1 bg-red-800 transition-all duration-300 group-hover:w-full" />
+                <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-1 bg-[#4A7C7E] transition-all duration-300 group-hover:w-full" />
               </Link>
             ))}
 
             {/* Mobile Cart Link */}
             <Link
               href="/en/cart"
-              className="text-3xl font-semibold text-gray-800 hover:text-red-800 transition relative group flex items-center gap-3"
+              className="text-3xl font-semibold text-gray-800 hover:text-[#4A7C7E] transition relative group flex items-center gap-3"
             >
               <ShoppingCart size={32} />
               Cart
-              <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-1 bg-red-800 transition-all duration-300 group-hover:w-full" />
+              <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-1 bg-[#4A7C7E] transition-all duration-300 group-hover:w-full" />
             </Link>
 
             {/* Mobile Language */}
             <div className="mt-10 flex flex-col items-center gap-5">
               <Link
                 href="/ko"
-                className="text-gray-700 hover:text-red-800 text-xl font-semibold transition"
+                className="text-gray-700 hover:text-[#4A7C7E] text-xl font-semibold transition"
               >
                 한국어
               </Link>
               <Link
                 href="/en"
-                className="bg-red-800 text-white px-14 py-3 rounded-lg text-lg font-bold hover:bg-red-900 shadow-md transition"
+                className="bg-[#4A7C7E] text-white px-14 py-3 rounded-lg text-lg font-bold hover:bg-[#3D6566] shadow-md transition"
               >
                 ENGLISH
               </Link>
@@ -262,7 +262,7 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
               <p className="mt-3">
                 <a
                   href="mailto:mail@seoulcitytour.net"
-                  className="hover:underline"
+                  className="hover:underline hover:text-[#4A7C7E]"
                 >
                   mail@seoulcitytour.net
                 </a>
@@ -275,30 +275,33 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
               <h4 className="font-semibold text-gray-900 mb-3">Support</h4>
               <ul className="space-y-2">
                 <li>
-                  <Link href="/en/faq" className="hover:text-gray-900">
+                  <Link href="/en/faq" className="hover:text-[#4A7C7E]">
                     FAQ
                   </Link>
                 </li>
                 <li>
-                  <Link href="/en/contact" className="hover:text-gray-900">
+                  <Link href="/en/contact" className="hover:text-[#4A7C7E]">
                     Contact Us
                   </Link>
                 </li>
                 <li>
-                  <Link href="/en/my-bookings" className="hover:text-gray-900">
+                  <Link href="/en/my-bookings" className="hover:text-[#4A7C7E]">
                     Manage My Booking
                   </Link>
                 </li>
                 <li>
                   <Link
                     href="/en/cancellation-policy"
-                    className="hover:text-gray-900"
+                    className="hover:text-[#4A7C7E]"
                   >
                     Cancellation & Refund Policy
                   </Link>
                 </li>
                 <li className="pt-1">
-                  <Link href="/en/blog" className="font-medium hover:underline">
+                  <Link
+                    href="/en/blog"
+                    className="font-medium hover:underline hover:text-[#4A7C7E]"
+                  >
                     Blog
                   </Link>
                 </li>
@@ -309,20 +312,20 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
               <h4 className="font-semibold text-gray-900 mb-3">Explore</h4>
               <ul className="space-y-2 mb-6">
                 <li>
-                  <Link href="/en/tours/dmz" className="hover:text-gray-900">
+                  <Link href="/en/tours/dmz" className="hover:text-[#4A7C7E]">
                     DMZ Tours
                   </Link>
                 </li>
                 <li>
                   <Link
                     href="/en/tours/seoul-city"
-                    className="hover:text-gray-900"
+                    className="hover:text-[#4A7C7E]"
                   >
                     Seoul City Tours
                   </Link>
                 </li>
                 <li>
-                  <Link href="/en/private" className="hover:text-gray-900">
+                  <Link href="/en/private" className="hover:text-[#4A7C7E]">
                     Private Tours
                   </Link>
                 </li>
@@ -330,12 +333,18 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
 
               <ul className="space-y-1 text-xs text-gray-500">
                 <li>
-                  <Link href="/en/privacy" className="hover:underline">
+                  <Link
+                    href="/en/privacy"
+                    className="hover:underline hover:text-[#4A7C7E]"
+                  >
                     Privacy Policy
                   </Link>
                 </li>
                 <li>
-                  <Link href="/en/terms" className="hover:underline">
+                  <Link
+                    href="/en/terms"
+                    className="hover:underline hover:text-[#4A7C7E]"
+                  >
                     Terms of Service
                   </Link>
                 </li>
@@ -373,7 +382,7 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Instagram"
-                className="hover:text-gray-900 transition"
+                className="hover:text-[#4A7C7E] transition"
               >
                 <Instagram className="w-5 h-5" />
               </a>
@@ -382,7 +391,7 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="YouTube"
-                className="hover:text-gray-900 transition"
+                className="hover:text-[#4A7C7E] transition"
               >
                 <Youtube className="w-5 h-5" />
               </a>
@@ -391,7 +400,7 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Facebook"
-                className="hover:text-gray-900 transition"
+                className="hover:text-[#4A7C7E] transition"
               >
                 <Facebook className="w-5 h-5" />
               </a>
