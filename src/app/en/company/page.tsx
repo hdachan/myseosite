@@ -1,29 +1,15 @@
-import React from "react";
+import PageHero from "@/components/PageHero";
 import { Award, Users, Globe, Headset, ShieldCheck } from "lucide-react";
 
 export default function CompanyPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-      <div className="relative pb-32">
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: "url('/images/background_korea_pt2.jpg')" }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-br from-red-700/80 via-red-800/80 to-red-900/80" />
-
-        <div className="max-w-6xl mx-auto px-4 py-12 md:py-16 relative">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-3 md:mb-4 tracking-wide">
-            About Us
-          </h1>
-          <p className="text-red-100 text-base md:text-lg max-w-2xl">
-            A Trusted Seoul Tour Operator Since 2004
-          </p>
-        </div>
-
-        {/* Decorative line */}
-        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-red-900 via-red-600 to-red-900" />
-      </div>
+      <PageHero
+        title="About Us"
+        description="A Trusted Seoul Tour Operator Since 2004"
+        imageSrc="/images/background_korea_pt2.jpg"
+      />
 
       {/* Company Overview - Overlapping Content */}
       <div className="max-w-6xl mx-auto px-4 -mt-16 relative z-10 pb-16">

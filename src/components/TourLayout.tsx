@@ -1,7 +1,7 @@
-// src/components/TourLayout.tsx (업데이트 버전)
+// src/components/TourLayout.tsx (PageHero 적용 버전)
 
 import Link from "next/link";
-import Image from "next/image";
+import PageHero from "./PageHero";
 import { type PackageTour } from "@/app/en/package/packageData";
 import TourCard from "./TourCard";
 
@@ -28,38 +28,15 @@ export default function TourLayout({
   heroSubtitle,
 }: TourLayoutProps) {
   return (
-    <div className="min-h-screen bg-gray-50 pt-0">
-      {/* Hero with background image */}
-      <div className="relative pb-32">
-        {/* Background Image */}
-        <Image
-          src="/images/background_korea_pt2.jpg"
-          alt="Korea tour destinations - Seoul skyline, DMZ, Nami Island, ski resorts, K-Drama locations"
-          fill
-          priority
-          className="object-cover"
-        />
-        {/* Dark overlay for text readability */}
-        <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-black/50 to-black/70" />
+    <div className="min-h-screen bg-gray-50">
+      <PageHero
+        title={heroTitle}
+        description={heroSubtitle}
+        imageSrc="/images/background_korea_pt2.jpg"
+      />
 
-        {/* Hero Content */}
-        <div className="max-w-6xl mx-auto px-4 py-12 md:py-16 relative z-10">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white drop-shadow-lg">
-            {heroTitle}
-          </h1>
-          <p className="text-red-100 mt-3 text-lg md:text-xl drop-shadow-md">
-            {heroSubtitle}
-          </p>
-        </div>
-
-        {/* Bottom accent line */}
-        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-red-900 via-red-600 to-red-900 z-10" />
-      </div>
-
-      {/* Main Content */}
-      <div className="max-w-6xl mx-auto px-4 -mt-16 relative z-20 pb-16">
+      <div className="max-w-6xl mx-auto px-4 -mt-16 relative z-10 pb-16">
         <article className="bg-white rounded-2xl shadow-xl p-6 md:p-8 border-t-2 border-red-800">
-          {/* Breadcrumb */}
           <nav aria-label="Breadcrumb" className="mb-6">
             <ol className="flex items-center gap-2 text-sm text-gray-600">
               <li>
@@ -72,7 +49,6 @@ export default function TourLayout({
             </ol>
           </nav>
 
-          {/* Category Filter */}
           <nav
             aria-label="Tour categories"
             className="flex flex-wrap gap-2 mb-8"
@@ -92,7 +68,6 @@ export default function TourLayout({
             ))}
           </nav>
 
-          {/* Tour Cards Grid - 이제 TourCard 컴포넌트 사용 */}
           <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {tours.map((tour, index) => (
               <TourCard key={tour.id} tour={tour} priority={index < 4} />

@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import PageHero from "@/components/PageHero";
 
 export default function PrivateTourPage() {
   const packageTours = [
@@ -119,30 +120,13 @@ export default function PrivateTourPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-24">
-      {/* Hero Section */}
-      <div className="relative pb-32">
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: "url('/images/background_korea_pt2.jpg')" }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-br from-red-700/80 via-red-800/80 to-red-900/80" />
-
-        <div className="max-w-6xl mx-auto px-4 py-12 md:py-16 relative">
-          <div className="flex items-center gap-3 mb-3">
-            <span className="text-5xl">🚗</span>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white tracking-wide">
-              Private Tour
-            </h1>
-          </div>
-          <p className="text-red-100 text-base md:text-lg ml-16 max-w-2xl">
-            Customize your perfect Korean adventure with our VIP service
-          </p>
-        </div>
-
-        {/* Decorative line */}
-        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-red-900 via-red-600 to-red-900" />
-      </div>
+    <div className="min-h-screen bg-gray-50">
+      {/* Hero Section - PageHero 컴포넌트 사용 */}
+      <PageHero
+        title="Private Tour"
+        description="Customize your perfect Korean adventure with our VIP service"
+        imageSrc="/images/background_korea_pt2.jpg"
+      />
 
       {/* Content */}
       <div className="max-w-6xl mx-auto px-4 -mt-16 relative z-10 pb-16">
@@ -152,7 +136,6 @@ export default function PrivateTourPage() {
             Popular Private Tours
           </h2>
 
-          {/* 🔹 카드 그리드 */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {packageTours.map((tour) => (
               <a
@@ -167,7 +150,6 @@ export default function PrivateTourPage() {
                       alt={tour.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
-                    {/* 할인 뱃지 */}
                     {tour.discount && (
                       <div className="absolute top-2 right-2 bg-red-600 text-white px-2 py-1 rounded-lg text-xs font-bold shadow-md">
                         {tour.discount}% OFF

@@ -1,7 +1,7 @@
 import React from "react";
-import Image from "next/image";
 import type { Metadata } from "next";
 import { Phone, Mail, MapPin, MessageCircle, ArrowRight } from "lucide-react";
+import PageHero from "@/components/PageHero";
 
 /* ==============================
    SEO Metadata
@@ -69,32 +69,12 @@ export default function ContactPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
 
-      {/* ================= Hero Section (원래 비율 유지) ================= */}
-      <header className="relative pb-32">
-        <div className="absolute inset-0">
-          <Image
-            src="/images/background_korea_pt2.jpg"
-            alt="Seoul City skyline background"
-            fill
-            priority
-            className="object-cover"
-          />
-        </div>
-
-        <div className="absolute inset-0 bg-gradient-to-br from-red-700/80 via-red-800/80 to-red-900/80" />
-
-        <div className="relative z-10 max-w-6xl mx-auto px-4 py-12 md:py-16">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 tracking-wide">
-            Contact Seoul City Tour
-          </h1>
-          <p className="text-red-100 text-base md:text-lg max-w-2xl">
-            Get in touch with our team for tour bookings, travel inquiries, and
-            local assistance in Korea.
-          </p>
-        </div>
-
-        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-red-900 via-red-600 to-red-900" />
-      </header>
+      {/* ===== Hero Section (Layout Component) ===== */}
+      <PageHero
+        title="Contact Seoul City Tour"
+        description="Get in touch with our team for tour bookings, travel inquiries, and local assistance in Korea."
+        imageSrc="/images/background_korea_pt2.jpg"
+      />
 
       {/* ================= Contact Content ================= */}
       <section className="max-w-6xl mx-auto px-4 -mt-16 relative z-10 pb-16">
