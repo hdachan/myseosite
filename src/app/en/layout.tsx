@@ -378,7 +378,7 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
 
             <div className="flex gap-4">
               <a
-                href="https://instagram.com"
+                href="https://www.instagram.com/seoulcitytour.official?igsh"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Instagram"
@@ -387,7 +387,7 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
                 <Instagram className="w-5 h-5" />
               </a>
               <a
-                href="https://youtube.com"
+                href="https://www.youtube.com/@HelloKOREA"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="YouTube"

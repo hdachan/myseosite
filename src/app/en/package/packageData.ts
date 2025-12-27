@@ -41,29 +41,70 @@ export interface PackageTour {
 export const packageTours: PackageTour[] = [
   {
     id: 1,
+    // 👉 상품 고유 번호 (중복 ❌, 내부 관리용)
+
     slug: "muslim-friendly-seoul-nami-island-day-tour",
+    // 👉 URL 주소에 들어가는 값
+    // 예: /en/package/muslim-friendly-seoul-nami-island-day-tour
+
     category: "DAILY",
+    // 👉 상품 분류 (당일투어 / DMZ / 근교 등)
+    // 필터, 카테고리 버튼에 사용됨
+
     location: "Tour · Seoul",
+    // 👉 투어 지역 표시 (카드 상단에 노출)
+
     title: "[Muslim Friendly] Special Seoul/Nami Island Day Tour",
+    // 👉 상품명 (가장 중요)
+    // 고객 + 검색엔진(SEO)에 모두 노출됨
+
     description: "Available from tomorrow · Limited seats",
+    // 👉 한 줄 요약 문구
+    // 카드에서 보이는 짧은 홍보 문장
+
     image:
       "https://images.unsplash.com/photo-1580537659466-0a9bfa916a54?w=600&h=400&fit=crop",
+    // 👉 대표 이미지 (목록 카드 썸네일)
+
     rating: 5,
+    // 👉 별점 (고객 신뢰도)
+
     reviews: 9,
+    // 👉 리뷰 개수
+
     bookings: "100+ bookings",
+    // 👉 예약 수 (인기 상품 강조용 문구)
+
     price: 112.79,
+    // 👉 실제 판매 가격 (현재 결제 금액)
+
     originalPrice: 150.0,
+    // 👉 정상가 (취소선으로 표시됨)
+
     discount: 25,
+    // 👉 할인율 (%) → 25% OFF
+
     images: [
       "https://images.unsplash.com/photo-1580537659466-0a9bfa916a54?w=1200&h=800&fit=crop",
       "https://images.unsplash.com/photo-1583562835057-a62d1beffbf3?w=1200&h=800&fit=crop",
       "https://images.unsplash.com/photo-1517154421773-0529f29ea451?w=1200&h=800&fit=crop",
     ],
+    // 👉 상세 페이지 상단 이미지 슬라이더용 사진들
+
     tags: ["Muslim Friendly", "Best Seller"],
+    // 👉 뱃지 / 강조 태그 (베스트셀러, 특징 강조)
+
     duration: "8 hours",
+    // 👉 투어 소요 시간
+
     minimumPax: 2,
+    // 👉 최소 예약 인원
+
     fullDescription:
       "Experience the beauty of Seoul and Nami Island with our Muslim-friendly tour package. Enjoy halal meals and prayer time accommodations throughout your journey.",
+    // 👉 상세 설명 (Overview 섹션)
+    // 고객이 투어 내용을 이해하는 핵심 설명
+
     includes: [
       "Professional English/Korean guide",
       "Round-trip transportation (Air-conditioned bus)",
@@ -71,13 +112,21 @@ export const packageTours: PackageTour[] = [
       "Halal Korean lunch",
       "Prayer time accommodations",
     ],
+    // 👉 가격에 포함된 내용 (포함 사항)
+
     excludes: [
       "Personal expenses",
       "Travel insurance",
       "Additional drinks and snacks",
     ],
+    // 👉 포함되지 않은 내용 (추가 비용 방지용)
+
     meetingPoint: "Hotel pickup service available from major Seoul hotels",
+    // 👉 미팅 장소 / 픽업 정보
+
     cancellation: "Free cancellation up to 24 hours before tour starts",
+    // 👉 취소 및 환불 규정
+
     keywords: [
       "Muslim friendly tour",
       "Nami Island",
@@ -85,32 +134,51 @@ export const packageTours: PackageTour[] = [
       "Halal food tour",
       "Korea Muslim travel",
     ],
+    // 👉 검색 & SEO용 키워드 (고객에게는 안 보일 수 있음)
+
     packageOptions: [
       {
         id: "standard",
+        // 👉 옵션 구분 ID (시스템용)
+
         name: "Standard Package - Seoul & Nami Island",
+        // 👉 옵션 이름 (고객에게 보임)
+
         price: 112.79,
+        // 👉 해당 옵션 가격
+
         details: [
           "Attractions: Nami Island, Petite France",
           "English guide",
           "Transportation",
           "Halal lunch",
         ],
+        // 👉 옵션에 포함된 구성 설명
       },
       {
         id: "premium",
+        // 👉 프리미엄 옵션 ID
+
         name: "Premium Package - Extended Tour",
+        // 👉 프리미엄 옵션 이름
+
         badge: "$10 OFF",
+        // 👉 옵션 강조 문구 (할인, 추천 등)
+
         price: 145.0,
+        // 👉 프리미엄 옵션 가격
+
         details: [
           "All Standard features",
           "Garden of Morning Calm",
           "Premium halal dinner",
           "Small group (max 10 people)",
         ],
+        // 👉 프리미엄 옵션 상세 구성
       },
     ],
   },
+
   {
     id: 2,
     slug: "dmz-north-korea-observation-tour",
