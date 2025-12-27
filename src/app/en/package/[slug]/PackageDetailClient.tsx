@@ -1,4 +1,3 @@
-// D:\myseosite\src\app\en\package\[slug]\PackageDetailClient.tsx
 "use client";
 
 import React, { useState } from "react";
@@ -26,11 +25,16 @@ import {
 } from "lucide-react";
 import { PackageTour } from "../packageData";
 
+import { useCartStore } from "@/store/cartStore";
+import toast from "react-hot-toast";
+
 interface Props {
   tour: PackageTour;
 }
 
 export default function PackageDetailClient({ tour }: Props) {
+  const addItem = useCartStore((state) => state.addItem);
+
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [adults, setAdults] = useState(0);
   const [children, setChildren] = useState(0);
@@ -59,6 +63,32 @@ export default function PackageDetailClient({ tour }: Props) {
     setSelectedOption("");
     setAdults(0);
     setChildren(0);
+  };
+
+  const handleAddToCart = () => {
+    if (!selectedPackage) {
+      toast.error("Please select a package option");
+      return;
+    }
+
+    if (adults === 0 && children === 0) {
+      toast.error("Please select at least 1 person");
+      return;
+    }
+
+    addItem({
+      slug: tour.slug,
+      title: tour.title,
+      image: tour.images?.[0] || tour.image,
+      optionId: selectedPackage.id,
+      optionName: selectedPackage.name,
+      adults,
+      children,
+      pricePerPerson: selectedPackage.price,
+      totalPrice,
+    });
+
+    toast.success(`Added to cart! (${adults + children} people)`);
   };
 
   return (
@@ -342,7 +372,13 @@ export default function PackageDetailClient({ tour }: Props) {
                     </div>
 
                     <div className="flex gap-3">
-                      <button className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-4 rounded-lg transition shadow-lg">
+                      <button
+                        onClick={handleAddToCart}
+                        disabled={
+                          !selectedPackage || (adults === 0 && children === 0)
+                        }
+                        className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-4 rounded-lg transition shadow-lg disabled:bg-gray-300 disabled:cursor-not-allowed"
+                      >
                         Add to Cart
                       </button>
                       <button className="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 rounded-lg transition shadow-lg">
