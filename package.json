@@ -9,12 +9,18 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@sanity/client": "^7.13.2",
+    "@sanity/image-url": "^1.2.0",
+    "@sanity/vision": "^4.22.0",
     "framer-motion": "^12.23.25",
     "lucide-react": "^0.555.0",
     "next": "16.0.5",
+    "next-sanity": "^11.6.12",
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "react-hot-toast": "^2.6.0",
+    "sanity": "^4.22.0",
+    "styled-components": "^6.1.19",
     "swiper": "^12.0.3",
     "tailwindcss-animate": "^1.0.7",
     "zustand": "^5.0.9"
