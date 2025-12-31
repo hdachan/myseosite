@@ -19,14 +19,15 @@ const nextConfig = {
       },
       {
         protocol: "https",
-        hostname: "cdn.sanity.io", // ✅ Sanity 이미지 추가
+        hostname: "cdn.sanity.io",
       },
     ],
   },
-  experimental: {
-    optimizeCss: true,
-    typedRoutes: false,
-  },
+  // experimental 옵션은 껐습니다. (optimizeCss 오류 방지)
+  // experimental: {
+  //   optimizeCss: true,
+  //   typedRoutes: false,
+  // },
 };
 
 export default nextConfig;
