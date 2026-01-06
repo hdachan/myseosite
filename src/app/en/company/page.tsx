@@ -62,66 +62,92 @@ export default function CompanyPage() {
           </div>
         </div>
       </div>
-
       {/* CEO Message */}
-      <section className="py-16 md:py-24 bg-gray-50">
+      {/* CEO Message */}
+      <section className="relative py-16 md:py-28 bg-gradient-to-b from-gray-50 to-white">
         <div className="max-w-6xl mx-auto px-4">
-          <div className="mb-8 md:mb-12">
-            <p className="text-sm font-bold text-red-700 uppercase tracking-wider mb-3 flex items-center gap-2">
-              <span className="w-8 h-0.5 bg-red-700" />
+          {/* 섹션 헤더 */}
+          <div className="mb-10 md:mb-16 text-center md:text-left">
+            <p className="text-sm font-semibold text-red-700 uppercase tracking-widest mb-4 flex items-center justify-center md:justify-start gap-3">
+              <span className="w-10 h-0.5 bg-red-700" />
               CEO Message
             </p>
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 leading-tight">
-              Responsibility Before Experience
+              Welcome to Seoul City Tour
             </h2>
           </div>
 
-          {/* 콘텐츠 영역 */}
-          <div className="grid md:grid-cols-3 gap-10 items-start">
-            {/* CEO Photo */}
-            <div className="md:col-span-1 flex justify-center md:justify-start">
-              <div className="w-44 h-44 md:w-52 md:h-52 rounded-2xl overflow-hidden shadow-lg bg-gray-200">
-                <img
-                  src="https://via.placeholder.com/400x400?text=CEO+Photo"
-                  alt="CEO portrait"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            </div>
-
-            {/* CEO Message Text */}
-            <div className="md:col-span-2">
-              <div className="max-w-5xl space-y-6 text-gray-700 leading-relaxed text-sm md:text-base">
-                <p>
-                  As a Seoul-based inbound tour operator, we believe that travel
-                  begins with trust. Our responsibility is not limited to
-                  designing itineraries — it extends to ensuring safety,
-                  transparency, and dependable support throughout every journey.
-                </p>
-
-                <p>
-                  Every tour we operate is led by licensed professionals and
-                  managed under established operational standards. Our team
-                  monitors each program closely and remains available to respond
-                  immediately should our guests require assistance.
-                </p>
-
-                <p>
-                  This commitment is embedded in our daily operations, and I
-                  take personal responsibility for maintaining these standards
-                  so that every traveler can experience Korea with confidence
-                  and peace of mind.
-                </p>
+          {/* 메인 카드 */}
+          <div className="relative bg-white rounded-3xl shadow-xl border border-gray-100 p-8 md:p-14">
+            <div className="grid md:grid-cols-3 gap-12 items-start">
+              {/* CEO Photo */}
+              <div className="md:col-span-1 flex justify-center md:justify-start">
+                <div className="relative">
+                  {/* 그라디언트 링 */}
+                  <div className="absolute -inset-1 rounded-3xl bg-gradient-to-br from-red-600 to-red-400 blur-sm opacity-60" />
+                  <div className="relative w-44 h-44 md:w-56 md:h-56 rounded-3xl overflow-hidden bg-gray-200 shadow-2xl">
+                    <img
+                      src="/images/company/park-do-young-ceo.png"
+                      alt="Do-Young Park, Founder & Chief Executive Officer (CEO), Seoul City Tour"
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                    />
+                  </div>
+                </div>
               </div>
 
-              {/* 서명 영역 */}
-              <div className="pt-8 mt-10 border-t-2 border-gray-300">
-                <p className="text-sm text-gray-500 uppercase tracking-wide mb-2">
-                  CEO
-                </p>
-                <p className="text-2xl md:text-3xl font-bold text-gray-900">
-                  Park Do-young
-                </p>
+              {/* CEO Message Text */}
+              <div className="md:col-span-2 relative">
+                {/* SEO 문자열 일치 */}
+                <h3 className="sr-only">
+                  Do-Young Park, Founder & Chief Executive Officer (CEO), Seoul
+                  City Tour
+                </h3>
+
+                {/* 세로 포인트 라인 */}
+                <div className="absolute left-0 top-0 h-full w-1 bg-gradient-to-b from-red-600 to-transparent rounded-full hidden md:block" />
+
+                <div className="md:pl-8 max-w-5xl space-y-6 text-gray-700 leading-relaxed text-sm md:text-base">
+                  <p className="font-medium text-gray-900">
+                    Welcome to Seoul City Tour.
+                  </p>
+
+                  <p>
+                    At Seoul City Tour, we believe that great travel is more
+                    than visiting places — it is about understanding people,
+                    culture, and stories.
+                  </p>
+
+                  <p>
+                    As a Korea-based travel company with deep local expertise,
+                    we curate carefully designed experiences that allow
+                    travelers to connect with Korea in an authentic, safe, and
+                    meaningful way.
+                  </p>
+
+                  <p>
+                    From meticulous planning to professional on-site operation,
+                    your comfort, safety, and satisfaction remain our highest
+                    priorities. We promise honest service and journeys that stay
+                    with you long after the trip ends.
+                  </p>
+
+                  <p>
+                    Thank you for trusting Seoul City Tour. We would be honored
+                    to accompany you on your journey through Korea.
+                  </p>
+                </div>
+
+                {/* 서명 */}
+                <div className="mt-12 pt-8 border-t border-gray-200">
+                  <p className="text-xs tracking-widest text-gray-500 uppercase mb-2">
+                    Founder & Chief Executive Officer
+                  </p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    Do-Young Park
+                  </p>
+                  <p className="text-sm text-gray-500 mt-1">Seoul City Tour</p>
+                </div>
               </div>
             </div>
           </div>
