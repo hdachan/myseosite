@@ -4,7 +4,17 @@ import { useState, useMemo, useRef, useEffect } from "react";
 import Image from "next/image";
 import { Search } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { packageTours } from "@/app/en/package/packageData";
+
+// 👇 [수정됨] basicPackages를 가져와서 packageTours라는 이름으로 쓰겠다고 선언 (as 사용)
+import { basicPackages as packageTours } from "@/app/en/package/packageData";
+
+import { East_Sea_Dokdo } from "next/font/google";
+
+const titleFont = East_Sea_Dokdo({
+  weight: "400",
+  subsets: ["latin"],
+  display: "swap",
+});
 
 /* 🔎 검색어 하이라이트 */
 function highlight(text: string, keyword: string) {
@@ -34,6 +44,7 @@ export default function HeroCarousel1() {
     if (!searchQuery.trim()) return [];
 
     const q = searchQuery.toLowerCase();
+    // packageTours (실제로는 basicPackages) 배열을 사용
     return packageTours.filter(
       (tour) =>
         tour.title.toLowerCase().includes(q) ||
@@ -91,16 +102,22 @@ export default function HeroCarousel1() {
         />
 
         <div className="absolute inset-0 z-20 flex flex-col items-center justify-center px-4 text-center">
-          {/* 타이틀 */}
+          {/* ✅ 타이틀 수정: 폰트 적용 */}
           <h1
-            className="
-              text-white font-bold leading-tight mb-6 drop-shadow-2xl
-              text-[24px] sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl
-            "
+            className={`
+              ${titleFont.className} 
+              text-white leading-none mb-6 drop-shadow-2xl
+              text-5xl sm:text-6xl md:text-7xl lg:text-8xl
+            `}
           >
-            <span className="block">DMZ & Seoul Tours —</span>
-            <span className="block bg-gradient-to-r from-white to-[#D4B896] bg-clip-text text-transparent">
-              Experience the Real Korea
+            {/* 1. 핵심 키워드 3대장 */}
+            <span className="block mb-2 tracking-wide">
+              Seoul, DMZ & Nami Island
+            </span>
+
+            {/* 2. 감성/맥락 전달 */}
+            <span className="block text-3xl sm:text-4xl md:text-5xl lg:text-6xl mt-3 text-[#D4B896] opacity-90">
+              Discover the Real Korea
             </span>
           </h1>
 
@@ -121,7 +138,7 @@ export default function HeroCarousel1() {
                   }}
                   onKeyDown={handleKeyDown}
                   onFocus={() => setOpen(true)}
-                  placeholder="Search tours or destinations"
+                  placeholder="Where do you want to go?"
                   className="
                     flex-1 bg-transparent outline-none
                     text-sm text-gray-800 placeholder-gray-400
@@ -178,10 +195,10 @@ export default function HeroCarousel1() {
               </div>
             )}
 
-            {/* 인기 검색어 */}
+            {/* ✅ 인기 검색어 */}
             <div className="flex flex-wrap items-center justify-center gap-2 mt-4">
               <span className="text-white/70 text-xs">Popular:</span>
-              {["DMZ Tour", "Palace Tour", "K-Drama Tour", "Food Tour"].map(
+              {["DMZ & JSA", "Nami Island", "City Tour", "Private Car"].map(
                 (keyword) => (
                   <button
                     key={keyword}

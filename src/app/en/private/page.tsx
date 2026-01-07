@@ -3,7 +3,9 @@
 import React from "react";
 import PageHero from "@/components/PageHero";
 import TourCard from "@/components/TourCard";
-import { packageTours } from "@/app/en/package/packageData";
+
+// 👇 [수정됨] basicPackages를 가져와서 packageTours라는 이름으로 사용 (as 사용)
+import { basicPackages as packageTours } from "@/app/en/package/packageData";
 
 export default function PrivateTourPage() {
   // packageData에서 처음 4개의 투어만 가져오기

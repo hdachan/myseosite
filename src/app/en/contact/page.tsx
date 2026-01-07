@@ -163,7 +163,7 @@ export default function ContactPage() {
               Ready to book your tour in Korea?
             </p>
             <a
-              href="/en/tours"
+              href="/en/package"
               className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-red-700 text-white hover:bg-red-800 transition"
             >
               View Tour Packages

@@ -4,7 +4,9 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { packageTours } from "@/app/en/package/packageData";
+
+// 👇 [수정됨] basicPackages를 가져와서 packageTours라는 이름으로 쓰겠다고 선언
+import { basicPackages as packageTours } from "@/app/en/package/packageData";
 import TourCard from "@/components/TourCard";
 
 export default function FeaturedAccommodations() {
@@ -12,6 +14,7 @@ export default function FeaturedAccommodations() {
   const [itemsPerView, setItemsPerView] = useState(1);
 
   const MAX_ITEMS = 4;
+  // packageTours(실제로는 basicPackages)를 사용
   const accommodations = packageTours.slice(0, MAX_ITEMS);
 
   // 화면 크기에 따라 보여줄 카드 개수 설정
@@ -130,8 +133,8 @@ export default function FeaturedAccommodations() {
                   itemsPerView === 1
                     ? "grid-cols-1"
                     : itemsPerView === 2
-                    ? "grid-cols-2"
-                    : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+                      ? "grid-cols-2"
+                      : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
                 }`}
               >
                 <AnimatePresence mode="wait">

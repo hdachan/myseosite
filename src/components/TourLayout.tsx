@@ -1,4 +1,4 @@
-// src/components/TourLayout.tsx (PageHero 적용 버전)
+// src/components/TourLayout.tsx
 
 import Link from "next/link";
 import PageHero from "./PageHero";
@@ -12,6 +12,7 @@ const categories = [
   { key: "LOCAL", label: "Local Tour", path: "/en/package/local" },
   { key: "DRAMA", label: "Drama Tour", path: "/en/package/drama" },
   { key: "SKI", label: "Ski Tour", path: "/en/package/ski" },
+  { key: "RELIGIOUS", label: "Religious Tour", path: "/en/package/religious" },
 ];
 
 interface TourLayoutProps {
@@ -27,6 +28,9 @@ export default function TourLayout({
   heroTitle,
   heroSubtitle,
 }: TourLayoutProps) {
+  // ✅ 안전장치: tours가 undefined일 경우 빈 배열로 처리
+  const safeTours = tours || [];
+
   return (
     <div className="min-h-screen bg-gray-50">
       <PageHero
@@ -69,9 +73,16 @@ export default function TourLayout({
           </nav>
 
           <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {tours.map((tour, index) => (
-              <TourCard key={tour.id} tour={tour} priority={index < 4} />
-            ))}
+            {/* ✅ 수정됨: safeTours를 사용하고, 데이터가 없을 때 안내 메시지 표시 */}
+            {safeTours.length > 0 ? (
+              safeTours.map((tour, index) => (
+                <TourCard key={tour.id} tour={tour} priority={index < 4} />
+              ))
+            ) : (
+              <div className="col-span-full text-center py-20 text-gray-500">
+                <p>No tours found in this category yet.</p>
+              </div>
+            )}
           </section>
         </article>
       </div>

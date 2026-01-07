@@ -1,4 +1,5 @@
-import { packageTours } from "./packageData";
+// ✅ 수정됨: basicPackages를 가져와서 packageTours라는 이름으로 쓰겠다고 선언 (as 사용)
+import { basicPackages as packageTours } from "./packageData";
 import TourLayout from "@/components/TourLayout";
 
 export const metadata = {
