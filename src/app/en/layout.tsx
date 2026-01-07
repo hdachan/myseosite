@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import Script from "next/script";
 import Header from "@/components/Header";
+import FloatingChatButton from "@/components/FloatingChatButton";
 import ScrollToTop from "@/components/ScrollToTop";
 import { Instagram, Youtube, Facebook } from "lucide-react"; // 추가
 
@@ -255,6 +256,7 @@ export default function EnLayout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </footer>
+      <FloatingChatButton />
 
       <ScrollToTop />
     </>

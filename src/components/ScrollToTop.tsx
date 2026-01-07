@@ -27,17 +27,18 @@ export default function ScrollToTop() {
       onClick={scrollToTop}
       aria-label="Scroll to top"
       className={`
-        fixed bottom-6 right-6 z-50
-        w-12 h-12 rounded-full
+        fixed bottom-6 right-6 z-40
+        w-14 h-14 rounded-full
         bg-red-800 text-white
         flex items-center justify-center
-        shadow-lg
+        shadow-2xl hover:shadow-xl     
         transition-all duration-300
-        hover:bg-red-900 hover:scale-110
-        ${visible ? "opacity-100" : "opacity-0 pointer-events-none"}
+        hover:bg-red-900 hover:scale-105
+        ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10 pointer-events-none"}
       `}
     >
-      <ChevronUp size={22} />
+      {/* 아이콘 크기 통일 (w-7 h-7 = 28px) */}
+      <ChevronUp className="w-7 h-7" strokeWidth={2.5} />
     </button>
   );
 }
