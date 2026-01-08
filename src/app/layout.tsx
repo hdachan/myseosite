@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/",
   },
-  robots: { index: true, follow: true },
+  robots: { index: false, follow: false },
   icons: { icon: "/favicon.ico" },
   openGraph: {
     title: "DMZ Tour",
