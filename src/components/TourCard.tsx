@@ -1,7 +1,7 @@
 // src/components/TourCard.tsx
 import Link from "next/link";
 import Image from "next/image";
-import { type PackageTour } from "@/app/en/package/packageData";
+import { type PackageTour } from "@/app/package/packageData";
 
 interface TourCardProps {
   tour: PackageTour;
@@ -11,7 +11,7 @@ interface TourCardProps {
 export default function TourCard({ tour, priority = false }: TourCardProps) {
   return (
     <article className="group">
-      <Link href={`/en/package/${tour.slug}`} className="block">
+      <Link href={`/package/${tour.slug}`} className="block">
         <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 h-[380px] flex flex-col">
           {/* 이미지 섹션 */}
           <div className="relative h-[140px] overflow-hidden">

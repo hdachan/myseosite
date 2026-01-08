@@ -2,17 +2,19 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Menu, X, ShoppingCart } from "lucide-react";
+import { Menu, ShoppingCart } from "lucide-react";
 import { useCartStore } from "@/store/cartStore";
 import { useEffect, useState } from "react";
+// ✅ 1. 구글 번역 컴포넌트 불러오기
+import GoogleTranslate from "@/components/GoogleTranslate";
 
 export default function Header() {
   const menuItems = [
-    { href: "/en", label: "Home" },
-    { href: "/en/company", label: "About Us" },
-    { href: "/en/package", label: "Package Tours" },
-    { href: "/en/private", label: "Private Tours" },
-    { href: "/en/contact", label: "Contact" },
+    { href: "/", label: "Home" },
+    { href: "/company", label: "About Us" },
+    { href: "/package", label: "Package Tours" },
+    { href: "/private", label: "Private Tours" },
+    { href: "/contact", label: "Contact" },
   ];
 
   const [cartItemsCount, setCartItemsCount] = useState(0);
@@ -32,7 +34,7 @@ export default function Header() {
 
       <nav className="relative max-w-7xl mx-auto flex items-center justify-between px-6 lg:px-10 py-4">
         {/* Logo */}
-        <Link href="/en" className="flex items-center">
+        <Link href="/" className="flex items-center">
           <Image
             src="/images/logo.png"
             alt="Seoul City Tour Logo"
@@ -58,9 +60,14 @@ export default function Header() {
 
         {/* Right Controls */}
         <div className="flex items-center gap-5">
+          {/* ✅ 3. 테스트용 구글 번역 위젯 추가 (PC에서만 보이게 설정) */}
+          <div className="hidden md:block">
+            <GoogleTranslate />
+          </div>
+
           {/* Cart */}
           <Link
-            href="/en/cart"
+            href="/cart"
             className="relative p-2 text-neutral-700 hover:text-neutral-900 transition"
           >
             <ShoppingCart size={22} />
@@ -70,22 +77,6 @@ export default function Header() {
               </span>
             )}
           </Link>
-
-          {/* Language */}
-          <div className="hidden sm:flex items-center gap-3 pl-4 border-l border-black/10">
-            <Link
-              href="/ko"
-              className="text-[13px] text-neutral-700 hover:text-neutral-900 transition"
-            >
-              KR
-            </Link>
-            <Link
-              href="/en"
-              className="px-4 py-1.5 text-[11px] font-semibold rounded-full border border-black/15 hover:bg-black/5 transition"
-            >
-              EN
-            </Link>
-          </div>
 
           {/* Mobile Toggle */}
           <label

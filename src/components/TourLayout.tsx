@@ -2,17 +2,18 @@
 
 import Link from "next/link";
 import PageHero from "./PageHero";
-import { type PackageTour } from "@/app/en/package/packageData";
+import { type PackageTour } from "@/app/package/packageData"; // 경로 확인 필요 (파일을 옮겼으므로)
 import TourCard from "./TourCard";
 
 const categories = [
-  { key: "ALL", label: "All Tours", path: "/en/package" },
-  { key: "DMZ", label: "DMZ Tour", path: "/en/package/dmz" },
-  { key: "DAILY", label: "Daily Tour", path: "/en/package/daily" },
-  { key: "LOCAL", label: "Local Tour", path: "/en/package/local" },
-  { key: "DRAMA", label: "Drama Tour", path: "/en/package/drama" },
-  { key: "SKI", label: "Ski Tour", path: "/en/package/ski" },
-  { key: "RELIGIOUS", label: "Religious Tour", path: "/en/package/religious" },
+  // ✅ 수정: 모든 경로에서 /en 제거
+  { key: "ALL", label: "All Tours", path: "/package" },
+  { key: "DMZ", label: "DMZ Tour", path: "/package/dmz" },
+  { key: "DAILY", label: "Daily Tour", path: "/package/daily" },
+  { key: "LOCAL", label: "Local Tour", path: "/package/local" },
+  { key: "DRAMA", label: "Drama Tour", path: "/package/drama" },
+  { key: "SKI", label: "Ski Tour", path: "/package/ski" },
+  { key: "RELIGIOUS", label: "Religious Tour", path: "/package/religious" },
 ];
 
 interface TourLayoutProps {
@@ -44,7 +45,8 @@ export default function TourLayout({
           <nav aria-label="Breadcrumb" className="mb-6">
             <ol className="flex items-center gap-2 text-sm text-gray-600">
               <li>
-                <Link href="/en" className="hover:text-red-600">
+                {/* ✅ 수정: Home 링크 /en -> / */}
+                <Link href="/" className="hover:text-red-600">
                   Home
                 </Link>
               </li>
@@ -73,7 +75,6 @@ export default function TourLayout({
           </nav>
 
           <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* ✅ 수정됨: safeTours를 사용하고, 데이터가 없을 때 안내 메시지 표시 */}
             {safeTours.length > 0 ? (
               safeTours.map((tour, index) => (
                 <TourCard key={tour.id} tour={tour} priority={index < 4} />

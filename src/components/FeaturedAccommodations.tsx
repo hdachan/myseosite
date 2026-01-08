@@ -6,7 +6,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 // 👇 [수정됨] basicPackages를 가져와서 packageTours라는 이름으로 쓰겠다고 선언
-import { basicPackages as packageTours } from "@/app/en/package/packageData";
+import { basicPackages as packageTours } from "@/app/package/packageData";
 import TourCard from "@/components/TourCard";
 
 export default function FeaturedAccommodations() {

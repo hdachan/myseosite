@@ -5,8 +5,8 @@ import Image from "next/image";
 import { Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-// 👇 [수정됨] basicPackages를 가져와서 packageTours라는 이름으로 쓰겠다고 선언 (as 사용)
-import { basicPackages as packageTours } from "@/app/en/package/packageData";
+// 👇 basicPackages 가져오기
+import { basicPackages as packageTours } from "@/app/package/packageData";
 
 import { East_Sea_Dokdo } from "next/font/google";
 
@@ -44,7 +44,6 @@ export default function HeroCarousel1() {
     if (!searchQuery.trim()) return [];
 
     const q = searchQuery.toLowerCase();
-    // packageTours (실제로는 basicPackages) 배열을 사용
     return packageTours.filter(
       (tour) =>
         tour.title.toLowerCase().includes(q) ||
@@ -57,7 +56,7 @@ export default function HeroCarousel1() {
   const handleSelect = (slug: string) => {
     setOpen(false);
     setSearchQuery("");
-    router.push(`/en/package/${slug}`);
+    router.push(`/package/${slug}`);
   };
 
   /* ⌨️ 키보드 제어 */
@@ -102,7 +101,6 @@ export default function HeroCarousel1() {
         />
 
         <div className="absolute inset-0 z-20 flex flex-col items-center justify-center px-4 text-center">
-          {/* ✅ 타이틀 수정: 폰트 적용 */}
           <h1
             className={`
               ${titleFont.className} 
@@ -110,12 +108,9 @@ export default function HeroCarousel1() {
               text-5xl sm:text-6xl md:text-7xl lg:text-8xl
             `}
           >
-            {/* 1. 핵심 키워드 3대장 */}
             <span className="block mb-2 tracking-wide">
               Seoul, DMZ & Nami Island
             </span>
-
-            {/* 2. 감성/맥락 전달 */}
             <span className="block text-3xl sm:text-4xl md:text-5xl lg:text-6xl mt-3 text-[#D4B896] opacity-90">
               Discover the Real Korea
             </span>
@@ -157,7 +152,8 @@ export default function HeroCarousel1() {
                 className="
                   absolute z-50 mt-2 w-full
                   bg-white rounded-xl shadow-2xl
-                  max-h-[240px] overflow-y-auto overscroll-contain
+                  max-h-[260px] 
+                  overflow-y-auto overscroll-contain
                 "
               >
                 {results.length === 0 ? (
@@ -169,9 +165,10 @@ export default function HeroCarousel1() {
                     <button
                       key={tour.id}
                       onClick={() => handleSelect(tour.slug)}
-                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 text-left"
+                      className="w-full flex items-center gap-5 px-5 py-5 hover:bg-gray-50 text-left border-b border-gray-100 last:border-0"
                     >
-                      <div className="relative w-12 h-12 rounded-md overflow-hidden shrink-0">
+                      {/* 👇 [수정됨] shadow-md 제거하고 rounded만 살짝 남김 (박스 느낌 제거) */}
+                      <div className="relative w-24 h-24 rounded-md overflow-hidden shrink-0">
                         <Image
                           src={tour.image}
                           alt={tour.title}
@@ -180,13 +177,15 @@ export default function HeroCarousel1() {
                         />
                       </div>
 
-                      <div>
-                        <p className="text-sm font-semibold text-gray-900 line-clamp-1">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-lg font-bold text-gray-900 line-clamp-1 mb-1">
                           {highlight(tour.title, searchQuery)}
                         </p>
-                        <p className="text-xs text-gray-500">
-                          {highlight(tour.location, searchQuery)} · from $
-                          {tour.price}
+                        <p className="text-sm text-gray-500 mb-1">
+                          {highlight(tour.location, searchQuery)}
+                        </p>
+                        <p className="text-base font-semibold text-[#4A7C7E]">
+                          from ${tour.price}
                         </p>
                       </div>
                     </button>

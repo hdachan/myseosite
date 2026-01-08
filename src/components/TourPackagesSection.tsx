@@ -35,7 +35,7 @@ interface TourCategory {
 
 // SimpleTourCard 컴포넌트 - 홈페이지용 심플 버전
 function SimpleTourCard({ tour, index }: { tour: Tour; index: number }) {
-  const linkHref = tour.slug ? `/en/package/${tour.slug}` : "#";
+  const linkHref = tour.slug ? `/package/${tour.slug}` : "#";
 
   return (
     <motion.article
@@ -338,7 +338,7 @@ export default function TourPackagesSection() {
               </h2>
             </div>
             <Link
-              href="/en/package"
+              href="/package"
               className="text-sm text-gray-600 hover:text-[#4A7C7E] font-medium flex items-center gap-1"
             >
               More
