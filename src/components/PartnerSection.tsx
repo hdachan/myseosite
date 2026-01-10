@@ -3,18 +3,18 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
 
-// ✅ 1. 글로벌 예약 파트너 (경로/확장자 수정 완료)
+// ✅ 1. 글로벌 예약 파트너
 const bookingPartners = [
-  { name: "TripAdvisor", logo: "/logo/tripadvisor.webp" }, // webp
+  { name: "TripAdvisor", logo: "/logo/tripadvisor.webp" },
   { name: "Viator", logo: "/logo/viator.png" },
   { name: "GetYourGuide", logo: "/logo/getyourguide.png" },
   { name: "Klook", logo: "/logo/klook.png" },
 ];
 
-// ✅ 2. 공식 인증 및 호텔 파트너 (경로/확장자 수정 완료)
+// ✅ 2. 공식 인증 및 호텔 파트너
 const officialPartners = [
   { name: "Korea Tourism Org", logo: "/logo/kto.png" },
-  { name: "Seoul Tourism Org", logo: "/logo/seoul_tourism.webp" }, // webp
+  { name: "Seoul Tourism Org", logo: "/logo/seoul_tourism.webp" },
   { name: "The Shilla", logo: "/logo/shilla.png" },
   { name: "Hilton", logo: "/logo/hilton.png" },
 ];
@@ -45,20 +45,12 @@ const MarqueeRow = ({
           repeat: Infinity,
         }}
       >
-        {/* 끊김 방지를 위해 리스트를 8번 반복 (충분히 길게) */}
-        {[
-          ...items,
-          ...items,
-          ...items,
-          ...items,
-          ...items,
-          ...items,
-          ...items,
-          ...items,
-        ].map((partner, index) => (
-          <div
-            key={`${partner.name}-${index}`}
-            className="
+        {/* 끊김 방지를 위해 리스트 반복 */}
+        {[...items, ...items, ...items, ...items, ...items, ...items].map(
+          (partner, index) => (
+            <div
+              key={`${partner.name}-${index}`}
+              className="
                 relative flex items-center justify-center 
                 w-[180px] h-[80px] 
                 bg-white border border-gray-100 rounded-xl shadow-sm
@@ -66,19 +58,20 @@ const MarqueeRow = ({
                 hover:shadow-md hover:border-[#4A7C7E]/30 
                 transition-all duration-300 group
               "
-          >
-            {/* ✅ 로고 이미지 영역 */}
-            <div className="relative w-[140px] h-[50px] opacity-60 group-hover:opacity-100 group-hover:grayscale-0 grayscale transition-all duration-300">
-              <Image
-                src={partner.logo}
-                alt={partner.name}
-                fill
-                className="object-contain"
-                sizes="140px"
-              />
+            >
+              {/* ✅ 로고 이미지 영역 */}
+              <div className="relative w-[140px] h-[50px] opacity-60 group-hover:opacity-100 group-hover:grayscale-0 grayscale transition-all duration-300">
+                <Image
+                  src={partner.logo}
+                  alt={partner.name}
+                  fill
+                  className="object-contain"
+                  sizes="140px"
+                />
+              </div>
             </div>
-          </div>
-        ))}
+          )
+        )}
       </motion.div>
 
       {/* 좌우 그라데이션 (부드러운 마스크) */}
@@ -91,22 +84,31 @@ const MarqueeRow = ({
 export default function PartnerSection() {
   return (
     <section className="w-full py-16 lg:py-24 bg-white border-b border-gray-100 overflow-hidden">
-      <div className="max-w-7xl mx-auto px-8 lg:px-16 mb-12">
+      {/* ⭐ 라인 정렬 수정: max-w-6xl, px-12 */}
+      <div className="max-w-6xl mx-auto px-8 lg:px-12 mb-12">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
+          {/* 소제목: SEO 키워드 (Verified, Official) */}
           <p className="text-xs uppercase tracking-wider text-[#4A7C7E] font-medium mb-2">
-            Global Network
+            Verified & Official
           </p>
+
+          {/* 메인 타이틀: 정부 인증 강조 */}
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-            Authorized & Trusted By
+            Government Accredited Partner
           </h2>
+
+          {/* 설명글: SEO + 신뢰도 (STO, KTO, Safety Standards) */}
           <p className="text-gray-600 max-w-2xl text-sm sm:text-base leading-relaxed">
-            Partnered with the world's leading travel platforms and official
-            government organizations.
+            Officially certified by the{" "}
+            <strong>Korea Tourism Organization</strong> and{" "}
+            <strong>Seoul Tourism Organization</strong>. We guarantee the
+            highest safety standards and professional service as a trusted local
+            expert.
           </p>
         </motion.div>
       </div>

@@ -1,6 +1,6 @@
-// src/components/TourCard.tsx
 import Link from "next/link";
 import Image from "next/image";
+import { Star } from "lucide-react";
 import { type PackageTour } from "@/app/package/packageData";
 
 interface TourCardProps {
@@ -9,86 +9,94 @@ interface TourCardProps {
 }
 
 export default function TourCard({ tour, priority = false }: TourCardProps) {
+  // ⭐ 핵심 로직 유지: 쉼표(,)로 문자열을 잘라서 배열로 만듦
+  const tags = tour.description
+    ? tour.description.split(",").map((tag) => tag.trim())
+    : [];
+
   return (
-    <article className="group">
-      <Link href={`/package/${tour.slug}`} className="block">
-        <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 h-[380px] flex flex-col">
-          {/* 이미지 섹션 */}
-          <div className="relative h-[140px] overflow-hidden">
-            <Image
-              src={tour.image}
-              alt={`${tour.title} - Korea tour package`}
-              fill
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-              className="object-cover group-hover:scale-105 transition-transform duration-500"
-              priority={priority}
-            />
-            {tour.discount && (
-              <div className="absolute top-2 right-2 bg-red-600 text-white px-2 py-1 rounded-lg text-xs font-bold shadow-md">
-                {tour.discount}% OFF
-              </div>
-            )}
+    <div className="group cursor-pointer flex flex-col h-full">
+      <Link href={`/package/${tour.slug}`} className="block h-full">
+        {/* 1. 이미지 영역 (높이 200px 고정 - 유지) */}
+        <div className="relative h-[200px] w-full overflow-hidden rounded-xl border border-gray-100 bg-gray-50">
+          <Image
+            src={tour.image}
+            alt={tour.title}
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+            className="object-cover group-hover:scale-110 transition-transform duration-700"
+            priority={priority}
+          />
+        </div>
+
+        {/* 2. 텍스트 내용 영역 */}
+        <div className="pt-3 flex flex-col flex-1">
+          {/* 카테고리 */}
+          <div className="text-[10px] sm:text-xs text-gray-400 mb-1 truncate">
+            {tour.location}
           </div>
 
-          {/* 텍스트 컨텐츠 */}
-          <div className="p-4 flex flex-col flex-1">
-            {/* 위치 */}
-            <div className="text-xs text-gray-500 mb-2">{tour.location}</div>
+          {/* 제목 (16px 고정) */}
+          {/* ⚡ 간격 수정: mb-2 -> mb-1 (제목과 태그 사이 좁힘) */}
+          <h3 className="h-[48px] text-[16px] font-bold text-gray-900 leading-snug mb-1 line-clamp-2 group-hover:text-[#ad3928] transition-colors">
+            {tour.title}
+          </h3>
 
-            {/* 제목 */}
-            <h2 className="text-base font-semibold text-gray-900 mb-2 line-clamp-2 leading-snug">
-              {tour.title}
-            </h2>
-
-            {/* 설명 */}
-            <p className="text-xs text-gray-600 mb-3 line-clamp-2">
-              {tour.description}
-            </p>
-
-            {/* 평점 및 리뷰 */}
-            <div className="flex items-center gap-1 mb-3">
-              <span className="text-yellow-500 text-sm" aria-hidden="true">
-                ★
+          {/* 태그 영역 (회색 박스) */}
+          {/* ⚡ 간격 수정: mb-3 -> mb-2 (태그와 하단 정보 사이 좁힘) */}
+          <div className="h-[26px] mb-2 overflow-hidden flex flex-wrap gap-1.5">
+            {tags.map((tag, index) => (
+              <span
+                key={index}
+                className="inline-block px-1.5 py-0.5 bg-gray-50 text-gray-500 text-[10px] sm:text-xs rounded-md font-medium border border-gray-100 whitespace-nowrap"
+              >
+                {tag}
               </span>
-              <span className="text-sm font-bold text-gray-900">
+            ))}
+          </div>
+
+          {/* 하단 정보 (평점 & 가격) */}
+          <div className="mt-auto">
+            {/* 평점 줄 */}
+            {/* ⚡ 간격 수정: mb-2 -> mb-1 (평점과 가격 사이 좁힘) */}
+            <div className="flex items-center gap-1 mb-1">
+              <Star className="w-3.5 h-3.5 fill-[#37848c] text-[#37848c]" />
+              <span className="text-[#37848c] text-sm font-bold">
                 {tour.rating}
               </span>
-              <span className="text-xs text-gray-500">
-                ({tour.reviews}) • {tour.bookings}
+              <span className="text-gray-400 text-xs">({tour.reviews})</span>
+              <span className="text-gray-300 text-[10px] mx-1">•</span>
+              <span className="text-gray-500 text-xs truncate max-w-[80px]">
+                {tour.bookings}
               </span>
             </div>
 
-            {/* 가격 (하단 고정) */}
-            <div className="mt-auto">
+            {/* ⭐ 가격 줄 (요청하신 디자인 100% 유지) */}
+            <div className="flex items-center gap-1.5 mt-1">
+              <span className="text-xs text-gray-500 font-medium">From</span>
+
+              {/* 할인이 있을 때 */}
               {tour.discount ? (
                 <>
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-sm text-gray-400 line-through">
-                      $ {tour.originalPrice}
-                    </span>
-                    <span className="text-xs font-semibold text-red-600">
-                      {tour.discount}% OFF
-                    </span>
-                  </div>
-                  <div className="flex items-baseline gap-1.5">
-                    <span className="text-xl font-bold text-red-600">
-                      $ {tour.price}
-                    </span>
-                    <span className="text-sm text-gray-600">From</span>
-                  </div>
+                  {/* 할인가 (빨간색, 굵게) */}
+                  <span className="text-lg font-bold text-[#ad3928]">
+                    ₩ {tour.price.toLocaleString()}
+                  </span>
+                  {/* 원가 (회색, 취소선) - 바로 옆에 배치 */}
+                  <span className="text-xs text-gray-400 line-through decoration-gray-400">
+                    ₩ {tour.originalPrice?.toLocaleString()}
+                  </span>
                 </>
               ) : (
-                <div className="flex items-baseline gap-1.5">
-                  <span className="text-xl font-bold text-gray-900">
-                    $ {tour.price}
-                  </span>
-                  <span className="text-sm text-gray-600">From</span>
-                </div>
+                /* 할인 없을 때 */
+                <span className="text-lg font-bold text-gray-900">
+                  ₩ {tour.price.toLocaleString()}
+                </span>
               )}
             </div>
           </div>
         </div>
       </Link>
-    </article>
+    </div>
   );
 }

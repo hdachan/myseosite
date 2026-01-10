@@ -5,7 +5,6 @@ import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-// 👇 basicPackages를 가져와서 packageTours라는 이름으로 쓰겠다고 선언
 import { basicPackages as packageTours } from "@/app/package/packageData";
 import TourCard from "@/components/TourCard";
 
@@ -13,11 +12,9 @@ export default function FeaturedAccommodations() {
   const [currentPage, setCurrentPage] = useState(0);
   const [itemsPerView, setItemsPerView] = useState(1);
 
-  const MAX_ITEMS = 4;
-  // packageTours(실제로는 basicPackages)를 사용
+  const MAX_ITEMS = 6;
   const accommodations = packageTours.slice(0, MAX_ITEMS);
 
-  // 화면 크기에 따라 보여줄 카드 개수 설정
   useEffect(() => {
     const updateItemsPerView = () => {
       if (window.innerWidth >= 1024) {
@@ -34,7 +31,6 @@ export default function FeaturedAccommodations() {
     return () => window.removeEventListener("resize", updateItemsPerView);
   }, []);
 
-  // ✅ 페이지 단위 계산
   const totalPages = Math.ceil(accommodations.length / itemsPerView);
   const canPrev = currentPage > 0;
   const canNext = currentPage < totalPages - 1;
@@ -55,7 +51,6 @@ export default function FeaturedAccommodations() {
 
   return (
     <section className="relative pt-14 pb-32 lg:pt-20 lg:pb-44 bg-gradient-to-br from-[#F8F1E7] via-white to-[#F8F1E7]">
-      {/* 미세한 배경 패턴 */}
       <div className="absolute inset-0 z-0 overflow-hidden">
         <Image
           src="https://images.unsplash.com/photo-1583562835057-a62d1beffbf3?w=1600"
@@ -66,7 +61,6 @@ export default function FeaturedAccommodations() {
         />
       </div>
 
-      {/* ⭐ 수정됨: max-w-7xl -> 6xl, px-8 lg:px-14 -> px-8 lg:px-12 (라인 정렬) */}
       <div className="relative z-20 max-w-6xl mx-auto px-8 lg:px-12">
         <div className="grid grid-cols-12 gap-6 lg:gap-10 items-start relative z-10">
           {/* 왼쪽 텍스트 영역 */}
@@ -78,14 +72,11 @@ export default function FeaturedAccommodations() {
               transition={{ duration: 0.6 }}
             >
               <p className="text-xs uppercase tracking-wider text-[#4A7C7E] font-medium mb-2">
-                Recommended Travel
+                OFFICIAL PARTNER
               </p>
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 leading-tight">
-                K-culture tour
+                Best DMZ Tours from Seoul
               </h2>
-              <p className="text-sm text-gray-600 max-w-3xl">
-                한국의 전통과 현대가 공존하는 특별한 투어를 만나보세요.
-              </p>
 
               {/* 네비게이션 버튼 */}
               {totalPages > 1 && (
@@ -129,25 +120,29 @@ export default function FeaturedAccommodations() {
               transition={{ duration: 0.6, delay: 0.1 }}
               className="relative"
             >
+              {/* ✅ gap-4로 조금 더 촘촘하게 배치 */}
               <div
-                className={`grid gap-5 ${
+                className={`grid gap-4 ${
                   itemsPerView === 1
                     ? "grid-cols-1"
                     : itemsPerView === 2
                       ? "grid-cols-2"
-                      : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+                      : "grid-cols-3" // 3개 보여주기
                 }`}
               >
                 <AnimatePresence mode="wait">
                   {visibleItems.map((item) => (
                     <motion.div
                       key={item.id}
-                      initial={{ opacity: 0, scale: 0.95 }}
+                      initial={{ opacity: 0, scale: 0.98 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.95 }}
+                      exit={{ opacity: 0, scale: 0.98 }}
                       transition={{ duration: 0.4, ease: "easeOut" }}
+                      className="h-full"
                     >
-                      <TourCard tour={item} />
+                      <div className="h-full">
+                        <TourCard tour={item} />
+                      </div>
                     </motion.div>
                   ))}
                 </AnimatePresence>
@@ -156,8 +151,6 @@ export default function FeaturedAccommodations() {
           </div>
         </div>
 
-        {/* ✅ 일러스트 (기존 로직 유지하되, 1280px -> 1152px로 기준만 변경) */}
-        {/* 6xl(1152px) 기준으로 계산해야 이미지가 정확히 라인에 붙습니다 */}
         <div className="absolute bottom-0 left-6 lg:left-[calc((100%-1152px)/2+1.5rem)] z-0 pointer-events-none">
           <Image
             src="/images/card_koreaimg_v2.png"

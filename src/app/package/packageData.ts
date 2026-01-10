@@ -1,6 +1,3 @@
-// D:\myseosite\src\app\package\packageData.ts
-
-// ✅ 상세 데이터(내용, 코스 등)가 들어있는 파일과 연결
 import { tourDetails } from "./tourDetailData";
 
 export type Category =
@@ -12,7 +9,6 @@ export type Category =
   | "SKI"
   | "RELIGIOUS";
 
-// ✅ 옵션 타입 정의 (여기서 직접 정의하여 에러 방지)
 export interface PackageOption {
   id: string;
   name: string;
@@ -22,15 +18,14 @@ export interface PackageOption {
   excluded?: string[];
 }
 
-// ✅ 기본 정보 타입 (리스트 화면용 - 가벼움)
 export interface PackageTourBasic {
   id: number;
   slug: string;
   category: Category;
   location: string;
   title: string;
-  description: string;
-  image: string; // 썸네일
+  description: string; // 쉼표(,)로 구분된 키워드 (예: "No Shopping,English Guided")
+  image: string;
   rating: number;
   reviews: number;
   bookings: string;
@@ -39,13 +34,10 @@ export interface PackageTourBasic {
   duration?: string;
   minimumPax?: number;
   keywords?: string[];
-  discount?: number;
-  originalPrice?: number;
-  // 👆👆 이게 없으면 TourCard에서 에러가 납니다.
+  discount?: number; // 할인율
+  originalPrice?: number; // 원래 가격
 }
 
-// ✅ 상세 정보 타입 (기본 정보 + 상세 데이터 합체본)
-// 나중에 getPackageBySlug 함수가 이 형태로 데이터를 합쳐서 내보냅니다.
 export interface PackageTour extends PackageTourBasic {
   fullDescription?: string;
   includes?: string[];
@@ -53,30 +45,31 @@ export interface PackageTour extends PackageTourBasic {
   meetingPoint?: string;
   cancellation?: string;
   packageOptions?: PackageOption[];
-  images?: string[]; // 상세 갤러리 이미지
+  images?: string[];
 }
 
 // ====================================================================
-// 📋 리스트 데이터 (요약 정보만 모아둠)
+// 📋 리스트 데이터 (쉼표로 구분된 키워드 + 할인 적용)
 // ====================================================================
 export const basicPackages: PackageTourBasic[] = [
-  // 1. DMZ
   {
     id: 101,
     slug: "dmz-tour-combined",
     category: "DMZ",
     location: "Paju · DMZ",
     title: "DMZ Tour : The 3rd Infiltration Tunnel & Suspension Bridge",
-    description:
-      "Explore the most popular DMZ courses including the 3rd Tunnel.",
+    // 쉼표로 구분하면 카드에서 회색 박스로 나뉩니다
+    description: "English Guided,No Shopping,Hotel Pick-up",
     image:
       "https://images.unsplash.com/photo-1596420803522-824f9c656513?w=800&q=80",
     rating: 4.9,
     reviews: 1500,
-    bookings: "6k+ bookings",
-    price: 55,
-    keywords: ["DMZ", "3rd Tunnel", "North Korea"],
-    tags: ["Must Visit"],
+    bookings: "6k+ booked",
+    price: 20,
+    originalPrice: 70,
+    discount: 50,
+    keywords: ["DMZ", "3rd Tunnel", "Dora Observatory", "Imjingak"],
+    tags: ["Best Seller"],
   },
   {
     id: 105,
@@ -84,7 +77,7 @@ export const basicPackages: PackageTourBasic[] = [
     category: "DMZ",
     location: "Panmunjom · JSA",
     title: "JSA Tour (Joint Security Area)",
-    description: "⛔ Temporarily Suspended due to Government Regulations",
+    description: "Temporarily Suspended",
     image:
       "https://images.unsplash.com/photo-1588665725227-2856247c413b?w=800&q=80",
     rating: 4.9,
@@ -94,22 +87,24 @@ export const basicPackages: PackageTourBasic[] = [
     tags: ["Suspended"],
   },
 
-  // 2. DAILY
+  // 2. DAILY (⭐ 할인: 40불 <- 50불)
   {
     id: 201,
     slug: "morning-tour-seoul",
     category: "DAILY",
     location: "Seoul",
     title: "Morning Tour : Explore Seoul in the Morning",
-    description: "Choose from Palaces, Museums, or N Seoul Tower.",
+    description: "Gyeongbokgung,Blue House,Jogyesa Temple",
     image:
       "https://images.unsplash.com/photo-1596896236979-4d8b9d3c5096?w=800&q=80",
     rating: 4.8,
     reviews: 520,
-    bookings: "2.5k+ bookings",
+    bookings: "2.5k+ booked",
     price: 40,
-    duration: "09:00 - 13:00 (Approx.)",
-    tags: ["Best Seller", "Half Day"],
+    originalPrice: 50,
+    discount: 20,
+    duration: "4 Hours",
+    tags: ["Best Seller"],
   },
   {
     id: 202,
@@ -117,15 +112,14 @@ export const basicPackages: PackageTourBasic[] = [
     category: "DAILY",
     location: "Seoul",
     title: "Afternoon Tour : Seoul Highlights & Culture",
-    description:
-      "Experience Folk Villages, Palaces, or River Cruises in the afternoon.",
+    description: "Changdeokgung,Insadong,Namdaemun Market",
     image:
       "https://images.unsplash.com/photo-1627447833139-445853a47926?w=800&q=80",
     rating: 4.7,
     reviews: 400,
-    bookings: "1.8k+ bookings",
+    bookings: "1.8k+ booked",
     price: 45,
-    duration: "13:00 - 17:30 (Approx.)",
+    duration: "4.5 Hours",
   },
   {
     id: 203,
@@ -133,16 +127,17 @@ export const basicPackages: PackageTourBasic[] = [
     category: "DAILY",
     location: "Seoul & Suburbs",
     title: "Full Day Tour : The Complete Seoul Experience",
-    description:
-      "Various full-day itineraries covering history, culture, and shopping.",
+    description: "Seoul Highlights,Lunch Included,N Seoul Tower",
     image:
       "https://images.unsplash.com/photo-1605218427368-35b86d9441a1?w=800&q=80",
     rating: 4.9,
     reviews: 1200,
-    bookings: "5k+ bookings",
+    bookings: "5k+ booked",
     price: 80,
-    duration: "09:00 - 17:30 (Approx.)",
-    tags: ["Best Seller", "Recommended"],
+    originalPrice: 100, // ⭐ 할인 적용
+    discount: 20,
+    duration: "9 Hours",
+    tags: ["Recommended"],
   },
 
   // 3. LOCAL
@@ -152,12 +147,12 @@ export const basicPackages: PackageTourBasic[] = [
     category: "LOCAL",
     location: "Outside Seoul",
     title: "Provincial Tour : Discover Korea's Beauty",
-    description: "Travel to Seoraksan, Gyeongju, Busan, Jeju and more.",
+    description: "Seoraksan,Gyeongju,Busan,Jeju Island",
     image:
       "https://images.unsplash.com/photo-1610444654992-6f35b440893f?w=800&q=80",
     rating: 4.8,
     reviews: 600,
-    bookings: "1k+ bookings",
+    bookings: "1k+ booked",
     price: 110,
   },
 
@@ -168,32 +163,33 @@ export const basicPackages: PackageTourBasic[] = [
     category: "DRAMA",
     location: "Various Locations",
     title: "Drama Tour : K-Drama Filming Locations",
-    description: "Visit the scenes of Winter Sonata, Parasite, and more.",
+    description: "Winter Sonata,BTS Spots,Parasite Locations",
     image:
       "https://images.unsplash.com/photo-1603522699946-857c5e207c4b?w=800&q=80",
     rating: 4.9,
     reviews: 2000,
-    bookings: "5k+ bookings",
+    bookings: "5k+ booked",
     price: 70,
     tags: ["K-Culture"],
   },
 
-  // 5. SKI
+  // 5. SKI (⭐ 할인: 90불 <- 120불)
   {
     id: 501,
     slug: "ski-tour-korea",
     category: "SKI",
     location: "Ski Resorts",
     title: "Ski Tour : Winter Ski & Snowboard",
-    description:
-      "Experience winter sports at Jisan, Elysian, or Yongpyong resorts.",
+    description: "Jisan Resort,Elysian Gangchon,Lesson Included",
     image:
       "https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=800&q=80",
     rating: 4.8,
     reviews: 800,
-    bookings: "3k+ bookings",
+    bookings: "3k+ booked",
     price: 90,
-    tags: ["Winter Only", "Seasonal"],
+    originalPrice: 120,
+    discount: 25,
+    tags: ["Winter Only"],
   },
 
   // 6. RELIGIOUS
@@ -203,28 +199,27 @@ export const basicPackages: PackageTourBasic[] = [
     category: "RELIGIOUS",
     location: "Seoul & Nami",
     title: "Muslim Tour : Halal Friendly Travel",
-    description:
-      "Specialized tours with Halal food and prayer time arrangements.",
+    description: "Halal Food,Prayer Room Arranged,Nami Island",
     image:
       "https://images.unsplash.com/photo-1580537659466-0a9bfa916a54?w=800&q=80",
     rating: 4.9,
     reviews: 300,
-    bookings: "800+ bookings",
+    bookings: "800+ booked",
     price: 85,
-    tags: ["Halal", "Muslim Friendly"],
+    tags: ["Halal Friendly"],
   },
   {
     id: 602,
     slug: "catholic-tour-korea",
     category: "RELIGIOUS",
-    location: "Seoul & Holy Sites",
+    location: "Seoul",
     title: "Catholic Tour : Pilgrimage in Korea",
-    description: "Visit holy shrines and follow the route of Pope Francis.",
+    description: "Holy Shrines,Pope Francis Route,Mass Available",
     image:
       "https://images.unsplash.com/photo-1548625361-12e2c5643444?w=800&q=80",
     rating: 5.0,
     reviews: 100,
-    bookings: "200+ bookings",
+    bookings: "200+ booked",
     price: 100,
   },
   {
@@ -233,30 +228,28 @@ export const basicPackages: PackageTourBasic[] = [
     category: "RELIGIOUS",
     location: "Temples",
     title: "Buddhist Tour : Temple Stay & Culture",
-    description: "Experience Korean Buddhism and meditation at serene temples.",
+    description: "Meditation,Tea Ceremony,Temple Stay",
     image:
       "https://images.unsplash.com/photo-1597817473551-7e87514a66f7?w=800&q=80",
     rating: 4.8,
     reviews: 150,
-    bookings: "300+ bookings",
+    bookings: "300+ booked",
     price: 60,
-    tags: ["Wellness", "Meditation"],
+    tags: ["Wellness"],
   },
 ];
 
 // ====================================================================
-// 🚀 Helper functions (여기서 두 데이터를 합칩니다!)
+// 🚀 Helper functions
 // ====================================================================
 
-// Slug로 상품 찾기 (상세페이지용 - 합체!)
+// Slug로 상품 찾기 (상세페이지용)
 export function getPackageBySlug(slug: string): PackageTour | undefined {
   const basic = basicPackages.find((tour) => tour.slug === slug);
-  // tourDetailData.ts 파일에서 해당 slug의 상세 정보를 가져옴
   const detail = tourDetails[slug];
 
   if (!basic) return undefined;
 
-  // 기본 정보 + 상세 정보 = 완전체 데이터 리턴
   return { ...basic, ...detail };
 }
 
@@ -268,7 +261,7 @@ export function getPackageById(id: number): PackageTour | undefined {
   return { ...basic, ...detail };
 }
 
-// 카테고리별 상품 목록 가져오기 (리스트용)
+// 카테고리별 상품 목록 가져오기
 export function getPackagesByCategory(category: Category): PackageTourBasic[] {
   if (category === "ALL") return basicPackages;
   return basicPackages.filter((tour) => tour.category === category);
