@@ -2,11 +2,9 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Menu, ShoppingCart } from "lucide-react";
+import { Menu, ShoppingCart, X } from "lucide-react"; // ❌ 닫기 버튼 아이콘(X) 추가
 import { useCartStore } from "@/store/cartStore";
 import { useEffect, useState } from "react";
-// ✅ 1. 구글 번역 컴포넌트 불러오기
-import GoogleTranslate from "@/components/GoogleTranslate";
 
 export default function Header() {
   const menuItems = [
@@ -19,6 +17,9 @@ export default function Header() {
 
   const [cartItemsCount, setCartItemsCount] = useState(0);
 
+  // ⭐ 1. 모바일 메뉴 열림/닫힘 상태 관리
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
   useEffect(() => {
     const unsubscribe = useCartStore.subscribe((state) => {
       setCartItemsCount(state.getTotalItems());
@@ -27,59 +28,53 @@ export default function Header() {
     return unsubscribe;
   }, []);
 
+  // 메뉴 열기/닫기 함수
+  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+
+  // 메뉴 클릭 시 닫기 (이동 후 닫힘)
+  const closeMenu = () => setIsMenuOpen(false);
+
   return (
     <header className="fixed top-0 inset-x-0 z-50">
-      {/* 🪟 Glass Layer (배경) - 투명도를 조금 더 올려서(80%) 글씨가 더 잘 보이게 수정 */}
+      {/* 🪟 Glass Layer (배경) */}
       <div className="absolute inset-0 backdrop-blur-md bg-white/80 border-b border-gray-200/50" />
 
-      {/* ⭐ 핵심 변경: 
-        max-w-7xl -> max-w-6xl (폭 좁히기)
-        px-6 lg:px-10 -> px-8 lg:px-12 (여백 늘리기)
-        => 아래 투어 상품 섹션과 '시작 라인'을 완벽하게 맞춤
-      */}
-      <nav className="relative max-w-6xl mx-auto flex items-center justify-between px-8 lg:px-12 py-4">
+      {/* PC/Tablet Nav */}
+      <nav className="relative max-w-6xl mx-auto flex items-center justify-between px-4 md:px-8 lg:px-12 py-3 lg:py-4">
         {/* Logo */}
-        <Link href="/" className="flex items-center">
+        <Link href="/" className="flex items-center" onClick={closeMenu}>
           <Image
             src="/images/logo.png"
             alt="Seoul City Tour Logo"
             width={200}
             height={52}
-            className="h-10 w-auto object-contain" // 높이 살짝 조정 (h-11 -> h-10)하여 균형 맞춤
-            priority // 로고는 중요하니까 빨리 로딩
+            className="h-8 sm:h-10 w-auto object-contain"
+            priority
           />
         </Link>
 
-        {/* Desktop Menu */}
+        {/* Desktop Menu (PC에서만 보임) */}
         <div className="hidden lg:flex items-center gap-8">
-          {" "}
-          {/* 간격 gap-6 -> gap-8로 시원하게 */}
           {menuItems.map(({ href, label }) => (
             <Link
               key={href}
               href={href}
-              className="relative text-[15px] font-semibold text-gray-700 hover:text-[#FF5B00] transition-colors" // Klook 스타일: 마우스 올리면 주황색
+              className="relative text-[15px] font-semibold text-gray-700 hover:text-[#FF5B00] transition-colors"
             >
               {label}
-              {/* 밑줄 애니메이션 (주황색으로 변경) */}
-              {/* <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-0 h-[2px] bg-[#FF5B00] transition-all duration-300 hover:w-full" /> */}
             </Link>
           ))}
         </div>
 
         {/* Right Controls */}
-        <div className="flex items-center gap-5">
-          {/* ✅ 3. 테스트용 구글 번역 위젯 */}
-          <div className="hidden md:block">
-            <GoogleTranslate />
-          </div>
-
+        <div className="flex items-center gap-3 sm:gap-5">
           {/* Cart */}
           <Link
             href="/cart"
             className="relative p-2 text-gray-600 hover:text-[#FF5B00] transition-colors"
+            onClick={closeMenu}
           >
-            <ShoppingCart size={22} />
+            <ShoppingCart className="w-5 h-5 sm:w-[22px] sm:h-[22px]" />
             {cartItemsCount > 0 && (
               <span className="absolute -top-0.5 -right-0.5 bg-[#FF5B00] text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center shadow-sm">
                 {cartItemsCount}
@@ -87,15 +82,46 @@ export default function Header() {
             )}
           </Link>
 
-          {/* Mobile Toggle */}
-          <label
-            htmlFor="mobile-menu"
-            className="lg:hidden cursor-pointer p-2 text-gray-800 hover:text-[#FF5B00] transition-colors"
+          {/* ⭐ 2. 햄버거 버튼 (클릭 시 toggleMenu 실행) */}
+          <button
+            onClick={toggleMenu}
+            className="lg:hidden cursor-pointer p-1.5 text-gray-800 hover:text-[#FF5B00] transition-colors z-50"
+            aria-label="Toggle menu"
           >
-            <Menu size={26} />
-          </label>
+            {/* 메뉴가 열려있으면 X, 닫혀있으면 햄버거 아이콘 보여줌 */}
+            {isMenuOpen ? (
+              <X className="w-6 h-6 sm:w-[26px] sm:h-[26px]" />
+            ) : (
+              <Menu className="w-6 h-6 sm:w-[26px] sm:h-[26px]" />
+            )}
+          </button>
         </div>
       </nav>
+
+      {/* ⭐ 3. 모바일 메뉴 오버레이 (여기가 없어서 안 떴던 것!) */}
+      {/* isMenuOpen이 true일 때만 화면에 나옴 */}
+      {isMenuOpen && (
+        <div className="fixed inset-0 top-[60px] bg-white z-40 lg:hidden flex flex-col p-6 animate-in slide-in-from-right-10 duration-200 border-t border-gray-100">
+          <div className="flex flex-col gap-6 mt-4">
+            {menuItems.map(({ href, label }) => (
+              <Link
+                key={href}
+                href={href}
+                onClick={closeMenu} // 클릭하면 메뉴 닫힘
+                className="text-xl font-bold text-gray-800 hover:text-[#FF5B00] transition-colors border-b border-gray-100 pb-4"
+              >
+                {label}
+              </Link>
+            ))}
+
+            {/* 모바일 메뉴 하단 추가 정보 (선택사항) */}
+            <div className="mt-4 text-sm text-gray-400">
+              <p>Contact: +82 10-1234-5678</p>
+              <p>Email: help@seoulcitytour.com</p>
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 }
