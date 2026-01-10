@@ -2,7 +2,10 @@
 import GlobalReviewsSection from "@/components/GlobalReviewsSection";
 import FeaturedAccommodations from "@/components/FeaturedAccommodations";
 import HeroCarousel1 from "@/components/HeroCarousel1";
-import IconCategorySection from "@/components/IconCategorySection";
+
+// 👇 [수정됨] 이름을 PartnerSection으로 맞춰서 가져옵니다
+import PartnerSection from "@/components/PartnerSection";
+
 import TourPackagesSection from "@/components/TourPackagesSection";
 
 import { Metadata } from "next";
@@ -41,17 +44,17 @@ export default function Home() {
       {/* 1. Hero carousel for DMZ & Seoul tours */}
       <HeroCarousel1 />
 
-      {/* 2. Tour categories */}
-      <IconCategorySection />
+      {/* 4. Main tour packages */}
+      <TourPackagesSection />
 
       {/* 3. Featured accommodations / partners */}
       <FeaturedAccommodations />
 
-      {/* 4. Main tour packages */}
-      <TourPackagesSection />
-
       {/* 5. Global customer reviews */}
       <GlobalReviewsSection />
+
+      {/* 2. Partner Section (Global Network) */}
+      <PartnerSection />
     </>
   );
 }

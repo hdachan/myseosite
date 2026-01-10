@@ -1,336 +1,220 @@
 "use client";
 
-import { useState } from "react";
-import {
-  Star,
-  Quote,
-  ArrowRight,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
+import { useState, useEffect } from "react";
+import { Star, ChevronLeft, ChevronRight, Quote } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
+// ✅ 리뷰 데이터
 const reviews = [
   {
-    name: "Edith BM",
-    country: "Solo Traveler",
-    flag: "🌍",
-    rating: 5,
-    date: "Feb 2025",
+    id: 1,
+    title: "Best DMZ Tour Experience!",
     comment:
-      "It was definitely an amazing tour! I booked it just the night before. I would especially like to thank Mina—she was very professional and attentive at all times.",
-    tour: "Seoul City Tour",
-    avatar: "E",
-  },
-  {
-    name: "Carina B",
-    country: "Germany",
-    flag: "🇩🇪",
-    rating: 5,
-    date: "Oct 2025",
-    comment:
-      "We had a great tour guided by Grace, who was not only knowledgeable but also very kind. The view from the Dora Observatory was a one-of-a-kind experience.",
-    tour: "DMZ Tour",
-    avatar: "C",
-  },
-  {
-    name: "Jack P",
+      "The guide was incredibly knowledgeable about Korean history. The 3rd tunnel was steep but worth it. Everything was perfectly organized from pick-up to drop-off. Highly recommended!",
+    author: "Sarah J.",
     country: "United States",
-    flag: "🇺🇸",
     rating: 5,
-    date: "Jul 2025",
-    comment:
-      "Our guide, Smin, was fantastic! She shared great fun facts and had answers to just about any local history question. Highly recommended!",
-    tour: "Historical Tour",
-    avatar: "J",
   },
   {
-    name: "Milind T.",
-    country: "India",
-    flag: "🇮🇳",
-    rating: 5,
-    date: "Dec 2023",
+    id: 2,
+    title: "Unforgettable Private Tour",
     comment:
-      "What a great full day tour! Gyeongbok Palace, Namsan Seoul Tower are major attractions. The tour booking was quite easy.",
-    tour: "Palace Tour",
-    avatar: "M",
-  },
-  {
-    name: "Shannon",
+      "We booked a private van for our family of 5. The driver was polite and safe. Nami Island was beautiful in autumn. It was very convenient to travel at our own pace.",
+    author: "Michael Chen",
     country: "Singapore",
-    flag: "🇸🇬",
     rating: 5,
-    date: "Jan 2024",
-    comment:
-      "The best tour ever!! It was really good experience. Tour guide, company operator and driver were all amazing!",
-    tour: "DMZ Tour",
-    avatar: "S",
   },
   {
-    name: "Mark K",
-    country: "Hong Kong",
-    flag: "🇭🇰",
-    rating: 5,
-    date: "Jan 2024",
+    id: 3,
+    title: "Great value for money",
     comment:
-      "Took a good tour to the DMZ. We had plenty of time for pictures. Our tour guide Yeoni was very good and approachable.",
-    tour: "DMZ Tour",
-    avatar: "M",
+      "Booking was super easy and the price is reasonable. I loved the Gyeongbokgung Palace tour. The Hanbok experience was the highlight of my trip!",
+    author: "Elena R.",
+    country: "Germany",
+    rating: 5,
+  },
+  {
+    id: 4,
+    title: "Professional & Friendly Guide",
+    comment:
+      "Our guide Mina was amazing! She spoke perfect English and took great photos for us. The lunch provided was also delicious. Great service mindset!",
+    author: "James Wilson",
+    country: "UK",
+    rating: 4,
+  },
+  {
+    id: 5,
+    title: "Efficient and Safe",
+    comment:
+      "As a solo female traveler, I felt very safe. The instructions for the meeting point were clear. I will definitely book again next time.",
+    author: "Yuki T.",
+    country: "Japan",
+    rating: 5,
   },
 ];
 
-const ReviewCard = ({ review }: { review: any }) => (
-  <div className="group bg-white rounded-2xl p-6 shadow-md hover:shadow-2xl transition-all duration-500 border border-gray-100 h-full flex flex-col hover:-translate-y-2">
-    <div className="flex items-center justify-between mb-4">
-      <div className="flex gap-0.5">
-        {[1, 2, 3, 4, 5].map((star) => (
-          <Star key={star} className="w-4 h-4 fill-[#D97959] text-[#D97959]" />
-        ))}
-      </div>
-      <span className="text-xs text-gray-400 font-medium">{review.date}</span>
-    </div>
-    <Quote className="w-8 h-8 text-[#4A7C7E]/20 mb-3" />
-    <p className="text-gray-700 text-sm leading-relaxed mb-6 flex-grow">
-      {review.comment}
-    </p>
-    <div className="pt-4 border-t border-gray-100">
-      <div className="flex items-center gap-3 mb-3">
-        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#4A7C7E] to-[#D97959] flex items-center justify-center text-white font-bold text-base shadow-md">
-          {review.avatar}
-        </div>
-        <div>
-          <h3 className="font-bold text-gray-900 text-base">{review.name}</h3>
-          <div className="text-gray-500 text-sm">
-            {review.flag} {review.country}
-          </div>
-        </div>
-      </div>
-      <span className="inline-block text-xs text-[#4A7C7E] bg-[#F8F1E7] px-3 py-1.5 rounded-full font-medium">
-        {review.tour}
-      </span>
-    </div>
-  </div>
-);
-
 export default function GlobalReviewsSection() {
-  const [index, setIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [itemsPerView, setItemsPerView] = useState(1);
 
-  const next = () => setIndex((i) => (i + 1) % reviews.length);
-  const prev = () => setIndex((i) => (i - 1 + reviews.length) % reviews.length);
+  // 🖥️ 화면 크기에 따라 보여줄 개수 조절 (모바일 1개, 태블릿 2개, PC 3개)
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) setItemsPerView(3);
+      else if (window.innerWidth >= 768) setItemsPerView(2);
+      else setItemsPerView(1);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const totalPages = Math.ceil(reviews.length / itemsPerView);
+
+  const nextSlide = () => {
+    setCurrentIndex((prev) => (prev + 1) % totalPages);
+  };
+
+  const prevSlide = () => {
+    setCurrentIndex((prev) => (prev - 1 + totalPages) % totalPages);
+  };
+
+  // 현재 보여줄 아이템 계산
+  const visibleReviews = reviews.slice(
+    currentIndex * itemsPerView,
+    (currentIndex + 1) * itemsPerView
+  );
+  // 마지막 페이지에서 아이템이 부족할 경우 처리 (순환형으로 하거나 빈 공간 두기)
+  // 여기서는 간단하게 slice로 처리하되, UI가 깨지지 않게 Grid 활용
 
   return (
-    <>
-      <section className="relative py-20 lg:py-28 bg-gradient-to-b from-white to-[#F8F1E7] overflow-hidden">
-        <div className="max-w-7xl mx-auto px-8 lg:px-14">
-          {/* 헤더 */}
+    <section className="relative py-20 lg:py-32 overflow-hidden bg-[#fdfbf7]">
+      {/* 🎨 [배경] 글래스 모피즘을 살리기 위한 은은한 그라데이션 Blob */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+        <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-[#d9bd8b]/20 rounded-full blur-[100px]" />
+        <div className="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] bg-[#37848c]/10 rounded-full blur-[120px]" />
+      </div>
+
+      <div className="relative z-10 max-w-6xl mx-auto px-8 lg:px-12">
+        {/* 🅰️ 헤더 + 네비게이션 버튼 (좌우 정렬) */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="mb-12"
           >
-            <p className="text-xs uppercase tracking-widest text-[#4A7C7E] font-medium mb-2">
-              Global Reviews
+            <p className="text-xs uppercase tracking-widest text-[#37848c] font-bold mb-3">
+              Customer Testimonials
             </p>
-
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 leading-tight max-w-4xl">
-              Trusted by Travelers{" "}
-              <span className="bg-gradient-to-r from-[#4A7C7E] to-[#D97959] bg-clip-text text-transparent">
-                Worldwide
-              </span>
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 leading-tight mb-2">
+              Top-Rated <span className="text-[#ad3928]">Seoul & DMZ</span>{" "}
+              Reviews
             </h2>
-
-            <p className="text-base text-gray-600 max-w-3xl">
-              Friendly Guides · Safe Itinerary · Top-Rated Experience
+            <p className="text-sm text-gray-500">
+              Trusted by 20,000+ travelers worldwide
             </p>
           </motion.div>
 
-          {/* TripAdvisor Badge & Stats */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="mb-12"
-          >
-            <div className="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
-              <div className="grid md:grid-cols-2 gap-0">
-                <div className="p-8 flex flex-col items-center justify-center border-r border-gray-100">
-                  <a
-                    href="https://www.tripadvisor.com.ph/Attraction_Review-g294197-d4492012-Reviews-Seoul_City_Tour-Seoul.html"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group text-center"
-                  >
-                    <div className="mb-4">
-                      <div className="bg-gradient-to-br from-[#00AF87] to-[#00D4AA] rounded-full w-20 h-20 mx-auto flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                        <svg
-                          className="w-12 h-12"
-                          viewBox="0 0 120 120"
-                          fill="none"
-                        >
-                          <circle cx="60" cy="45" r="6" fill="#1a1a1a" />
-                          <circle cx="45" cy="45" r="6" fill="#1a1a1a" />
-                          <circle cx="75" cy="45" r="6" fill="#1a1a1a" />
-                          <path
-                            d="M40 65 Q60 75 80 65"
-                            stroke="#1a1a1a"
-                            strokeWidth="5"
-                            fill="none"
-                          />
-                        </svg>
-                      </div>
-                    </div>
-                    <div className="text-sm text-[#00AF87] font-bold mb-2">
-                      TripAdvisor
-                    </div>
-                    <div className="text-base font-bold text-gray-800 mb-4">
-                      Certificate of Excellence
-                    </div>
-                    <div className="flex items-center justify-center gap-3 mb-2">
-                      <div className="flex gap-0.5">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <Star
-                            key={star}
-                            className="w-5 h-5 fill-[#D97959] text-[#D97959]"
-                          />
-                        ))}
-                      </div>
-                      <span className="text-3xl font-bold text-gray-900">
-                        4.9
-                      </span>
-                    </div>
-                    <div className="text-sm text-gray-500 font-medium">
-                      21,044 reviews
-                    </div>
-                  </a>
-                </div>
-
-                <div className="grid grid-cols-2 gap-px bg-gray-100">
-                  <div className="bg-white p-6 flex flex-col items-center justify-center">
-                    <div className="text-4xl font-bold bg-gradient-to-r from-[#4A7C7E] to-[#D97959] bg-clip-text text-transparent mb-2">
-                      98%
-                    </div>
-                    <div className="text-sm text-gray-600 font-medium">
-                      Recommended
-                    </div>
-                  </div>
-                  <div className="bg-white p-6 flex flex-col items-center justify-center">
-                    <div className="text-4xl font-bold bg-gradient-to-r from-[#4A7C7E] to-[#D97959] bg-clip-text text-transparent mb-2">
-                      20K+
-                    </div>
-                    <div className="text-sm text-gray-600 font-medium">
-                      Excellent
-                    </div>
-                  </div>
-                  <div className="bg-white p-6 flex flex-col items-center justify-center">
-                    <div className="text-4xl font-bold bg-gradient-to-r from-[#4A7C7E] to-[#D97959] bg-clip-text text-transparent mb-2">
-                      #50
-                    </div>
-                    <div className="text-sm text-gray-600 font-medium">
-                      of 878 Tours
-                    </div>
-                  </div>
-                  <div className="bg-white p-6 flex flex-col items-center justify-center">
-                    <div className="text-4xl font-bold bg-gradient-to-r from-[#4A7C7E] to-[#D97959] bg-clip-text text-transparent mb-2">
-                      100+
-                    </div>
-                    <div className="text-sm text-gray-600 font-medium">
-                      Countries
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* 리뷰 영역 */}
-          <div className="relative mb-12">
-            {/* 데스크탑/태블릿: 그리드 */}
-            <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {reviews.map((review, idx) => (
-                <motion.div
-                  key={idx}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.6, delay: idx * 0.1 }}
-                >
-                  <ReviewCard review={review} />
-                </motion.div>
-              ))}
-            </div>
-
-            {/* 모바일: 슬라이더 */}
-            <div className="md:hidden">
-              <div className="relative overflow-hidden">
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, x: 300 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -300 }}
-                    transition={{ duration: 0.4 }}
-                    className="px-4"
-                  >
-                    <ReviewCard review={reviews[index]} />
-                  </motion.div>
-                </AnimatePresence>
-              </div>
-
-              <button
-                onClick={prev}
-                aria-label="Previous review"
-                className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 p-2 rounded-full shadow-lg hover:shadow-xl"
-              >
-                <ChevronLeft className="w-6 h-6 text-[#4A7C7E]" />
-              </button>
-              <button
-                onClick={next}
-                aria-label="Next review"
-                className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 p-2 rounded-full shadow-lg hover:shadow-xl"
-              >
-                <ChevronRight className="w-6 h-6 text-[#4A7C7E]" />
-              </button>
-
-              <div className="flex justify-center gap-2 mt-8">
-                {reviews.map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setIndex(i)}
-                    className={`transition-all rounded-full ${
-                      i === index
-                        ? "bg-[#4A7C7E] w-8 h-2"
-                        : "bg-gray-300 w-2 h-2"
-                    }`}
-                    aria-label={`Go to review ${i + 1}`}
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* CTA */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center"
-          >
-            <a
-              href="https://www.tripadvisor.com.ph/Attraction_Review-g294197-d4492012-Reviews-Seoul_City_Tour-Seoul.html"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-3 px-8 py-4 bg-[#4A7C7E] text-white font-semibold rounded-xl hover:bg-[#3D6566] transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+          {/* 슬라이드 버튼 (PC/태블릿용) */}
+          <div className="flex gap-3">
+            <button
+              onClick={prevSlide}
+              className="p-3 rounded-full border border-[#d9bd8b] text-[#d9bd8b] hover:bg-[#d9bd8b] hover:text-white transition-all duration-300"
             >
-              <span>View All 21,044 Reviews</span>
-              <ArrowRight className="w-5 h-5" />
-            </a>
-          </motion.div>
+              <ChevronLeft size={24} />
+            </button>
+            <button
+              onClick={nextSlide}
+              className="p-3 rounded-full bg-[#37848c] text-white hover:bg-[#2c6a70] shadow-lg transition-all duration-300"
+            >
+              <ChevronRight size={24} />
+            </button>
+          </div>
         </div>
-      </section>
-    </>
+
+        {/* 🅱️ 리뷰 카드 슬라이더 (글래스 모피즘 적용) */}
+        <div className="min-h-[300px]">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentIndex}
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -50 }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            >
+              {visibleReviews.map((review) => (
+                <div
+                  key={review.id}
+                  // ✨ 핵심 디자인: 글래스 모피즘 카드
+                  className="group relative p-8 rounded-3xl bg-white/60 backdrop-blur-md border border-white/80 shadow-sm hover:shadow-xl hover:bg-white/80 transition-all duration-500 flex flex-col h-full"
+                >
+                  {/* 따옴표 아이콘 (장식) */}
+                  <Quote className="absolute top-6 right-6 w-8 h-8 text-[#d9bd8b]/30 fill-[#d9bd8b]/10" />
+
+                  {/* 별점 */}
+                  <div className="flex gap-1 mb-4">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Star
+                        key={star}
+                        className={`w-4 h-4 ${
+                          star <= review.rating
+                            ? "fill-[#37848c] text-[#37848c]" // 브랜드 액센트 컬러
+                            : "fill-gray-200 text-gray-200"
+                        }`}
+                      />
+                    ))}
+                  </div>
+
+                  {/* 제목 */}
+                  <h3 className="text-lg font-bold text-gray-900 mb-3 group-hover:text-[#ad3928] transition-colors">
+                    {review.title}
+                  </h3>
+
+                  {/* 내용 */}
+                  <p className="text-sm text-gray-600 leading-relaxed mb-6 flex-grow">
+                    "{review.comment}"
+                  </p>
+
+                  {/* 작성자 정보 */}
+                  <div className="flex items-center gap-3 pt-4 border-t border-gray-100/50">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#d9bd8b] to-[#c4a470] flex items-center justify-center text-white font-bold shadow-sm">
+                      {review.author.charAt(0)}
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-gray-900">
+                        {review.author}
+                      </p>
+                      <p className="text-xs text-gray-500">{review.country}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              {/* 빈 공간 채우기 (마지막 페이지에서 개수가 모자랄 때 레이아웃 깨짐 방지용) */}
+              {Array.from({ length: itemsPerView - visibleReviews.length }).map(
+                (_, idx) => (
+                  <div key={`empty-${idx}`} className="hidden lg:block" />
+                )
+              )}
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
+        {/* 모바일용 인디케이터 (점) */}
+        <div className="flex justify-center gap-2 mt-8 md:hidden">
+          {Array.from({ length: totalPages }).map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => setCurrentIndex(idx)}
+              className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                idx === currentIndex ? "bg-[#37848c] w-6" : "bg-gray-300"
+              }`}
+            />
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }

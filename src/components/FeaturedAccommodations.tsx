@@ -5,7 +5,7 @@ import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-// 👇 [수정됨] basicPackages를 가져와서 packageTours라는 이름으로 쓰겠다고 선언
+// 👇 basicPackages를 가져와서 packageTours라는 이름으로 쓰겠다고 선언
 import { basicPackages as packageTours } from "@/app/package/packageData";
 import TourCard from "@/components/TourCard";
 
@@ -66,7 +66,8 @@ export default function FeaturedAccommodations() {
         />
       </div>
 
-      <div className="relative z-20 max-w-7xl mx-auto px-8 lg:px-14">
+      {/* ⭐ 수정됨: max-w-7xl -> 6xl, px-8 lg:px-14 -> px-8 lg:px-12 (라인 정렬) */}
+      <div className="relative z-20 max-w-6xl mx-auto px-8 lg:px-12">
         <div className="grid grid-cols-12 gap-6 lg:gap-10 items-start relative z-10">
           {/* 왼쪽 텍스트 영역 */}
           <div className="col-span-12 md:col-span-5 lg:col-span-4">
@@ -155,8 +156,9 @@ export default function FeaturedAccommodations() {
           </div>
         </div>
 
-        {/* ✅ 일러스트 (원래 있던 그대로 복구) */}
-        <div className="absolute bottom-0 left-6 lg:left-[calc((100%-1280px)/2+1.5rem)] z-0 pointer-events-none">
+        {/* ✅ 일러스트 (기존 로직 유지하되, 1280px -> 1152px로 기준만 변경) */}
+        {/* 6xl(1152px) 기준으로 계산해야 이미지가 정확히 라인에 붙습니다 */}
+        <div className="absolute bottom-0 left-6 lg:left-[calc((100%-1152px)/2+1.5rem)] z-0 pointer-events-none">
           <Image
             src="/images/card_koreaimg_v2.png"
             alt="K-culture illustration"
