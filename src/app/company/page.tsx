@@ -283,63 +283,6 @@ export default function CompanyPage() {
         </div>
       </section>
 
-      {/* Why Choose Us */}
-      <section className="py-16 md:py-24 bg-white">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="text-center mb-12 md:mb-16">
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
-              Why Choose Us
-            </h2>
-            <p className="text-gray-600 text-base md:text-lg">
-              A trusted tour company built on professionalism and responsibility
-            </p>
-          </div>
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-            {[
-              {
-                icon: Award,
-                title: "Licensed & Experienced Guides",
-                desc: "All tours are led by certified Korean tour guides with proven field experience.",
-              },
-              {
-                icon: ShieldCheck,
-                title: "Safety-First Operations",
-                desc: "Accident-free tour history with clean, regularly maintained tourist buses.",
-              },
-              {
-                icon: Headset,
-                title: "Clear & Fast Communication",
-                desc: "Quick responses and transparent support before, during, and after each tour.",
-              },
-              {
-                icon: Globe,
-                title: "Trusted by Global Partners",
-                desc: "Long-term partnerships with international travel agencies and clients worldwide.",
-              },
-            ].map((item, idx) => {
-              const Icon = item.icon;
-              return (
-                <div
-                  key={idx}
-                  className="bg-gray-50 p-6 md:p-8 rounded-xl text-center transition-all duration-300 border border-gray-100"
-                >
-                  <div className="bg-gradient-to-br from-red-600 to-red-700 w-16 h-16 md:w-20 md:h-20 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-                    <Icon className="w-8 h-8 md:w-10 md:h-10 text-white" />
-                  </div>
-                  <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-3">
-                    {item.title}
-                  </h3>
-                  <p className="text-sm text-gray-600 leading-relaxed">
-                    {item.desc}
-                  </p>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
       {/* CTA Section */}
       <section className="py-16 md:py-20 bg-gradient-to-r from-red-700 via-red-800 to-red-900 relative overflow-hidden">
         <div className="absolute inset-0 bg-black/10" />

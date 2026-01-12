@@ -61,6 +61,7 @@ export default function FeaturedAccommodations() {
         />
       </div>
 
+      {/* ⭐ 칼각 정렬 유지: max-w-6xl + px-8 lg:px-12 */}
       <div className="relative z-20 max-w-6xl mx-auto px-8 lg:px-12">
         <div className="grid grid-cols-12 gap-6 lg:gap-10 items-start relative z-10">
           {/* 왼쪽 텍스트 영역 */}
@@ -71,11 +72,13 @@ export default function FeaturedAccommodations() {
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
             >
-              <p className="text-xs uppercase tracking-wider text-[#4A7C7E] font-medium mb-2">
+              <p className="text-[11px] uppercase tracking-widest text-[#4A7C7E] font-bold mb-3">
                 OFFICIAL PARTNER
               </p>
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 leading-tight">
-                Best DMZ Tours from Seoul
+
+              {/* ⭐ 섹션 제목: 24px (text-2xl)로 수정 */}
+              <h2 className="text-2xl font-bold text-gray-900 mb-6 leading-tight">
+                Top Picks by Seoul City Tour
               </h2>
 
               {/* 네비게이션 버튼 */}
@@ -98,13 +101,13 @@ export default function FeaturedAccommodations() {
                 </div>
               )}
 
-              {/* 페이지 카운터 */}
+              {/* ⭐ 페이지 카운터: 14px (text-sm)로 수정 */}
               {totalPages > 1 && (
-                <div className="mt-4 text-sm text-gray-600">
-                  <span className="font-semibold text-[#4A7C7E]">
+                <div className="mt-5 text-sm text-gray-600 tracking-wide">
+                  <span className="font-bold text-[#4A7C7E]">
                     {currentPage + 1}
                   </span>
-                  <span className="mx-1">/</span>
+                  <span className="mx-2 text-gray-300">|</span>
                   <span>{totalPages}</span>
                 </div>
               )}
@@ -120,14 +123,13 @@ export default function FeaturedAccommodations() {
               transition={{ duration: 0.6, delay: 0.1 }}
               className="relative"
             >
-              {/* ✅ gap-4로 조금 더 촘촘하게 배치 */}
               <div
                 className={`grid gap-4 ${
                   itemsPerView === 1
                     ? "grid-cols-1"
                     : itemsPerView === 2
                       ? "grid-cols-2"
-                      : "grid-cols-3" // 3개 보여주기
+                      : "grid-cols-3"
                 }`}
               >
                 <AnimatePresence mode="wait">
@@ -151,6 +153,7 @@ export default function FeaturedAccommodations() {
           </div>
         </div>
 
+        {/* 배경 일러스트 이미지 위치 유지 */}
         <div className="absolute bottom-0 left-6 lg:left-[calc((100%-1152px)/2+1.5rem)] z-0 pointer-events-none">
           <Image
             src="/images/card_koreaimg_v2.png"

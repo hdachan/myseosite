@@ -2,8 +2,7 @@
 import GlobalReviewsSection from "@/components/GlobalReviewsSection";
 import FeaturedAccommodations from "@/components/FeaturedAccommodations";
 import HeroCarousel1 from "@/components/HeroCarousel1";
-
-// 👇 [수정됨] 이름을 PartnerSection으로 맞춰서 가져옵니다
+import WhyChooseUs from "@/components/WhyChooseUs";
 import PartnerSection from "@/components/PartnerSection";
 
 import TourPackagesSection from "@/components/TourPackagesSection";
@@ -44,6 +43,8 @@ export default function Home() {
       {/* 1. Hero carousel for DMZ & Seoul tours */}
       <HeroCarousel1 />
 
+      <WhyChooseUs />
+
       {/* 4. Main tour packages */}
       <TourPackagesSection />
 
@@ -51,7 +52,7 @@ export default function Home() {
       <FeaturedAccommodations />
 
       {/* 5. Global customer reviews */}
-      <GlobalReviewsSection />
+      {/* <GlobalReviewsSection /> */}
 
       {/* 2. Partner Section (Global Network) */}
       <PartnerSection />
