@@ -1,4 +1,3 @@
-// src/app/layout.tsx
 import type { Metadata } from "next";
 import "./globals.css";
 import Link from "next/link";
@@ -32,17 +31,15 @@ export const metadata: Metadata = {
   },
 };
 
-// 이름 변경: EnLayout -> RootLayout
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    // ✅ 수정 1: <html> 태그 추가 (lang="en" 필수)
     <html lang="en">
-      {/* ✅ 수정 2: <body> 태그 추가 */}
       <body>
+        {/* Schema.org Structured Data */}
         <Script
           id="jsonld-travelagency"
           type="application/ld+json"
@@ -83,20 +80,12 @@ export default function RootLayout({
 
         <Header />
 
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-          const checkbox = document.getElementById('mobile-menu');
-          if (checkbox) {
-            checkbox.addEventListener('change', (e) => {
-              document.body.style.overflow = e.target.checked ? 'hidden' : '';
-            });
-          }
-        `,
-          }}
-        />
+        {/* ❌ 삭제됨: 옛날 모바일 메뉴 스크립트 제거 (Header 컴포넌트가 알아서 함) */}
 
-        <main className="pt-16">{children}</main>
+        {/* ⭐ 수정됨: pt-16 제거 -> min-h-screen 추가 
+            이제 메인 배너가 헤더 밑으로 깔려서 투명 효과가 제대로 보임! 
+        */}
+        <main className="min-h-screen">{children}</main>
 
         <footer className="bg-white border-t border-gray-200 mt-20">
           <div className="max-w-7xl mx-auto px-6 py-14">
