@@ -78,7 +78,7 @@ export default function PrivateTourPage() {
       <PageHero
         title="Private Tour"
         description="Customize your perfect Korean adventure with our VIP service"
-        imageSrc="/images/background_korea_pt2.jpg"
+        imageSrc="/images/background_korea_pt2.png"
       />
 
       {/* Content */}

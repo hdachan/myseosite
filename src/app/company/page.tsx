@@ -8,7 +8,7 @@ export default function CompanyPage() {
       <PageHero
         title="About Us"
         description="A Trusted Seoul Tour Operator Since 2004"
-        imageSrc="/images/background_korea_pt2.jpg"
+        imageSrc="/images/background_korea_pt2.png"
       />
 
       {/* Company Overview - Overlapping Content */}

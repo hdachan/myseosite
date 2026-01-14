@@ -58,10 +58,10 @@ export const basicPackages: PackageTourBasic[] = [
     category: "DMZ",
     location: "Paju · DMZ",
     title: "DMZ Tour : The 3rd Infiltration Tunnel & Suspension Bridge",
-    // 쉼표로 구분하면 카드에서 회색 박스로 나뉩니다
     description: "English Guided,No Shopping,Hotel Pick-up",
+    // 파주 임진각/철교 느낌의 이미지
     image:
-      "https://images.unsplash.com/photo-1596420803522-824f9c656513?w=800&q=80",
+      "https://images.unsplash.com/photo-1590664095641-7fa05f689813?w=800&q=80",
     rating: 4.9,
     reviews: 1500,
     bookings: "6k+ booked",
@@ -78,8 +78,7 @@ export const basicPackages: PackageTourBasic[] = [
     location: "Panmunjom · JSA",
     title: "JSA Tour (Joint Security Area)",
     description: "Temporarily Suspended",
-    image:
-      "https://images.unsplash.com/photo-1588665725227-2856247c413b?w=800&q=80",
+    image: "https://images.unsplash.com/photo-1508009603885-50cf7c579365",
     rating: 4.9,
     reviews: 2100,
     bookings: "Suspended",
@@ -87,16 +86,15 @@ export const basicPackages: PackageTourBasic[] = [
     tags: ["Suspended"],
   },
 
-  // 2. DAILY (⭐ 할인: 40불 <- 50불)
+  // 2. DAILY
   {
     id: 201,
     slug: "morning-tour-seoul",
     category: "DAILY",
     location: "Seoul",
     title: "Morning Tour : Explore Seoul in the Morning",
-    description: "Gyeongbokgung,Blue House,Jogyesa Temple",
-    image:
-      "https://images.unsplash.com/photo-1596896236979-4d8b9d3c5096?w=800&q=80",
+    description: "Gyeongbokgung, Blue House, Jogyesa Temple",
+    image: "https://images.unsplash.com/photo-1508009603885-50cf7c579365",
     rating: 4.8,
     reviews: 520,
     bookings: "2.5k+ booked",
@@ -106,6 +104,7 @@ export const basicPackages: PackageTourBasic[] = [
     duration: "4 Hours",
     tags: ["Best Seller"],
   },
+
   {
     id: 202,
     slug: "afternoon-tour-seoul",
@@ -113,8 +112,9 @@ export const basicPackages: PackageTourBasic[] = [
     location: "Seoul",
     title: "Afternoon Tour : Seoul Highlights & Culture",
     description: "Changdeokgung,Insadong,Namdaemun Market",
+    // 남산타워/도시 전경
     image:
-      "https://images.unsplash.com/photo-1627447833139-445853a47926?w=800&q=80",
+      "https://images.unsplash.com/photo-1525762867061-21c9fb70b15a?w=800&q=80",
     rating: 4.7,
     reviews: 400,
     bookings: "1.8k+ booked",
@@ -127,14 +127,14 @@ export const basicPackages: PackageTourBasic[] = [
     category: "DAILY",
     location: "Seoul & Suburbs",
     title: "Full Day Tour : The Complete Seoul Experience",
-    description: "Seoul Highlights,Lunch Included,N Seoul Tower",
+    description: "Seoul Highlights, Lunch Included, N Seoul Tower",
     image:
-      "https://images.unsplash.com/photo-1605218427368-35b86d9441a1?w=800&q=80",
+      "https://images.unsplash.com/photo-1517153295259-74eb0b416cee?auto=format&fit=crop&w=800&q=80",
     rating: 4.9,
     reviews: 1200,
     bookings: "5k+ booked",
     price: 80,
-    originalPrice: 100, // ⭐ 할인 적용
+    originalPrice: 100,
     discount: 20,
     duration: "9 Hours",
     tags: ["Recommended"],
@@ -148,8 +148,9 @@ export const basicPackages: PackageTourBasic[] = [
     location: "Outside Seoul",
     title: "Provincial Tour : Discover Korea's Beauty",
     description: "Seoraksan,Gyeongju,Busan,Jeju Island",
+    // 자연 풍경
     image:
-      "https://images.unsplash.com/photo-1610444654992-6f35b440893f?w=800&q=80",
+      "https://images.unsplash.com/photo-1578469645742-46cae010e5d4?w=800&q=80",
     rating: 4.8,
     reviews: 600,
     bookings: "1k+ booked",
@@ -164,8 +165,9 @@ export const basicPackages: PackageTourBasic[] = [
     location: "Various Locations",
     title: "Drama Tour : K-Drama Filming Locations",
     description: "Winter Sonata,BTS Spots,Parasite Locations",
+    // 촬영지 느낌의 감성 사진
     image:
-      "https://images.unsplash.com/photo-1603522699946-857c5e207c4b?w=800&q=80",
+      "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=800&q=80",
     rating: 4.9,
     reviews: 2000,
     bookings: "5k+ booked",
@@ -173,7 +175,7 @@ export const basicPackages: PackageTourBasic[] = [
     tags: ["K-Culture"],
   },
 
-  // 5. SKI (⭐ 할인: 90불 <- 120불)
+  // 5. SKI
   {
     id: 501,
     slug: "ski-tour-korea",
@@ -181,8 +183,9 @@ export const basicPackages: PackageTourBasic[] = [
     location: "Ski Resorts",
     title: "Ski Tour : Winter Ski & Snowboard",
     description: "Jisan Resort,Elysian Gangchon,Lesson Included",
+    // 설원/스키
     image:
-      "https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=800&q=80",
+      "https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=800&q=80",
     rating: 4.8,
     reviews: 800,
     bookings: "3k+ booked",
@@ -199,9 +202,9 @@ export const basicPackages: PackageTourBasic[] = [
     category: "RELIGIOUS",
     location: "Seoul & Nami",
     title: "Muslim Tour : Halal Friendly Travel",
-    description: "Halal Food,Prayer Room Arranged,Nami Island",
+    description: "Halal Food, Prayer Room Arranged, Nami Island",
     image:
-      "https://images.unsplash.com/photo-1580537659466-0a9bfa916a54?w=800&q=80",
+      "https://images.unsplash.com/photo-1519974719765-e6559eac2575?auto=format&fit=crop&w=800&q=80",
     rating: 4.9,
     reviews: 300,
     bookings: "800+ booked",
@@ -214,9 +217,9 @@ export const basicPackages: PackageTourBasic[] = [
     category: "RELIGIOUS",
     location: "Seoul",
     title: "Catholic Tour : Pilgrimage in Korea",
-    description: "Holy Shrines,Pope Francis Route,Mass Available",
+    description: "Holy Shrines, Pope Francis Route, Mass Available",
     image:
-      "https://images.unsplash.com/photo-1548625361-12e2c5643444?w=800&q=80",
+      "https://images.unsplash.com/photo-1529070538774-1843cb3265df?auto=format&fit=crop&w=800&q=80",
     rating: 5.0,
     reviews: 100,
     bookings: "200+ booked",
@@ -228,9 +231,9 @@ export const basicPackages: PackageTourBasic[] = [
     category: "RELIGIOUS",
     location: "Temples",
     title: "Buddhist Tour : Temple Stay & Culture",
-    description: "Meditation,Tea Ceremony,Temple Stay",
+    description: "Meditation, Tea Ceremony, Temple Stay",
     image:
-      "https://images.unsplash.com/photo-1597817473551-7e87514a66f7?w=800&q=80",
+      "https://images.unsplash.com/photo-1508609349937-5ec4ae374ebf?auto=format&fit=crop&w=800&q=80",
     rating: 4.8,
     reviews: 150,
     bookings: "300+ booked",

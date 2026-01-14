@@ -37,7 +37,7 @@ export default function TourLayout({
       <PageHero
         title={heroTitle}
         description={heroSubtitle}
-        imageSrc="/images/background_korea_pt2.jpg"
+        imageSrc="/images/background_korea_pt2.png"
       />
 
       <div className="max-w-6xl mx-auto px-4 -mt-16 relative z-10 pb-16">

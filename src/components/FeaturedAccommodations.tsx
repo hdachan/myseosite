@@ -51,10 +51,11 @@ export default function FeaturedAccommodations() {
 
   return (
     <section className="relative pt-14 pb-32 lg:pt-20 lg:pb-44 bg-gradient-to-br from-[#F8F1E7] via-white to-[#F8F1E7]">
+      {/* 배경 이미지 영역 수정됨 */}
       <div className="absolute inset-0 z-0 overflow-hidden">
         <Image
-          src="https://images.unsplash.com/photo-1583562835057-a62d1beffbf3?w=1600"
-          alt=""
+          src="/images/background_korea_img.png" // 수정된 부분
+          alt="Section Background"
           fill
           className="object-cover opacity-5"
           priority
@@ -153,7 +154,7 @@ export default function FeaturedAccommodations() {
           </div>
         </div>
 
-        {/* 배경 일러스트 이미지 위치 유지 */}
+        {/* 하단 배경 일러스트 이미지 */}
         <div className="absolute bottom-0 left-6 lg:left-[calc((100%-1152px)/2+1.5rem)] z-0 pointer-events-none">
           <Image
             src="/images/card_koreaimg_v2.png"

@@ -73,7 +73,7 @@ export default function ContactPage() {
       <PageHero
         title="Contact Seoul City Tour"
         description="Get in touch with our team for tour bookings, travel inquiries, and local assistance in Korea."
-        imageSrc="/images/background_korea_pt2.jpg"
+        imageSrc="/images/background_korea_pt2.png"
       />
 
       {/* ================= Contact Content ================= */}
