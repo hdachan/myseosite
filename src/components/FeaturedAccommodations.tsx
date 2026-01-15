@@ -8,6 +8,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { basicPackages as packageTours } from "@/app/package/packageData";
 import TourCard from "@/components/TourCard";
 
+/* ✅ 폰트 가져오기 */
+import { hangameFont } from "@/lib/fonts";
+
 export default function FeaturedAccommodations() {
   const [currentPage, setCurrentPage] = useState(0);
   const [itemsPerView, setItemsPerView] = useState(1);
@@ -51,10 +54,10 @@ export default function FeaturedAccommodations() {
 
   return (
     <section className="relative pt-14 pb-32 lg:pt-20 lg:pb-44 bg-gradient-to-br from-[#F8F1E7] via-white to-[#F8F1E7]">
-      {/* 배경 이미지 영역 수정됨 */}
+      {/* 배경 이미지 영역 */}
       <div className="absolute inset-0 z-0 overflow-hidden">
         <Image
-          src="/images/background_korea_img.png" // 수정된 부분
+          src="/images/background_korea_img.png"
           alt="Section Background"
           fill
           className="object-cover opacity-5"
@@ -77,8 +80,10 @@ export default function FeaturedAccommodations() {
                 OFFICIAL PARTNER
               </p>
 
-              {/* ⭐ 섹션 제목: 24px (text-2xl)로 수정 */}
-              <h2 className="text-2xl font-bold text-gray-900 mb-6 leading-tight">
+              {/* ⭐ 섹션 제목: 폰트 적용 (hangameFont) */}
+              <h2
+                className={`${hangameFont.className} text-2xl font-bold text-gray-900 mb-6 leading-tight`}
+              >
                 Top Picks by Seoul City Tour
               </h2>
 
@@ -102,7 +107,7 @@ export default function FeaturedAccommodations() {
                 </div>
               )}
 
-              {/* ⭐ 페이지 카운터: 14px (text-sm)로 수정 */}
+              {/* ⭐ 페이지 카운터 */}
               {totalPages > 1 && (
                 <div className="mt-5 text-sm text-gray-600 tracking-wide">
                   <span className="font-bold text-[#4A7C7E]">

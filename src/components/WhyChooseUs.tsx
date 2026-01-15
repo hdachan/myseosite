@@ -1,6 +1,9 @@
 import React from "react";
 import Image from "next/image";
 
+/* ✅ 폰트 가져오기 */
+import { hangameFont } from "@/lib/fonts";
+
 export default function WhyChooseUs() {
   const features = [
     {
@@ -30,7 +33,10 @@ export default function WhyChooseUs() {
       <div className="max-w-6xl mx-auto px-8 lg:px-12">
         {/* 섹션 제목 */}
         <div className="mb-12 text-left">
-          <h2 className="text-2xl font-bold text-gray-900 leading-tight">
+          {/* ✅ 원본 크기(text-2xl) 유지 + 폰트만 적용 */}
+          <h2
+            className={`${hangameFont.className} text-2xl font-bold text-gray-900 leading-tight`}
+          >
             Why Choose Us Seoul City Tour
           </h2>
         </div>
@@ -50,13 +56,12 @@ export default function WhyChooseUs() {
               >
                 {/* ✅ 아이콘 이미지 영역 (66px) */}
                 <div className="flex-shrink-0 mr-8">
-                  {/* w-[66px] h-[66px]: 정확히 66px로 크기 고정 */}
                   <div className="relative w-[66px] h-[66px]">
                     <Image
                       src={item.imageSrc}
                       alt={item.title}
-                      width={66} // 너비 66
-                      height={66} // 높이 66
+                      width={66}
+                      height={66}
                       className="object-contain"
                     />
                   </div>
@@ -64,7 +69,10 @@ export default function WhyChooseUs() {
 
                 {/* 텍스트 영역 */}
                 <div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-3">
+                  {/* ✅ 원본 크기(text-xl) 유지 + 폰트만 적용 */}
+                  <h3
+                    className={`${hangameFont.className} text-xl font-bold text-gray-900 mb-3`}
+                  >
                     {item.title}
                   </h3>
                   <p className="text-sm text-gray-600 leading-relaxed">

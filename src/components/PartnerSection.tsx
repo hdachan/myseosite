@@ -3,6 +3,9 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
 
+/* ✅ 폰트 가져오기 */
+import { hangameFont } from "@/lib/fonts";
+
 // ✅ 1. 글로벌 예약 파트너
 const bookingPartners = [
   { name: "TripAdvisor", logo: "/logo/tripadvisor.webp" },
@@ -85,8 +88,10 @@ export default function PartnerSection() {
             Verified & Official
           </p>
 
-          {/* ⭐ 섹션 타이틀: 24px (text-2xl) 고정 */}
-          <h2 className="text-2xl font-bold text-gray-900 mb-6 leading-tight">
+          {/* ⭐ 섹션 타이틀: 24px (text-2xl) 고정 + 폰트 적용 */}
+          <h2
+            className={`${hangameFont.className} text-2xl font-bold text-gray-900 mb-6 leading-tight`}
+          >
             Government Accredited Partner
           </h2>
 

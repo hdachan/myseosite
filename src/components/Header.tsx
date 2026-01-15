@@ -6,6 +6,9 @@ import { Menu, ShoppingCart, X } from "lucide-react";
 import { useCartStore } from "@/store/cartStore";
 import { useEffect, useState } from "react";
 
+/* ✅ 폰트 가져오기 */
+import { hangameFont } from "@/lib/fonts";
+
 export default function Header() {
   const menuItems = [
     { href: "/", label: "Home" },
@@ -45,8 +48,6 @@ export default function Header() {
   const closeMenu = () => setIsMenuOpen(false);
 
   // ⭐ [핵심] 텍스트 색상 변수 설정
-  // 스크롤 내렸을 때(isScrolled): 진한 회색 (text-gray-800)
-  // 맨 위(투명): 흰색 (text-white) + 그림자 (drop-shadow-md) -> 배경이 밝아도 글씨가 보임
   const textColorClass = isScrolled
     ? "text-gray-800 hover:text-[#FF5B00]"
     : "text-white drop-shadow-md hover:text-[#FF5B00]";
@@ -70,10 +71,7 @@ export default function Header() {
       <nav className="relative max-w-6xl mx-auto flex items-center justify-between px-4 md:px-8 lg:px-12 py-3 lg:py-4">
         {/* Logo */}
         <Link href="/" className="flex items-center" onClick={closeMenu}>
-          {/* ⭐ 로고 색상 반전 트릭
-              brightness-0 invert: 이미지를 완전 흰색으로 만듦 (맨 위일 때)
-              isScrolled일 때는 원래 색상 그대로
-          */}
+          {/* ⭐ 로고 색상 반전 트릭 */}
           <Image
             src="/images/logo.png"
             alt="Seoul City Tour Logo"
@@ -92,8 +90,9 @@ export default function Header() {
             <Link
               key={href}
               href={href}
-              // 위에서 만든 색상 변수 적용
-              className={`relative text-[16px] font-bold transition-colors ${textColorClass}`}
+              // ✅ 폰트 적용: hangameFont.className 추가
+              // 폰트가 바뀌면서 조금 작아 보일 수 있어 text-[17px]로 살짝 키웠습니다.
+              className={`${hangameFont.className} relative text-[17px] font-bold transition-colors ${textColorClass}`}
             >
               {label}
             </Link>
@@ -123,7 +122,7 @@ export default function Header() {
             aria-label="Toggle menu"
           >
             {isMenuOpen ? (
-              // 메뉴 열렸을 때는 항상 어두운 색이어야 잘 보임 (배경이 흰색이니까)
+              // 메뉴 열렸을 때는 항상 어두운 색이어야 잘 보임
               <X className="w-6 h-6 sm:w-[26px] sm:h-[26px] text-gray-800" />
             ) : (
               <Menu className="w-6 h-6 sm:w-[26px] sm:h-[26px]" />
@@ -141,7 +140,8 @@ export default function Header() {
                 key={href}
                 href={href}
                 onClick={closeMenu}
-                className="text-2xl font-bold text-gray-800 hover:text-[#FF5B00] transition-colors border-b border-gray-100 pb-4"
+                // ✅ 모바일 메뉴에도 폰트 적용
+                className={`${hangameFont.className} text-2xl font-bold text-gray-800 hover:text-[#FF5B00] transition-colors border-b border-gray-100 pb-4`}
               >
                 {label}
               </Link>
