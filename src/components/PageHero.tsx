@@ -1,6 +1,9 @@
 import Image from "next/image";
 import React from "react";
 
+/* ✅ 폰트 가져오기 */
+import { hangameFont } from "@/lib/fonts";
+
 interface PageHeroProps {
   title: string;
   description?: string;
@@ -28,13 +31,16 @@ export default function PageHero({
         />
       </div>
 
-      {/* 2. 오버레이 레이어 (왼쪽 텍스트 가독성 확보) */}
-      {/* 사진의 오른쪽 디자인을 살리기 위해 왼쪽 위주로 어둡게 처리했습니다. */}
-      <div className="absolute inset-0 bg-gradient-to-r from-red-950/80 via-red-900/40 to-transparent" />
+      {/* 2. 오버레이 레이어 (전체 어둡게) */}
+      <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/60 to-black/50" />
 
       {/* 3. 텍스트 콘텐츠 영역 */}
-      <div className="relative z-10 h-full max-w-6xl mx-auto px-6 flex flex-col justify-center">
-        <h1 className="text-3xl md:text-5xl font-bold text-white mb-2 tracking-tight">
+      {/* ⭐ 규격 통일: px-6 -> px-8 lg:px-12 로 변경하여 다른 섹션과 라인 일치 */}
+      <div className="relative z-10 h-full max-w-6xl mx-auto px-8 lg:px-12 flex flex-col justify-center">
+        {/* ⭐ 폰트 적용: hangameFont */}
+        <h1
+          className={`${hangameFont.className} text-3xl md:text-5xl font-bold text-white mb-2 tracking-tight`}
+        >
           {title}
         </h1>
 
@@ -44,9 +50,6 @@ export default function PageHero({
           </p>
         )}
       </div>
-
-      {/* 4. 하단 포인트 라인 */}
-      <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-red-900 via-red-500 to-red-900" />
     </header>
   );
 }
