@@ -129,11 +129,11 @@ export default function HeroCarousel1() {
             </h1>
 
             {/* 서브 메시지 */}
-            <div className="mt-6 relative z-10">
+            {/* <div className="mt-6 relative z-10">
               <p className="font-normal sm:text-lg md:text-xl text-white leading-relaxed tracking-wide font-sans opacity-100 drop-shadow-md">
                 Places fade, but the warmth of walking together lasts forever.
               </p>
-            </div>
+            </div> */}
           </div>
 
           {/* 🔍 검색창 영역 */}
