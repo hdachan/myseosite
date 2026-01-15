@@ -76,7 +76,8 @@ export default function HeroCarousel1() {
   }, []);
 
   return (
-    <div className="relative w-full overflow-hidden">
+    // ✅ [수정됨] 헤더 높이만큼 아래로 띄워줌 (mt-16: 모바일 64px / mt-20: PC 80px)
+    <div className="relative w-full overflow-hidden mt-16 md:mt-20">
       {/* 📉 높이 설정 */}
       <div className="relative w-full h-[550px] sm:h-[650px] md:h-[750px]">
         {/* 1. 배경 이미지 */}

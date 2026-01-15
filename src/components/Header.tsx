@@ -20,78 +20,48 @@ export default function Header() {
 
   const [cartItemsCount, setCartItemsCount] = useState(0);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
+
+  // 🗑️ isScrolled 상태 제거: 이제 항상 흰색 배경이므로 스크롤 감지 불필요
 
   useEffect(() => {
     const unsubscribe = useCartStore.subscribe((state) => {
       setCartItemsCount(state.getTotalItems());
     });
     setCartItemsCount(useCartStore.getState().getTotalItems());
-
-    const handleScroll = () => {
-      if (window.scrollY > 10) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
-    };
-
-    handleScroll();
-    window.addEventListener("scroll", handleScroll);
-    return () => {
-      unsubscribe();
-      window.removeEventListener("scroll", handleScroll);
-    };
+    return () => unsubscribe();
   }, []);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const closeMenu = () => setIsMenuOpen(false);
 
-  // ⭐ [핵심] 텍스트 색상 변수 설정
-  const textColorClass = isScrolled
-    ? "text-gray-800 hover:text-[#FF5B00]"
-    : "text-white drop-shadow-md hover:text-[#FF5B00]";
-
-  // ⭐ [핵심] 아이콘 색상 변수
-  const iconColorClass = isScrolled
-    ? "text-gray-600 hover:text-[#FF5B00]"
-    : "text-white drop-shadow-md hover:text-[#FF5B00]";
+  // ⭐ 색상 변수 고정 (항상 다크 그레이)
+  const textColorClass = "text-gray-800 hover:text-[#FF5B00]";
+  const iconColorClass = "text-gray-600 hover:text-[#FF5B00]";
 
   return (
-    <header className="fixed top-0 inset-x-0 z-50 transition-all duration-300">
-      {/* 배경 레이어 */}
-      <div
-        className={`absolute inset-0 transition-all duration-300 ease-in-out ${
-          isScrolled
-            ? "bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-sm"
-            : "bg-transparent border-b border-transparent"
-        }`}
-      />
-
+    // ⭐ Header 스타일 고정: 항상 흰색 배경(bg-white), 테두리(border-b), 그림자(shadow-sm) 적용
+    <header className="fixed top-0 inset-x-0 z-50 bg-white border-b border-gray-200 shadow-sm transition-all duration-300">
       <nav className="relative max-w-6xl mx-auto flex items-center justify-between px-4 md:px-8 lg:px-12 py-3 lg:py-4">
         {/* Logo */}
         <Link href="/" className="flex items-center" onClick={closeMenu}>
-          {/* ⭐ 로고 색상 반전 트릭 */}
+          {/* ⭐ 로고: 색상 반전 로직 제거 -> 항상 원본 로고 출력 */}
           <Image
             src="/images/logo.png"
             alt="Seoul City Tour Logo"
-            width={200}
-            height={52}
-            className={`h-8 sm:h-10 w-auto object-contain transition-all duration-300 ${
-              isScrolled ? "" : "brightness-0 invert drop-shadow-md"
-            }`}
+            width={240}
+            height={60}
+            className="h-10 sm:h-12 w-auto object-contain"
             priority
           />
         </Link>
 
         {/* Desktop Menu */}
-        <div className="hidden lg:flex items-center gap-8">
+        {/* 위치 조정 유지 (self-end pb-2) */}
+        <div className="hidden lg:flex items-center gap-8 self-end pb-2">
           {menuItems.map(({ href, label }) => (
             <Link
               key={href}
               href={href}
-              // ✅ 폰트 적용: hangameFont.className 추가
-              // 폰트가 바뀌면서 조금 작아 보일 수 있어 text-[17px]로 살짝 키웠습니다.
               className={`${hangameFont.className} relative text-[17px] font-bold transition-colors ${textColorClass}`}
             >
               {label}
@@ -122,7 +92,6 @@ export default function Header() {
             aria-label="Toggle menu"
           >
             {isMenuOpen ? (
-              // 메뉴 열렸을 때는 항상 어두운 색이어야 잘 보임
               <X className="w-6 h-6 sm:w-[26px] sm:h-[26px] text-gray-800" />
             ) : (
               <Menu className="w-6 h-6 sm:w-[26px] sm:h-[26px]" />
@@ -140,7 +109,6 @@ export default function Header() {
                 key={href}
                 href={href}
                 onClick={closeMenu}
-                // ✅ 모바일 메뉴에도 폰트 적용
                 className={`${hangameFont.className} text-2xl font-bold text-gray-800 hover:text-[#FF5B00] transition-colors border-b border-gray-100 pb-4`}
               >
                 {label}

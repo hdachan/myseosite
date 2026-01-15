@@ -16,8 +16,8 @@ export default function PageHero({
   imageSrc,
 }: PageHeroProps) {
   return (
-    // 배너 높이를 300px 내외로 슬림하게 설정 (모바일 250px / 데스크톱 300px)
-    <header className="relative w-full h-[250px] md:h-[300px] overflow-hidden">
+    // ⭐ 수정됨: mt-16(모바일 64px), md:mt-20(PC 80px) 추가하여 헤더에 가려지지 않게 함
+    <header className="relative w-full h-[250px] md:h-[300px] overflow-hidden mt-16 md:mt-20">
       {/* 1. 배경 이미지 영역 */}
       <div className="absolute inset-0">
         <Image
