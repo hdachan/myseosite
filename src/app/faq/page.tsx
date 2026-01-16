@@ -1,9 +1,12 @@
-// src/app/faq/page.tsx
 import { Metadata } from "next";
 import FAQClient from "./FAQClient";
+// PageHero 컴포넌트 경로 확인 (예: @/components/PageHero)
+import PageHero from "@/components/PageHero";
+// 폰트 경로 확인 (예: @/styles/fonts)
+import { hangameFont } from "@/lib/fonts";
 
 // ==============================
-// SEO Metadata (hreflang + canonical 포함)
+// SEO Metadata (원본 유지)
 // ==============================
 export const metadata: Metadata = {
   title: "Seoul City Tours FAQ 2025 – Booking, Prices, Solo & Private Tours",
@@ -14,7 +17,6 @@ export const metadata: Metadata = {
     canonical: "https://yourdomain.com/faq",
     languages: {
       en: "https://yourdomain.com/faq",
-      // 다른 언어 페이지가 없다면 지워도 되지만, 일단 주석처리하거나 형식만 남김
       ja: "https://yourdomain.com/ja/faq",
       zh: "https://yourdomain.com/zh/faq",
       "x-default": "https://yourdomain.com/faq",
@@ -28,7 +30,7 @@ export const metadata: Metadata = {
 };
 
 // ==============================
-// FAQ CONTENT (SEO + UI SOURCE)
+// FAQ CONTENT (원본 유지)
 // ==============================
 const faqData = [
   {
@@ -83,7 +85,7 @@ const faqData = [
 ];
 
 // ==============================
-// FAQ Schema (JSON-LD for Google)
+// FAQ Schema (원본 유지)
 // ==============================
 const faqSchema = {
   "@context": "https://schema.org",
@@ -100,46 +102,65 @@ const faqSchema = {
 
 export default function FAQPage() {
   return (
-    <main className="min-h-screen bg-gray-50 pt-24">
+    <main className={`min-h-screen bg-gray-50 ${hangameFont.className}`}>
       {/* FAQ Structured Data */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
 
-      <div className="max-w-4xl mx-auto px-6 py-16">
-        {/* Header */}
-        <header className="text-center mb-16">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            Seoul City Tour – Frequently Asked Questions
-          </h1>
-          <p className="text-gray-600 max-w-2xl mx-auto">
-            Everything you need to know before booking a Seoul city tour in
-            Korea.
-          </p>
-        </header>
+      {/* Hero Section */}
+      <PageHero
+        title="Seoul City Tour FAQ"
+        description="Everything you need to know before booking your perfect Seoul adventure."
+        imageSrc="/images/background_korea_pt2.png"
+      />
 
-        {/* FAQ UI */}
-        <FAQClient faqData={faqData} />
-
-        {/* CTA Section */}
-        <div className="mt-20 text-center space-y-6">
-          <p className="text-gray-600">
-            Ready to explore Seoul with a guided city tour?
+      {/* Main Container - Left Alignment Consistency */}
+      <div className="max-w-6xl mx-auto px-8 lg:px-12 py-16 sm:py-24">
+        {/* Intro Section - Left Aligned */}
+        <div className="mb-12 max-w-2xl">
+          <h2 className="text-2xl font-bold text-gray-900 mb-3">
+            Common Questions
+          </h2>
+          <p className="text-gray-500 leading-relaxed">
+            Cannot find what you are looking for? Check our answers below to
+            prepare for your trip.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a
-              href="/package"
-              className="inline-flex items-center justify-center rounded-full bg-red-700 px-8 py-3 text-sm font-medium text-white hover:bg-red-800 transition"
-            >
-              View Tour Packages
-            </a>
-            <a
-              href="/contact"
-              className="inline-flex items-center justify-center rounded-full border border-gray-300 px-8 py-3 text-sm font-medium text-gray-900 hover:bg-gray-100 transition"
-            >
-              Contact Us
-            </a>
+        </div>
+
+        {/* FAQ UI (Width controlled via Grid for readability on very large screens, but aligned left) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+          {/* FAQ List - Takes 8 columns on large screens */}
+          <div className="lg:col-span-8">
+            <FAQClient faqData={faqData} />
+          </div>
+
+          {/* Side CTA / Info - Takes 4 columns (Optional, keeps layout balanced) */}
+          <div className="lg:col-span-4 space-y-6">
+            <div className="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm">
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">
+                Need Help?
+              </h3>
+              <p className="text-gray-600 mb-6 text-sm leading-relaxed">
+                If you have specific questions about private tours or custom
+                itineraries, feel free to contact us directly.
+              </p>
+              <div className="flex flex-col gap-3">
+                <a
+                  href="/package"
+                  className="w-full inline-flex items-center justify-center rounded-xl bg-red-700 px-6 py-3.5 text-sm font-bold text-white transition-all hover:bg-red-800"
+                >
+                  View Packages
+                </a>
+                <a
+                  href="/contact"
+                  className="w-full inline-flex items-center justify-center rounded-xl border border-gray-200 bg-white px-6 py-3.5 text-sm font-bold text-gray-900 transition-all hover:bg-gray-50 hover:border-gray-300"
+                >
+                  Contact Us
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </div>

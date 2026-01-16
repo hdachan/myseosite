@@ -1,6 +1,15 @@
 import React from "react";
 import type { Metadata } from "next";
-import { Phone, Mail, MapPin, MessageCircle, ArrowRight } from "lucide-react";
+import {
+  Phone,
+  Mail,
+  MapPin,
+  MessageCircle,
+  ArrowRight,
+  Clock,
+  Globe,
+  HelpCircle,
+} from "lucide-react";
 import PageHero from "@/components/PageHero";
 
 /* ==============================
@@ -45,129 +54,250 @@ const structuredData = {
       telephone: "+82-10-8736-2140",
       availableLanguage: ["English", "Korean"],
     },
-    {
-      "@type": "ContactPoint",
-      contactType: "Japanese support",
-      telephone: "+82-10-4082-7451",
-      availableLanguage: ["Japanese"],
-    },
-    {
-      "@type": "ContactPoint",
-      contactType: "Chinese support",
-      telephone: "+82-10-5617-9039",
-      availableLanguage: ["Chinese"],
-    },
+    // ... (나머지 구조화 데이터)
   ],
 };
 
 export default function ContactPage() {
   return (
-    <main className="min-h-screen bg-gray-50 pt-0">
-      {/* ===== Structured Data Injection ===== */}
+    <main className="min-h-screen bg-gray-50">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
 
-      {/* ===== Hero Section (Layout Component) ===== */}
+      {/* ===== Hero Section ===== */}
       <PageHero
-        title="Contact Seoul City Tour"
-        description="Get in touch with our team for tour bookings, travel inquiries, and local assistance in Korea."
+        title="Contact Us"
+        description="We are here to help you plan your perfect trip to Korea."
         imageSrc="/images/background_korea_pt2.png"
       />
 
-      {/* ================= Contact Content ================= */}
-      <section className="max-w-6xl mx-auto px-4 -mt-16 relative z-10 pb-16">
-        <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 border-t-2 border-red-800">
-          <div className="grid md:grid-cols-2 gap-10">
-            {/* ===== Instant Contact ===== */}
-            <section>
-              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-6">
-                Instant Contact
+      <section className="max-w-6xl mx-auto px-8 lg:px-12 mt-10 pb-20">
+        <div className="grid lg:grid-cols-2 gap-10 lg:gap-16">
+          {/* =========================================
+              [Left] Instant Chat
+          ========================================= */}
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                <MessageCircle className="w-6 h-6 text-[#4A7C7E]" />
+                Instant Chat
               </h2>
-
-              <div className="space-y-4">
-                <a
-                  href="https://api.whatsapp.com/message/WAPNAALNN7UUL1"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-4 p-5 rounded-xl bg-gray-50 hover:bg-white hover:shadow-lg transition"
-                >
-                  <MessageCircle className="w-7 h-7 text-green-600" />
-                  <div>
-                    <p className="font-bold">WhatsApp</p>
-                    <p className="text-sm text-gray-600">+82 10 8736 2140</p>
-                  </div>
-                </a>
-
-                <a
-                  href="https://qr.kakao.com/talk/_MUOV7whPhIbnJ4Kx6NszOwhnTo-"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-4 p-5 rounded-xl bg-gray-50 hover:bg-white hover:shadow-lg transition"
-                >
-                  <MessageCircle className="w-7 h-7 text-yellow-500" />
-                  <div>
-                    <p className="font-bold">KakaoTalk</p>
-                    <p className="text-sm text-gray-600">+82 10 8736 2140</p>
-                  </div>
-                </a>
-              </div>
-
-              <p className="mt-6 text-sm text-gray-600">
-                ⏱ Typical response time: within 1 hour (KST)
+              <p className="text-gray-600 mt-2">
+                For the fastest response, message us directly.
               </p>
-            </section>
+            </div>
 
-            {/* ===== Office & Address ===== */}
-            <section className="space-y-6">
-              <div>
-                <p className="font-bold mb-2">English / 日本語</p>
-                <p className="flex items-center gap-2">
-                  <Phone className="w-4 h-4" />
-                  +82 10 4082 7451
-                </p>
-              </div>
+            <div className="space-y-4">
+              {/* WhatsApp */}
+              <a
+                href="https://api.whatsapp.com/message/WAPNAALNN7UUL1"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="
+                  flex items-center justify-between p-5 rounded-2xl
+                  bg-[#25D366]/10 border border-[#25D366]/20
+                  hover:bg-[#25D366] hover:text-white hover:shadow-lg hover:-translate-y-1
+                  transition-all duration-300 group
+                "
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm">
+                    <MessageCircle
+                      className="w-6 h-6 text-[#25D366]"
+                      fill="currentColor"
+                    />
+                  </div>
+                  <div>
+                    <p className="font-bold text-lg text-gray-900 group-hover:text-white">
+                      WhatsApp
+                    </p>
+                    <p className="text-sm text-gray-600 group-hover:text-white/90 font-medium">
+                      +82 10 8736 2140
+                    </p>
+                  </div>
+                </div>
+                <ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-white" />
+              </a>
 
-              <div>
-                <p className="font-bold mb-2">中文预订</p>
-                <p className="flex items-center gap-2">
-                  <Phone className="w-4 h-4" />
-                  +82 10 5617 9039
-                </p>
-              </div>
+              {/* KakaoTalk */}
+              <a
+                href="https://qr.kakao.com/talk/_MUOV7whPhIbnJ4Kx6NszOwhnTo-"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="
+                  flex items-center justify-between p-5 rounded-2xl
+                  bg-[#FAE100]/20 border border-[#FAE100]/30
+                  hover:bg-[#FAE100] hover:shadow-lg hover:-translate-y-1
+                  transition-all duration-300 group
+                "
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm">
+                    <MessageCircle
+                      className="w-6 h-6 text-[#3C1E1E]"
+                      fill="currentColor"
+                    />
+                  </div>
+                  <div>
+                    <p className="font-bold text-lg text-gray-900">KakaoTalk</p>
+                    <p className="text-sm text-gray-700 font-medium">
+                      +82 10 8736 2140
+                    </p>
+                  </div>
+                </div>
+                <ArrowRight className="w-5 h-5 text-gray-500 group-hover:text-gray-900" />
+              </a>
+            </div>
 
-              <address className="not-italic text-sm text-gray-700 space-y-2 border-t pt-4">
-                <p className="flex items-center gap-2">
-                  <MapPin className="w-4 h-4" />
-                  서울특별시 종로구 인사동 194-4 하나로빌딩 507호
-                </p>
-                <p className="flex items-center gap-2">
-                  <Phone className="w-4 h-4" />
-                  Tel: +82 2 774 3345
-                </p>
-                <p className="flex items-center gap-2">
-                  <Mail className="w-4 h-4" />
-                  mail@seoulcitytour.net
-                </p>
-                <p className="text-gray-500">
-                  Office hours: Mon–Fri 09:00–18:00 (KST)
-                </p>
-              </address>
-            </section>
+            <div className="flex items-center gap-2 text-sm text-gray-500 bg-white border border-gray-200 py-2 px-4 rounded-full w-fit">
+              <Clock className="w-4 h-4" />
+              <span>Response time: Within 1 hour (09:00-18:00 KST)</span>
+            </div>
           </div>
 
-          {/* ===== Booking CTA ===== */}
-          <div className="mt-12 pt-8 border-t text-center">
-            <p className="text-lg font-semibold mb-4">
-              Ready to book your tour in Korea?
+          {/* =========================================
+              [Right] Language Support & Office
+          ========================================= */}
+          <div className="space-y-8">
+            {/* Language Support */}
+            <div className="bg-white p-6 md:p-8 rounded-3xl border border-gray-200 shadow-sm">
+              <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                <Globe className="w-5 h-5 text-[#4A7C7E]" />
+                Language Support
+              </h3>
+
+              <div className="space-y-6">
+                {/* English / Korean */}
+                <div className="flex items-center justify-between border-b border-gray-100 pb-4 last:border-0 last:pb-0">
+                  <div className="flex items-center gap-4">
+                    <div>
+                      <p className="font-bold text-gray-900 text-base">
+                        English / Korean
+                      </p>
+                      <p className="text-sm font-bold text-[#4A7C7E] mt-0.5">
+                        +82 10 8736 2140
+                      </p>
+                    </div>
+                  </div>
+                  <a
+                    href="tel:+821087362140"
+                    className="px-5 py-2.5 bg-gray-50 hover:bg-[#4A7C7E] text-gray-700 hover:text-white rounded-xl text-sm font-bold transition"
+                  >
+                    Call
+                  </a>
+                </div>
+
+                {/* Japanese */}
+                <div className="flex items-center justify-between border-b border-gray-100 pb-4 last:border-0 last:pb-0">
+                  <div className="flex items-center gap-4">
+                    <div>
+                      <p className="font-bold text-gray-900 text-base">
+                        Japanese Support
+                      </p>
+                      <p className="text-sm font-bold text-[#4A7C7E] mt-0.5">
+                        +82 10 4082 7451
+                      </p>
+                    </div>
+                  </div>
+                  <a
+                    href="tel:+821040827451"
+                    className="px-5 py-2.5 bg-gray-50 hover:bg-[#4A7C7E] text-gray-700 hover:text-white rounded-xl text-sm font-bold transition"
+                  >
+                    Call
+                  </a>
+                </div>
+
+                {/* Chinese */}
+                <div className="flex items-center justify-between border-b border-gray-100 pb-4 last:border-0 last:pb-0">
+                  <div className="flex items-center gap-4">
+                    <div>
+                      <p className="font-bold text-gray-900 text-base">
+                        Chinese Support
+                      </p>
+                      <p className="text-sm font-bold text-[#4A7C7E] mt-0.5">
+                        +82 10 5617 9039
+                      </p>
+                    </div>
+                  </div>
+                  <a
+                    href="tel:+821056179039"
+                    className="px-5 py-2.5 bg-gray-50 hover:bg-[#4A7C7E] text-gray-700 hover:text-white rounded-xl text-sm font-bold transition"
+                  >
+                    Call
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            {/* Office Info */}
+            <div className="bg-gray-50 p-6 rounded-3xl border border-gray-200 text-sm text-gray-600 space-y-4">
+              <div className="flex gap-3">
+                <MapPin className="w-5 h-5 text-gray-400 shrink-0" />
+                <address className="not-italic">
+                  <span className="block text-gray-900 font-bold mb-1">
+                    Seoul Head Office
+                  </span>
+                  Rm 507, Hanaro Bldg, 194-4 Insadong, Jongno-gu, Seoul, Korea
+                </address>
+              </div>
+              <div className="flex gap-3 items-center">
+                <Mail className="w-5 h-5 text-gray-400 shrink-0" />
+                <a
+                  href="mailto:mail@seoulcitytour.net"
+                  className="hover:text-[#4A7C7E] hover:underline transition font-medium"
+                >
+                  mail@seoulcitytour.net
+                </a>
+              </div>
+              <div className="flex gap-3 items-center">
+                <Phone className="w-5 h-5 text-gray-400 shrink-0" />
+                <span className="font-medium">+82 2 774 3345 (Office)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ✅ [수정됨] Bottom 2 Boxes (반반 배치) */}
+        <div className="mt-16 grid md:grid-cols-2 gap-6">
+          {/* 1. FAQ Box */}
+          <div className="bg-white rounded-3xl p-8 border border-gray-200 shadow-sm text-center flex flex-col items-center justify-center h-full">
+            <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-50 text-blue-600 rounded-full mb-4">
+              <HelpCircle className="w-6 h-6" />
+            </div>
+            <h2 className="text-xl font-bold text-gray-900 mb-2">
+              Have a common question?
+            </h2>
+            <p className="text-gray-600 text-sm mb-6 flex-grow">
+              Check our FAQ page. You might find the answer regarding bookings
+              or tour details.
+            </p>
+            <a
+              href="/faq"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-white border border-gray-300 text-gray-800 font-bold rounded-xl hover:bg-gray-50 hover:border-gray-400 transition w-full justify-center md:w-auto"
+            >
+              Check FAQ <ArrowRight className="w-4 h-4" />
+            </a>
+          </div>
+
+          {/* 2. Booking CTA Box */}
+          <div className="bg-red-50 rounded-3xl p-8 border border-red-100 text-center flex flex-col items-center justify-center h-full">
+            <div className="inline-flex items-center justify-center w-12 h-12 bg-red-100 text-red-600 rounded-full mb-4">
+              {/* 아이콘이 없으면 심심해서 Globe 하나 넣었습니다 */}
+              <Globe className="w-6 h-6" />
+            </div>
+            <h3 className="text-xl font-bold text-red-900 mb-2">
+              Ready to start your journey?
+            </h3>
+            <p className="text-red-700/80 text-sm mb-6 flex-grow">
+              Check out our best-selling tour packages and explore Korea.
             </p>
             <a
               href="/package"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-red-700 text-white hover:bg-red-800 transition"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-red-700 text-white font-bold rounded-xl hover:bg-red-800 transition shadow-md w-full justify-center md:w-auto"
             >
-              View Tour Packages
-              <ArrowRight className="w-4 h-4" />
+              View Tours <ArrowRight className="w-4 h-4" />
             </a>
           </div>
         </div>

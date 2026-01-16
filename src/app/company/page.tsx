@@ -56,7 +56,7 @@ export default function CompanyPage() {
 
   const historyData = [
     {
-      year: "2003 – 2008",
+      year: "2004 – 2008",
       title: "Foundation & Registration",
       desc: "Established as 'Mercury Travel Agency' (2003) and rebranded to 'Seoul City Tour Co., Ltd.' (2008). Officially registered with the Seoul Tourism Association (License No. 229).",
     },
