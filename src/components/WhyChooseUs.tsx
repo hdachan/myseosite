@@ -29,13 +29,13 @@ export default function WhyChooseUs() {
   ];
 
   return (
-    <section className="w-full py-16 lg:py-24 bg-white border-t border-gray-100">
+    <section className="w-full py-12 lg:py-24 bg-white border-t border-gray-100">
       <div className="max-w-6xl mx-auto px-8 lg:px-12">
         {/* 섹션 제목 */}
-        <div className="mb-12 text-left">
-          {/* ✅ 원본 크기(text-2xl) 유지 + 폰트만 적용 */}
+        {/* 모바일: text-xl (20px) / PC: text-2xl (24px) */}
+        <div className="mb-8 md:mb-12 text-left">
           <h2
-            className={`${hangameFont.className} text-2xl font-bold text-gray-900 leading-tight`}
+            className={`${hangameFont.className} text-xl md:text-2xl font-bold text-gray-900 leading-tight`}
           >
             Why Choose Us Seoul City Tour
           </h2>
@@ -52,16 +52,18 @@ export default function WhyChooseUs() {
             return (
               <div
                 key={idx}
-                className={`flex items-start p-8 md:p-12 ${borderClass}`}
+                // 여백: 모바일 p-6 / PC p-12
+                className={`flex items-start p-6 md:p-12 ${borderClass}`}
               >
-                {/* ✅ 아이콘 이미지 영역 (66px) */}
-                <div className="flex-shrink-0 mr-8">
-                  <div className="relative w-[66px] h-[66px]">
+                {/* ✅ 아이콘 이미지 영역 */}
+                {/* 모바일: 47.5px (50px에서 5% 축소) / PC: 66px */}
+                <div className="flex-shrink-0 mr-5 md:mr-8">
+                  <div className="relative w-[47.5px] h-[47.5px] md:w-[66px] md:h-[66px]">
                     <Image
                       src={item.imageSrc}
                       alt={item.title}
-                      width={66}
-                      height={66}
+                      fill
+                      sizes="(max-width: 768px) 48px, 66px"
                       className="object-contain"
                     />
                   </div>
@@ -69,12 +71,14 @@ export default function WhyChooseUs() {
 
                 {/* 텍스트 영역 */}
                 <div>
-                  {/* ✅ 원본 크기(text-xl) 유지 + 폰트만 적용 */}
+                  {/* ✅ 항목 제목: 모바일 16px(text-base) / PC 20px(text-xl) */}
                   <h3
-                    className={`${hangameFont.className} text-xl font-bold text-gray-900 mb-3`}
+                    className={`${hangameFont.className} text-base md:text-xl font-bold text-gray-900 mb-2 md:mb-3`}
                   >
                     {item.title}
                   </h3>
+
+                  {/* ✅ 설명 글: 모바일/PC 모두 14px(text-sm) 유지 */}
                   <p className="text-sm text-gray-600 leading-relaxed">
                     {item.desc}
                   </p>

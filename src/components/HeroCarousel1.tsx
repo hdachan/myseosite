@@ -84,10 +84,10 @@ export default function HeroCarousel1() {
         {/* 배경 그라디언트 */}
         <div
           className="absolute inset-0 z-10 pointer-events-none"
-          style={{
-            background:
-              "radial-gradient(circle at center, rgba(26, 24, 24, 0.54) 20%, rgba(47, 42, 42, 0) 80%)",
-          }}
+          // style={{
+          //   background:
+          //     "radial-gradient(circle at center, rgba(26, 24, 24, 0.54) 20%, rgba(47, 42, 42, 0) 80%)",
+          // }}
         />
 
         {/* 2. 메인 콘텐츠 */}
@@ -182,20 +182,18 @@ export default function HeroCarousel1() {
               <span className="text-white/90 font-bold text-[10px] uppercase tracking-wider">
                 Popular:
               </span>
-              {["Together", "Local Friend", "Private Story", "DMZ"].map(
-                (keyword) => (
-                  <button
-                    key={keyword}
-                    onClick={() => {
-                      setSearchQuery(keyword);
-                      setOpen(true);
-                    }}
-                    className="text-[10px] text-white font-medium hover:text-[#D97959] bg-black/30 hover:bg-black/50 backdrop-blur-sm px-2.5 py-0.5 rounded-full transition border border-white/10"
-                  >
-                    {keyword}
-                  </button>
-                )
-              )}
+              {["DMZ", "JSA", "Drama", "ski"].map((keyword) => (
+                <button
+                  key={keyword}
+                  onClick={() => {
+                    setSearchQuery(keyword);
+                    setOpen(true);
+                  }}
+                  className="text-[10px] text-white font-medium hover:text-[#D97959] bg-black/30 hover:bg-black/50 backdrop-blur-sm px-2.5 py-0.5 rounded-full transition border border-white/10"
+                >
+                  {keyword}
+                </button>
+              ))}
             </div>
           </div>
 
