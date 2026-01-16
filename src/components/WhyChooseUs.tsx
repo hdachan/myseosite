@@ -1,7 +1,7 @@
 import React from "react";
 import Image from "next/image";
 
-/* ✅ 폰트 가져오기 */
+/* ✅ 폰트 가져오기 (설정해주신 localFont 경로) */
 import { hangameFont } from "@/lib/fonts";
 
 export default function WhyChooseUs() {
@@ -32,7 +32,8 @@ export default function WhyChooseUs() {
     <section className="w-full py-12 lg:py-24 bg-white border-t border-gray-100">
       <div className="max-w-6xl mx-auto px-8 lg:px-12">
         {/* 섹션 제목 */}
-        {/* 모바일: text-xl (20px) / PC: text-2xl (24px) */}
+        {/* 모바일: 20px(xl) / PC: 24px(2xl) */}
+        {/* 폰트: 한게임 포커체 Bold (700) 적용 */}
         <div className="mb-8 md:mb-12 text-left">
           <h2
             className={`${hangameFont.className} text-xl md:text-2xl font-bold text-gray-900 leading-tight`}
@@ -56,7 +57,7 @@ export default function WhyChooseUs() {
                 className={`flex items-start p-6 md:p-12 ${borderClass}`}
               >
                 {/* ✅ 아이콘 이미지 영역 */}
-                {/* 모바일: 47.5px (50px에서 5% 축소) / PC: 66px */}
+                {/* 모바일: 47.5px (정확히 5% 축소) / PC: 66px */}
                 <div className="flex-shrink-0 mr-5 md:mr-8">
                   <div className="relative w-[47.5px] h-[47.5px] md:w-[66px] md:h-[66px]">
                     <Image
@@ -70,16 +71,20 @@ export default function WhyChooseUs() {
                 </div>
 
                 {/* 텍스트 영역 */}
+                {/* 텍스트 영역 */}
                 <div>
-                  {/* ✅ 항목 제목: 모바일 16px(text-base) / PC 20px(text-xl) */}
+                  {/* 1. 제목: 한게임 폰트 + 세미볼드(600) */}
                   <h3
-                    className={`${hangameFont.className} text-base md:text-xl font-bold text-gray-900 mb-2 md:mb-3`}
+                    className={`${hangameFont.className} text-base md:text-xl font-semibold text-gray-900 mb-2 md:mb-3`}
                   >
                     {item.title}
                   </h3>
 
-                  {/* ✅ 설명 글: 모바일/PC 모두 14px(text-sm) 유지 */}
-                  <p className="text-sm text-gray-600 leading-relaxed">
+                  {/* 2. 설명: 한게임 폰트 + 노멀(400, 기본 두께) */}
+                  {/* font-normal을 적으면 HangamePoker-Regular.ttf가 적용됩니다 */}
+                  <p
+                    className={`${hangameFont.className} text-sm text-gray-600 leading-relaxed font-normal`}
+                  >
                     {item.desc}
                   </p>
                 </div>

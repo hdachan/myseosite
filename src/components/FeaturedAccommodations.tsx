@@ -53,7 +53,10 @@ export default function FeaturedAccommodations() {
   const visibleItems = accommodations.slice(startIndex, endIndex);
 
   return (
-    <section className="relative pt-14 pb-32 lg:pt-20 lg:pb-44 bg-gradient-to-br from-[#F8F1E7] via-white to-[#F8F1E7]">
+    // ✅ 섹션 여백 수정:
+    // 모바일: pt-12 (상단 여백 통일), pb-32 (하단 그림 공간 유지)
+    // PC: lg:pt-24 (PC 여백 유지), lg:pb-44
+    <section className="relative pt-12 pb-32 lg:pt-24 lg:pb-44 bg-gradient-to-br from-[#F8F1E7] via-white to-[#F8F1E7]">
       {/* 배경 이미지 영역 */}
       <div className="absolute inset-0 z-0 overflow-hidden">
         <Image
@@ -76,20 +79,24 @@ export default function FeaturedAccommodations() {
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
             >
-              <p className="text-[11px] uppercase tracking-widest text-[#4A7C7E] font-bold mb-3">
+              {/* 소제목: 모바일 10px / PC 11px */}
+              <p className="text-[10px] md:text-[11px] uppercase tracking-widest text-[#4A7C7E] font-bold mb-2 md:mb-3">
                 OFFICIAL PARTNER
               </p>
 
-              {/* ⭐ 섹션 제목: 폰트 적용 (hangameFont) */}
+              {/* ⭐ 섹션 제목: 디자인 시스템 적용 */}
+              {/* 폰트: 한게임 포커체 Bold (700) */}
+              {/* 크기: 모바일 20px(xl) / PC 24px(2xl) */}
+              {/* 여백: 모바일 mb-4 / PC mb-6 */}
               <h2
-                className={`${hangameFont.className} text-2xl font-bold text-gray-900 mb-6 leading-tight`}
+                className={`${hangameFont.className} text-xl md:text-2xl font-bold text-gray-900 mb-4 md:mb-6 leading-tight`}
               >
                 Top Picks by Seoul City Tour
               </h2>
 
-              {/* 네비게이션 버튼 */}
+              {/* 네비게이션 버튼 (PC/Tablet용 - 모바일에서는 숨길 수도 있지만 유지) */}
               {totalPages > 1 && (
-                <div className="flex gap-3 mt-6">
+                <div className="flex gap-3 mt-4 md:mt-6">
                   <button
                     onClick={prevSlide}
                     disabled={!canPrev}
@@ -109,7 +116,7 @@ export default function FeaturedAccommodations() {
 
               {/* ⭐ 페이지 카운터 */}
               {totalPages > 1 && (
-                <div className="mt-5 text-sm text-gray-600 tracking-wide">
+                <div className="mt-4 md:mt-5 text-sm text-gray-600 tracking-wide">
                   <span className="font-bold text-[#4A7C7E]">
                     {currentPage + 1}
                   </span>
@@ -159,7 +166,8 @@ export default function FeaturedAccommodations() {
           </div>
         </div>
 
-        {/* 하단 배경 일러스트 이미지 */}
+        {/* 하단 배경 일러스트 이미지 (PC에서만 보임 - 모바일 숨김 or 유지 선택 가능) */}
+        {/* 현재 설정: hidden md:block (모바일에서는 숨김 처리되어 있어 깔끔함) */}
         <div className="absolute bottom-0 left-6 lg:left-[calc((100%-1152px)/2+1.5rem)] z-0 pointer-events-none">
           <Image
             src="/images/card_koreaimg_v2.png"

@@ -5,28 +5,33 @@ import { motion } from "framer-motion";
 import TourCard from "@/components/TourCard";
 import { basicPackages as packageTours } from "@/app/package/packageData";
 
+/* ✅ 폰트 가져오기 */
+import { hangameFont } from "@/lib/fonts";
+
 export default function TourPackagesSection() {
   const favoriteTours = packageTours.slice(0, 4);
 
   return (
-    <section className="w-full py-16 lg:py-24 bg-white">
-      {/* ⭐ 칼각 정렬: max-w-6xl + px-8 lg:px-12 (정확히 일치) */}
+    <section className="w-full py-12 lg:py-24 bg-white">
       <div className="max-w-6xl mx-auto px-8 lg:px-12">
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="flex items-end justify-between mb-12"
+          className="flex items-end justify-between mb-8 md:mb-12"
         >
-          {/* ⭐ 섹션 제목: 24px (text-2xl) */}
-          <h2 className="text-2xl font-bold text-gray-900 leading-tight">
+          {/* 섹션 제목 */}
+          <h2
+            className={`${hangameFont.className} text-xl md:text-2xl font-bold text-gray-900 leading-tight`}
+          >
             South Korea Tour Packages
           </h2>
 
+          {/* ✅ [PC용] See all 링크 */}
           <Link
             href="/package"
-            className="hidden sm:flex items-center gap-1 text-sm font-semibold text-gray-500 hover:text-[#ad3928] transition-colors pb-1"
+            className={`${hangameFont.className} hidden sm:flex items-center gap-1 text-sm font-semibold text-gray-500 hover:text-[#ad3928] transition-colors pb-1`}
           >
             See all
             <svg
@@ -44,7 +49,7 @@ export default function TourPackagesSection() {
           </Link>
         </motion.div>
 
-        {/* 그리드 레이아웃 (4열) */}
+        {/* 그리드 레이아웃 */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-10">
           {favoriteTours.map((tour, index) => (
             <motion.div
@@ -59,11 +64,13 @@ export default function TourPackagesSection() {
           ))}
         </div>
 
-        {/* 모바일용 더보기 버튼 */}
+        {/* ✅ [모바일용] View all tours 버튼 */}
         <div className="mt-8 sm:hidden text-center">
+          {/* 폰트: 한게임 포커체 적용 */}
+          {/* 두께: font-semibold (600)으로 변경하여 더 버튼답게 만듦 */}
           <Link
             href="/package"
-            className="inline-block px-6 py-3 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50"
+            className={`${hangameFont.className} inline-block px-6 py-3 border border-gray-300 rounded-lg text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors`}
           >
             View all tours
           </Link>
