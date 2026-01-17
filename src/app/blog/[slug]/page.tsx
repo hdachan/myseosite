@@ -125,13 +125,14 @@ const ptComponents: PortableTextComponents = {
     ),
   },
   types: {
-    // ✅ 본문 이미지 설정 (비율 고정 & 중앙 정렬)
+    // ✅ 본문 이미지 설정 (비율 고정 & 중앙 정렬 + 라운드 6px)
     image: ({ value }) => {
       if (!value?.asset?._ref) return null;
       return (
         <div className="my-12">
           {/* aspect-[3/2]: 3:2 비율로 강제 고정 (넘치면 자름) */}
-          <figure className="relative w-full aspect-[3/2] bg-gray-100 overflow-hidden">
+          {/* ✅ 수정됨: rounded-[6px] 적용 */}
+          <figure className="relative w-full aspect-[3/2] bg-gray-100 overflow-hidden rounded-[6px]">
             <Image
               src={urlFor(value).width(1200).url()}
               alt={value.alt || "Blog image"}
@@ -225,12 +226,13 @@ export default async function BlogPostPage({
       {/* ✅ 3. 메인 커버 이미지 (중앙 정렬 + 16:9 고정) */}
       {post.image && (
         <div className="max-w-3xl mx-auto px-6 mb-16">
-          <div className="relative aspect-[16/9] w-full bg-gray-100">
+          {/* ✅ 수정됨: rounded-[6px] 적용 (모서리 둥글게) */}
+          <div className="relative aspect-[16/9] w-full bg-gray-100 rounded-[6px] overflow-hidden">
             <Image
               src={urlFor(post.image).width(1200).url()}
               alt={post.title}
               fill
-              className="object-cover" // 모서리 직각 (rounded 없음)
+              className="object-cover"
               priority
             />
           </div>

@@ -30,7 +30,7 @@ export default function WhyChooseUs() {
 
   return (
     <section className="relative w-full py-12 lg:py-24 bg-white border-t border-gray-100 overflow-hidden">
-      {/* 배경 이미지 (투명도 10%) - 섹션 전체에 깔림 */}
+      {/* 배경 이미지 */}
       <div className="absolute inset-0 z-0">
         <Image
           src="/images/company/typeA_01.png"
@@ -51,45 +51,73 @@ export default function WhyChooseUs() {
           </h2>
         </div>
 
-        {/* ✅ [수정됨] bg-white 추가! */}
-        {/* bg-white: 이 박스에 흰색 배경을 칠해서, 뒤쪽 무늬를 가리고 앞으로 튀어나오게 함 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 border border-gray-200 rounded-[6px] overflow-hidden bg-white">
+        {/* 컨테이너 */}
+        <div
+          className="
+          /* 모바일: 가로 스크롤 + 갭 3 */
+          flex gap-3 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4
+          
+          /* PC: 그리드 복귀 */
+          md:grid md:grid-cols-2 md:gap-0 md:pb-0 md:overflow-visible
+          md:border md:border-gray-200 md:rounded-[6px] md:bg-white
+        "
+        >
           {features.map((item, idx) => {
-            const borderClass = `
+            const pcBorderClass = `
+              md:border-gray-200
               ${idx % 2 === 0 ? "md:border-r" : ""} 
-              ${idx < features.length - 1 ? "border-b" : ""} 
               md:border-b-0 md:[&:nth-child(-n+2)]:border-b
-              border-gray-200
             `;
 
             return (
               <div
                 key={idx}
-                className={`flex items-start p-6 md:p-12 ${borderClass}`}
+                className={`
+                  /* 박스 너비: 200px */
+                  w-[200px] flex-shrink-0 snap-center
+                  
+                  /* 왼쪽 정렬(items-start) 확인 */
+                  flex flex-col items-start p-5
+                  border border-gray-200 rounded-xl bg-white/60 backdrop-blur-sm
+                  
+                  /* PC 스타일 */
+                  md:w-auto
+                  md:flex-row md:items-start md:p-12
+                  md:border-0 md:rounded-none md:bg-transparent md:backdrop-blur-none
+                  
+                  ${pcBorderClass}
+                `}
               >
-                {/* 아이콘 */}
-                <div className="flex-shrink-0 mr-5 md:mr-8">
-                  <div className="relative w-[47.5px] h-[47.5px] md:w-[66px] md:h-[66px]">
+                {/* 아이콘 영역 */}
+                <div
+                  className="
+                  flex-shrink-0 
+                  mb-1 mr-0
+                  md:mb-0 md:mr-8
+                "
+                >
+                  <div className="relative w-[60px] h-[60px] md:w-[66px] md:h-[66px]">
+                    {/* ✅ 수정됨: object-left 추가 (아이콘을 왼쪽 벽으로 붙임) */}
                     <Image
                       src={item.imageSrc}
                       alt={item.title}
                       fill
-                      sizes="(max-width: 768px) 48px, 66px"
-                      className="object-contain"
+                      sizes="(max-width: 768px) 50px, 66px"
+                      className="object-contain object-left"
                     />
                   </div>
                 </div>
 
-                {/* 텍스트 */}
-                <div>
+                {/* 텍스트 영역 */}
+                <div className="flex-1 min-w-0">
                   <h3
-                    className={`${hangameFont.className} text-base md:text-xl font-semibold text-gray-900 mb-2 md:mb-3`}
+                    className={`${hangameFont.className} text-lg md:text-xl font-semibold text-gray-900 mb-2 md:mb-3 leading-tight`}
                   >
                     {item.title}
                   </h3>
 
                   <p
-                    className={`${hangameFont.className} text-sm text-gray-600 leading-relaxed font-normal`}
+                    className={`${hangameFont.className} text-base text-gray-600 leading-relaxed font-normal break-words whitespace-normal md:text-sm`}
                   >
                     {item.desc}
                   </p>

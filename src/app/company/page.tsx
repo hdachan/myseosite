@@ -143,6 +143,7 @@ export default function CompanyPage() {
         </div>
       </section>
 
+      {/* 3. ceo me */}
       <section className="relative bg-[#F8F9FA] py-16 lg:py-24 overflow-hidden">
         {/* 배경 이미지 */}
         <div className="absolute inset-0 z-0">
@@ -161,7 +162,7 @@ export default function CompanyPage() {
             <div className="md:col-span-5 relative">
               {/* ✅ 수정됨: 투명도 10% 적용 (bg-white/90) */}
               {/* bg-white/90: 흰색 배경인데 10% 정도 뒤가 비침 */}
-              <div className="w-full h-full min-h-[350px] rounded-[6px] overflow-hidden shadow-lg bg-white/20 border-white border-4 relative backdrop-blur-sm">
+              <div className="w-full h-full min-h-[350px] rounded-[6px] overflow-hidden shadow-lg bg-white/50 border-white border-4 relative backdrop-blur-sm">
                 <img
                   src="/images/company/park-do-young-ceo.png"
                   alt="Do-Young Park, CEO"
@@ -189,7 +190,6 @@ export default function CompanyPage() {
                   and stories.
                   {/* 끝 따옴표 */}
                   <Quote className="inline-block w-8 h-8 md:w-10 md:h-10 text-[#4A7C7E] ml-2 align-top opacity-50" />
-                  "
                 </h3>
               </div>
 
@@ -267,7 +267,7 @@ export default function CompanyPage() {
             <p className="text-xs font-bold text-[#4A7C7E] uppercase tracking-widest mb-2">
               Our People
             </p>
-            {/* ✅ 제목: 기준이 되는 text-2xl 적용 */}
+            {/* 제목 */}
             <h2
               className={`${hangameFont.className} text-2xl font-bold text-gray-900 mb-4`}
             >
@@ -279,11 +279,29 @@ export default function CompanyPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* ✅ 수정됨: 모바일 슬라이드 / PC 그리드 */}
+          <div
+            className="
+            /* 모바일: 가로 스크롤 (Flex + Overflow) */
+            flex gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4
+            
+            /* PC: 그리드 복귀 (4열) */
+            lg:grid lg:grid-cols-4 lg:gap-6 lg:overflow-visible lg:pb-0
+          "
+          >
             {teamMembers.map((member, index) => (
               <div
                 key={index}
-                className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 border border-gray-100"
+                className="
+                  /* 모바일 카드 크기 고정 (슬라이드용) */
+                  min-w-[260px] flex-shrink-0 snap-center
+                  
+                  /* PC 카드 크기 자동 (그리드용) */
+                  lg:min-w-0 lg:w-auto
+
+                  /* 공통 스타일 (라운드 6px 적용) */
+                  bg-white rounded-[6px] overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 border border-gray-100
+                "
               >
                 <div className="relative h-64 bg-gray-200">
                   <img

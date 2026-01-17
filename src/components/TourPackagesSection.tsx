@@ -25,7 +25,7 @@ export default function TourPackagesSection() {
           <h2
             className={`${hangameFont.className} text-xl md:text-2xl font-bold text-gray-900 leading-tight`}
           >
-            South Korea Tour Packages
+            Top Picks by Seoul City Tour
           </h2>
 
           {/* PC용 See all 링크 */}
@@ -49,19 +49,17 @@ export default function TourPackagesSection() {
           </Link>
         </motion.div>
 
-        {/* ✅ 그리드 레이아웃 수정: 모바일 1열(리스트) -> PC 4열(그리드) */}
-        {/* 1. grid-cols-1: 모바일에서는 무조건 한 줄에 하나! (그래야 가로로 긴 카드가 됨) */}
-        {/* 2. sm:grid-cols-2: 태블릿에선 2개 */}
-        {/* 3. lg:grid-cols-4: PC에선 4개 */}
-        {/* 4. gap-y-4: 모바일 리스트 간격 */}
+        {/* 그리드 레이아웃 */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-y-4 sm:gap-x-6 sm:gap-y-10">
-          {favoriteTours.map((tour, index) => (
+          {favoriteTours.map((tour) => (
             <motion.div
               key={tour.id}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: index * 0.1 }}
+              /* ✅ 수정됨: margin을 주어 화면에 들어오기 살짝 전부터 로딩 시작 */
+              viewport={{ once: true, margin: "0px 0px -50px 0px" }}
+              /* ✅ 수정됨: index * 0.1 딜레이 제거 -> 모바일에서 즉시 반응 */
+              transition={{ duration: 0.4 }}
             >
               <TourCard tour={tour} />
             </motion.div>

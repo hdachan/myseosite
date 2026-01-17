@@ -105,7 +105,8 @@ export default function HeroCarousel1() {
             ref={wrapperRef}
             className="relative w-full max-w-md sm:max-w-lg mb-4 z-20"
           >
-            <div className="flex bg-white rounded-lg overflow-hidden border border-gray-200">
+            {/* ✅ 검색창 컨테이너: rounded-[6px] 적용 */}
+            <div className="flex bg-white rounded-[6px] overflow-hidden border border-gray-200">
               <div className="flex-1 flex items-center px-4 py-2.5">
                 <Search className="w-4 h-4 text-gray-400 mr-2" />
                 <input
@@ -127,7 +128,8 @@ export default function HeroCarousel1() {
             </div>
 
             {open && searchQuery.trim() && (
-              <div className="absolute z-50 mt-2 w-full bg-white rounded-xl border border-gray-200 max-h-[240px] overflow-y-auto overscroll-contain">
+              /* ✅ 검색 결과 드롭다운: rounded-[6px] 적용 */
+              <div className="absolute z-50 mt-2 w-full bg-white rounded-[6px] border border-gray-200 max-h-[240px] overflow-y-auto overscroll-contain">
                 {results.length === 0 ? (
                   <div className="px-4 py-6 text-sm text-gray-500 text-center">
                     No tours found
@@ -139,7 +141,8 @@ export default function HeroCarousel1() {
                       onClick={() => handleSelect(tour.slug)}
                       className="w-full flex items-center gap-4 px-4 py-3 hover:bg-gray-50 text-left border-b border-gray-100 last:border-0"
                     >
-                      <div className="relative w-16 h-16 rounded-md overflow-hidden shrink-0">
+                      {/* ✅ 썸네일 이미지: rounded-[6px] 적용 */}
+                      <div className="relative w-16 h-16 rounded-[6px] overflow-hidden shrink-0">
                         <Image
                           src={tour.image}
                           alt={tour.title}
@@ -164,9 +167,16 @@ export default function HeroCarousel1() {
               </div>
             )}
 
-            {/* ✅ 수정됨: 높이를 Popular 텍스트와 맞춤 */}
-            <div className="flex flex-wrap items-center justify-center gap-3 mt-6">
-              <span className="text-white font-bold text-sm sm:text-base drop-shadow-md">
+            {/* Popular 키워드 섹션 */}
+            <div className="flex flex-wrap items-center justify-center gap-2 mt-4 md:mt-6">
+              <span
+                className={`
+                  ${hangameFont.className} 
+                  text-white/100 font-normal uppercase tracking-wider
+                  text-xs md:text-sm 
+                  mr-2 md:mr-4
+                `}
+              >
                 Popular:
               </span>
               {["DMZ", "JSA", "Drama", "ski"].map((keyword) => (
@@ -177,21 +187,12 @@ export default function HeroCarousel1() {
                     setOpen(true);
                   }}
                   className="
-                    /* 1. 크기: py-0.5로 줄여서 높이를 텍스트와 거의 동일하게 맞춤 */
-                    px-3 py-0.5
-                    
-                    /* 2. 라운드값 */
-                    rounded-[10px]
-                    
-                    /* 폰트 */
-                    text-sm sm:text-base font-bold text-white
-                    
-                    /* 컬러 */
-                    bg-[#d9bd8b] 
-                    hover:bg-[#ad3928] 
-                    
-                    /* 효과 */
-                    transition-colors duration-300 shadow-md hover:shadow-lg
+                    text-xs md:text-sm 
+                    text-white font-medium 
+                    px-3 py-[1px] md:px-5 
+                    bg-[#4A7C7E] hover:bg-[#3D6566]
+                    /* ✅ 버튼: rounded-[6px] 유지 */
+                    rounded-[6px] transition border border-white/10
                   "
                 >
                   {keyword}

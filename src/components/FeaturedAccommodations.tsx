@@ -91,7 +91,7 @@ export default function FeaturedAccommodations() {
               <h2
                 className={`${hangameFont.className} text-xl md:text-2xl font-bold text-gray-900 mb-4 md:mb-6 leading-tight`}
               >
-                Top Picks by Seoul City Tour
+                South Korea Tour Packages
               </h2>
 
               {/* 네비게이션 버튼 (PC/Tablet용 - 모바일에서는 숨길 수도 있지만 유지) */}

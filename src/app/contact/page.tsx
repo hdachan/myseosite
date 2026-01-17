@@ -23,8 +23,8 @@ export const metadata: Metadata = {
     canonical: "https://yourdomain.com/contact",
   },
   robots: {
-    index: true,
-    follow: true,
+    index: false,
+    follow: false,
   },
 };
 
@@ -54,7 +54,6 @@ const structuredData = {
       telephone: "+82-10-8736-2140",
       availableLanguage: ["English", "Korean"],
     },
-    // ... (나머지 구조화 데이터)
   ],
 };
 
@@ -74,12 +73,13 @@ export default function ContactPage() {
       />
 
       <section className="max-w-6xl mx-auto px-8 lg:px-12 mt-10 pb-20">
-        <div className="grid lg:grid-cols-2 gap-10 lg:gap-16">
+        <div className="grid lg:grid-cols-2 gap-10 lg:gap-10">
           {/* =========================================
               [Left] Instant Chat
           ========================================= */}
-          <div className="space-y-6">
-            <div>
+          {/* ✅ 수정됨: rounded-[6px] 적용 */}
+          <div className="bg-white p-6 md:p-8 rounded-[6px] border border-gray-200 shadow-sm flex flex-col h-full">
+            <div className="mb-6">
               <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
                 <MessageCircle className="w-6 h-6 text-[#4A7C7E]" />
                 Instant Chat
@@ -89,14 +89,15 @@ export default function ContactPage() {
               </p>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-4 flex-grow">
               {/* WhatsApp */}
               <a
                 href="https://api.whatsapp.com/message/WAPNAALNN7UUL1"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="
-                  flex items-center justify-between p-5 rounded-2xl
+                  /* ✅ 수정됨: 버튼도 rounded-[6px] */
+                  flex items-center justify-between p-5 rounded-[6px]
                   bg-[#25D366]/10 border border-[#25D366]/20
                   hover:bg-[#25D366] hover:text-white hover:shadow-lg hover:-translate-y-1
                   transition-all duration-300 group
@@ -127,7 +128,8 @@ export default function ContactPage() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="
-                  flex items-center justify-between p-5 rounded-2xl
+                  /* ✅ 수정됨: 버튼도 rounded-[6px] */
+                  flex items-center justify-between p-5 rounded-[6px]
                   bg-[#FAE100]/20 border border-[#FAE100]/30
                   hover:bg-[#FAE100] hover:shadow-lg hover:-translate-y-1
                   transition-all duration-300 group
@@ -151,9 +153,12 @@ export default function ContactPage() {
               </a>
             </div>
 
-            <div className="flex items-center gap-2 text-sm text-gray-500 bg-white border border-gray-200 py-2 px-4 rounded-full w-fit">
-              <Clock className="w-4 h-4" />
-              <span>Response time: Within 1 hour (09:00-18:00 KST)</span>
+            <div className="mt-8 pt-6 border-t border-gray-100">
+              {/* ✅ 수정됨: 배지도 rounded-[6px] */}
+              <div className="flex items-center gap-2 text-sm text-gray-500 bg-gray-50 border border-gray-200 py-2 px-4 rounded-[6px] w-fit">
+                <Clock className="w-4 h-4" />
+                <span>Response time: Within 1 hour (09:00-18:00 KST)</span>
+              </div>
             </div>
           </div>
 
@@ -161,8 +166,9 @@ export default function ContactPage() {
               [Right] Language Support & Office
           ========================================= */}
           <div className="space-y-8">
-            {/* Language Support */}
-            <div className="bg-white p-6 md:p-8 rounded-3xl border border-gray-200 shadow-sm">
+            {/* Language Support Card */}
+            {/* ✅ 수정됨: rounded-[6px] */}
+            <div className="bg-white p-6 md:p-8 rounded-[6px] border border-gray-200 shadow-sm">
               <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
                 <Globe className="w-5 h-5 text-[#4A7C7E]" />
                 Language Support
@@ -183,7 +189,8 @@ export default function ContactPage() {
                   </div>
                   <a
                     href="tel:+821087362140"
-                    className="px-5 py-2.5 bg-gray-50 hover:bg-[#4A7C7E] text-gray-700 hover:text-white rounded-xl text-sm font-bold transition"
+                    /* ✅ 수정됨: 버튼 rounded-[6px] */
+                    className="px-5 py-2.5 bg-gray-50 hover:bg-[#4A7C7E] text-gray-700 hover:text-white rounded-[6px] text-sm font-bold transition"
                   >
                     Call
                   </a>
@@ -203,7 +210,8 @@ export default function ContactPage() {
                   </div>
                   <a
                     href="tel:+821040827451"
-                    className="px-5 py-2.5 bg-gray-50 hover:bg-[#4A7C7E] text-gray-700 hover:text-white rounded-xl text-sm font-bold transition"
+                    /* ✅ 수정됨: 버튼 rounded-[6px] */
+                    className="px-5 py-2.5 bg-gray-50 hover:bg-[#4A7C7E] text-gray-700 hover:text-white rounded-[6px] text-sm font-bold transition"
                   >
                     Call
                   </a>
@@ -223,7 +231,8 @@ export default function ContactPage() {
                   </div>
                   <a
                     href="tel:+821056179039"
-                    className="px-5 py-2.5 bg-gray-50 hover:bg-[#4A7C7E] text-gray-700 hover:text-white rounded-xl text-sm font-bold transition"
+                    /* ✅ 수정됨: 버튼 rounded-[6px] */
+                    className="px-5 py-2.5 bg-gray-50 hover:bg-[#4A7C7E] text-gray-700 hover:text-white rounded-[6px] text-sm font-bold transition"
                   >
                     Call
                   </a>
@@ -231,12 +240,13 @@ export default function ContactPage() {
               </div>
             </div>
 
-            {/* Office Info */}
-            <div className="bg-gray-50 p-6 rounded-3xl border border-gray-200 text-sm text-gray-600 space-y-4">
+            {/* Office Info Card */}
+            {/* ✅ 수정됨: rounded-[6px] */}
+            <div className="bg-white p-6 md:p-8 rounded-[6px] border border-gray-200 shadow-sm text-sm text-gray-600 space-y-4">
               <div className="flex gap-3">
-                <MapPin className="w-5 h-5 text-gray-400 shrink-0" />
+                <MapPin className="w-5 h-5 text-gray-400 shrink-0 mt-0.5" />
                 <address className="not-italic">
-                  <span className="block text-gray-900 font-bold mb-1">
+                  <span className="block text-gray-900 font-bold mb-1 text-base">
                     Seoul Head Office
                   </span>
                   Rm 507, Hanaro Bldg, 194-4 Insadong, Jongno-gu, Seoul, Korea
@@ -246,23 +256,26 @@ export default function ContactPage() {
                 <Mail className="w-5 h-5 text-gray-400 shrink-0" />
                 <a
                   href="mailto:mail@seoulcitytour.net"
-                  className="hover:text-[#4A7C7E] hover:underline transition font-medium"
+                  className="hover:text-[#4A7C7E] hover:underline transition font-medium text-base"
                 >
                   mail@seoulcitytour.net
                 </a>
               </div>
               <div className="flex gap-3 items-center">
                 <Phone className="w-5 h-5 text-gray-400 shrink-0" />
-                <span className="font-medium">+82 2 774 3345 (Office)</span>
+                <span className="font-medium text-base">
+                  +82 2 774 3345 (Office)
+                </span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* ✅ [수정됨] Bottom 2 Boxes (반반 배치) */}
-        <div className="mt-16 grid md:grid-cols-2 gap-6">
+        {/* ===== Bottom 2 Boxes (반반 배치) ===== */}
+        <div className="mt-10 grid md:grid-cols-2 gap-6">
           {/* 1. FAQ Box */}
-          <div className="bg-white rounded-3xl p-8 border border-gray-200 shadow-sm text-center flex flex-col items-center justify-center h-full">
+          {/* ✅ 수정됨: rounded-[6px] */}
+          <div className="bg-white rounded-[6px] p-8 border border-gray-200 shadow-sm text-center flex flex-col items-center justify-center h-full">
             <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-50 text-blue-600 rounded-full mb-4">
               <HelpCircle className="w-6 h-6" />
             </div>
@@ -275,16 +288,17 @@ export default function ContactPage() {
             </p>
             <a
               href="/faq"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-white border border-gray-300 text-gray-800 font-bold rounded-xl hover:bg-gray-50 hover:border-gray-400 transition w-full justify-center md:w-auto"
+              /* ✅ 수정됨: 버튼 rounded-[6px] */
+              className="inline-flex items-center gap-2 px-6 py-3 bg-white border border-gray-300 text-gray-800 font-bold rounded-[6px] hover:bg-gray-50 hover:border-gray-400 transition w-full justify-center md:w-auto"
             >
               Check FAQ <ArrowRight className="w-4 h-4" />
             </a>
           </div>
 
           {/* 2. Booking CTA Box */}
-          <div className="bg-red-50 rounded-3xl p-8 border border-red-100 text-center flex flex-col items-center justify-center h-full">
+          {/* ✅ 수정됨: rounded-[6px] */}
+          <div className="bg-red-50 rounded-[6px] p-8 border border-red-100 text-center flex flex-col items-center justify-center h-full">
             <div className="inline-flex items-center justify-center w-12 h-12 bg-red-100 text-red-600 rounded-full mb-4">
-              {/* 아이콘이 없으면 심심해서 Globe 하나 넣었습니다 */}
               <Globe className="w-6 h-6" />
             </div>
             <h3 className="text-xl font-bold text-red-900 mb-2">
@@ -295,7 +309,8 @@ export default function ContactPage() {
             </p>
             <a
               href="/package"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-red-700 text-white font-bold rounded-xl hover:bg-red-800 transition shadow-md w-full justify-center md:w-auto"
+              /* ✅ 수정됨: 버튼 rounded-[6px] */
+              className="inline-flex items-center gap-2 px-6 py-3 bg-red-700 text-white font-bold rounded-[6px] hover:bg-red-800 transition shadow-md w-full justify-center md:w-auto"
             >
               View Tours <ArrowRight className="w-4 h-4" />
             </a>
