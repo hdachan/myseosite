@@ -1,14 +1,32 @@
 "use client";
 
-import React from "react";
+import React, { useRef } from "react";
 import PageHero from "@/components/PageHero";
 import TourCard from "@/components/TourCard";
 import { basicPackages as packageTours } from "@/app/package/packageData";
+import { hangameFont } from "@/lib/fonts";
 
 export default function PrivateTourPage() {
   const MAX_ITEMS = 4;
   const privateTours = packageTours.slice(0, MAX_ITEMS);
 
+  // ✅ 스크롤 제어를 위한 Ref 생성
+  const tourScrollRef = useRef<HTMLDivElement>(null);
+  const vehicleScrollRef = useRef<HTMLDivElement>(null);
+
+  // ✅ 스크롤 핸들러 함수
+  const scroll = (
+    ref: React.RefObject<HTMLDivElement>,
+    direction: "left" | "right"
+  ) => {
+    if (ref.current) {
+      const { current } = ref;
+      const scrollAmount = direction === "left" ? -300 : 300; // 한 번에 이동할 거리
+      current.scrollBy({ left: scrollAmount, behavior: "smooth" });
+    }
+  };
+
+  // 가이드 요금 데이터
   const guideCharges = [
     {
       language: "English",
@@ -24,17 +42,15 @@ export default function PrivateTourPage() {
     },
     {
       language: "Russian, Spanish, etc.",
-      max4h: "Please, contact.",
-      max8h: "",
-      over20: "",
+      isContact: true,
     },
   ];
 
+  // 차량 요금 데이터
   const transportations = [
     {
       name: "Deluxe Sedan",
-      image:
-        "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=300&h=200&fit=crop",
+      image: "/images/private/vehicle_sedan.png",
       passengers: "Up to 3 passengers",
       max4h: "400,000",
       max8h: "600,000",
@@ -42,8 +58,7 @@ export default function PrivateTourPage() {
     },
     {
       name: "10 pax Van",
-      image:
-        "https://images.unsplash.com/photo-1464219789935-c2d9d9aba644?w=300&h=200&fit=crop",
+      image: "/images/private/vehicle_Starex.png",
       passengers: "Up to 10 passengers",
       max4h: "250,000",
       max8h: "350,000",
@@ -51,8 +66,7 @@ export default function PrivateTourPage() {
     },
     {
       name: "18 pax Mini Bus",
-      image:
-        "https://images.unsplash.com/photo-1570125909232-eb263c188f7e?w=300&h=200&fit=crop",
+      image: "/images/private/vehicle_minibus.png",
       passengers: "Up to 18 passengers",
       max4h: "400,000",
       max8h: "580,000",
@@ -60,8 +74,7 @@ export default function PrivateTourPage() {
     },
     {
       name: "40 pax Tour Bus",
-      image:
-        "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=300&h=200&fit=crop",
+      image: "/images/private/vehicle_bus.png",
       passengers: "Up to 40 passengers",
       max4h: "500,000",
       max8h: "750,000",
@@ -69,55 +82,127 @@ export default function PrivateTourPage() {
     },
   ];
 
+  // ✅ 화살표 아이콘 컴포넌트 (내부 사용)
+  const ScrollButton = ({
+    direction,
+    onClick,
+  }: {
+    direction: "left" | "right";
+    onClick: () => void;
+  }) => (
+    <button
+      onClick={onClick}
+      className={`
+        absolute top-1/2 -translate-y-1/2 z-20
+        bg-white/90 border border-gray-100 shadow-md rounded-full p-2
+        text-gray-700 hover:text-[#ad3928] hover:bg-white transition-all
+        md:hidden /* PC(그리드)에서는 숨김 */
+        ${direction === "left" ? "left-2" : "right-2"}
+      `}
+      aria-label={direction === "left" ? "Previous" : "Next"}
+    >
+      {direction === "left" ? (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          strokeWidth={2}
+          stroke="currentColor"
+          className="w-5 h-5"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M15.75 19.5L8.25 12l7.5-7.5"
+          />
+        </svg>
+      ) : (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          strokeWidth={2}
+          stroke="currentColor"
+          className="w-5 h-5"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M8.25 4.5l7.5 7.5-7.5 7.5"
+          />
+        </svg>
+      )}
+    </button>
+  );
+
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Hero Section */}
       <PageHero
         title="Private Tour"
         description="Customize your perfect Korean adventure with our VIP service"
         imageSrc="/images/background_korea_pt2.png"
       />
 
-      {/* ⭐ [핵심 수정] 레이아웃 통일
-        1. -mt-16 제거 -> mt-12 (헤더/배너 겹침 방지)
-        2. px-4 -> px-8 lg:px-12 (좌우 여백 라인 일치)
-      */}
-      <div className="max-w-6xl mx-auto px-8 lg:px-12 mt-12 pb-24 space-y-20">
-        {/* Section 1: Popular Private Tours */}
+      <div className="max-w-6xl mx-auto px-6 lg:px-12 mt-12 pb-24 space-y-20 md:space-y-24">
+        {/* 1. Popular Private Tours */}
         <section>
-          <div className="mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">
+          <div className="mb-6 md:mb-12 text-left">
+            <p className="text-[10px] md:text-[11px] uppercase tracking-[0.2em] text-[#4A7C7E] font-bold mb-3">
+              BEST SELLING TOURS
+            </p>
+            <h2
+              className={`${hangameFont.className} text-xl md:text-2xl font-bold text-gray-900 leading-tight`}
+            >
               Popular Private Tours
             </h2>
-            <p className="text-gray-500 font-light">
-              맞춤형 프라이빗 투어로 특별한 여행을 경험하세요
-            </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {privateTours.map((tour, index) => (
-              <TourCard key={tour.id} tour={tour} priority={index === 0} />
-            ))}
+          {/* ✅ 상대 위치 컨테이너 (화살표 배치용) */}
+          <div className="relative group">
+            {/* 좌우 화살표 (모바일용) */}
+            <ScrollButton
+              direction="left"
+              onClick={() => scroll(tourScrollRef, "left")}
+            />
+            <ScrollButton
+              direction="right"
+              onClick={() => scroll(tourScrollRef, "right")}
+            />
+
+            {/* 스크롤 컨테이너 */}
+            <div
+              ref={tourScrollRef}
+              className="
+                flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-6 px-6 scrollbar-hide
+                md:grid md:grid-cols-2 md:lg:grid-cols-4 md:gap-6 md:overflow-visible md:pb-0 md:mx-0 md:px-0
+              "
+            >
+              {privateTours.map((tour, index) => (
+                <div
+                  key={tour.id}
+                  className="min-w-[85vw] md:min-w-0 snap-center"
+                >
+                  <TourCard tour={tour} priority={index === 0} />
+                </div>
+              ))}
+            </div>
           </div>
         </section>
 
-        {/* Section 2: Introduction (Text & Checklist) */}
-        <section className="bg-white rounded-2xl border border-gray-200 p-8 lg:p-12">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                We can meet your requirement!
-              </h2>
-              <p className="text-gray-500 font-light mb-6 leading-relaxed">
-                고객님의 요구사항에 맞춰 완벽한 여행을 설계해드립니다. 특별한
-                장소 방문부터 일정 조율까지, 전문 가이드가 함께합니다.
-              </p>
-              <div className="flex items-center gap-2 text-[#ad3928] font-semibold">
-                <span>★</span>
-                <span>Make yourself VIP!</span>
-              </div>
-            </div>
+        {/* 2. Intro Section (VIP) */}
+        <section>
+          <div className="mb-6 md:mb-12 text-left">
+            <p className="text-[10px] md:text-[11px] uppercase tracking-[0.2em] text-[#4A7C7E] font-bold mb-3">
+              WE CAN MEET YOUR REQUIREMENT!
+            </p>
+            <h2
+              className={`${hangameFont.className} text-xl md:text-2xl font-bold text-gray-900 leading-tight`}
+            >
+              Make yourself VIP!
+            </h2>
+          </div>
 
+          <div className="bg-white border border-gray-200 rounded-[6px] p-6 md:p-10 shadow-sm">
             <div className="space-y-4">
               {[
                 "Do you have special places to go? We'll follow your agenda.",
@@ -125,11 +210,11 @@ export default function PrivateTourPage() {
                 "We are glad to make your agenda from your request.",
                 "Our intelligent, professional tour guides and drivers promise you the best services.",
               ].map((text, idx) => (
-                <div key={idx} className="flex items-start gap-3">
-                  <div className="mt-1 w-5 h-5 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
-                    <span className="text-gray-600 text-xs">✓</span>
+                <div key={idx} className="flex items-start gap-4">
+                  <div className="mt-0.5 w-5 h-5 rounded-full bg-red-50 flex items-center justify-center flex-shrink-0">
+                    <span className="text-[#ad3928] text-xs font-bold">✓</span>
                   </div>
-                  <span className="text-gray-700 text-sm md:text-base leading-snug">
+                  <span className="text-gray-700 text-sm leading-relaxed">
                     {text}
                   </span>
                 </div>
@@ -138,154 +223,209 @@ export default function PrivateTourPage() {
           </div>
         </section>
 
-        {/* Section 3: Guide Service Charge */}
+        {/* 3. Guide Service Charge */}
         <section>
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+          <div className="mb-6 md:mb-12 text-left">
+            <p className="text-[10px] md:text-[11px] uppercase tracking-[0.2em] text-[#4A7C7E] font-bold mb-3">
+              PRICING TABLE
+            </p>
+            <h2
+              className={`${hangameFont.className} text-xl md:text-2xl font-bold text-gray-900 leading-tight`}
+            >
               Guide Service Charge
             </h2>
-            <p className="text-gray-500 text-sm">
-              전문 가이드 서비스 요금 안내
-            </p>
           </div>
 
-          <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse">
+          <div className="bg-white border border-gray-200 rounded-[6px] overflow-hidden shadow-sm">
+            <div className="overflow-x-auto scrollbar-hide">
+              <table className="w-full border-collapse min-w-[600px]">
                 <thead>
-                  {/* ⭐ 그라디언트 제거 -> 깔끔한 다크 그레이 배경 */}
-                  <tr className="bg-gray-800 text-white text-sm uppercase tracking-wide">
-                    <th className="px-6 py-4 text-left font-medium">
-                      Guide Language
+                  <tr className="bg-gray-100 text-gray-700 text-sm font-bold uppercase tracking-wide border-b border-gray-200">
+                    <th className="px-6 py-4 text-center bg-gray-50 border-r border-gray-200 w-1/4">
+                      Guide
                     </th>
-                    <th className="px-6 py-4 text-center font-medium">
-                      Max 4 Hours
+                    <th className="px-6 py-4 text-center border-r border-gray-200 w-1/4">
+                      Max, 4Hours
                     </th>
-                    <th className="px-6 py-4 text-center font-medium">
-                      Max 8 Hours
+                    <th className="px-6 py-4 text-center border-r border-gray-200 w-1/4">
+                      Max, 8Hours
                     </th>
-                    <th className="px-6 py-4 text-center font-medium">
-                      Over 20 Pax
-                    </th>
+                    <th className="px-6 py-4 text-center w-1/4">Over 20 Pax</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100 text-sm">
+                <tbody className="divide-y divide-gray-200 text-sm text-center">
                   {guideCharges.map((guide, idx) => (
                     <tr
                       key={idx}
                       className="hover:bg-gray-50 transition-colors"
                     >
-                      <td className="px-6 py-4 font-semibold text-gray-800">
+                      <td className="px-6 py-4 font-semibold text-gray-800 bg-gray-50 border-r border-gray-200">
                         {guide.language}
                       </td>
-                      <td className="px-6 py-4 text-center text-gray-600">
-                        {guide.max4h !== "Please, contact." ? (
-                          `KRW ${guide.max4h}`
-                        ) : (
-                          <span className="text-red-600 font-medium">
-                            Contact Us
-                          </span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 text-center text-gray-600">
-                        {guide.max8h && `KRW ${guide.max8h}`}
-                      </td>
-                      <td className="px-6 py-4 text-center text-gray-600">
-                        {guide.over20 && `KRW ${guide.over20}`}
-                      </td>
+                      {guide.isContact ? (
+                        <td
+                          colSpan={3}
+                          className="px-6 py-4 text-gray-500 italic font-medium"
+                        >
+                          Please, contact.
+                        </td>
+                      ) : (
+                        <>
+                          <td className="px-6 py-4 text-gray-600 border-r border-gray-200">
+                            KRW {guide.max4h}
+                          </td>
+                          <td className="px-6 py-4 text-gray-600 border-r border-gray-200">
+                            KRW {guide.max8h}
+                          </td>
+                          <td className="px-6 py-4 text-gray-600">
+                            KRW {guide.over20}
+                          </td>
+                        </>
+                      )}
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
+            <div className="block md:hidden text-center bg-gray-50 text-[10px] text-gray-400 py-1">
+              ← Swipe table to see details →
+            </div>
           </div>
-          <p className="text-xs text-gray-400 mt-3 pl-1">
-            * If there is over time, it'll be extra charge.
+          <p className="text-[#ad3928] text-sm mt-3 font-medium px-1">
+            * If there is over time. It&apos;ll be extra charge.
           </p>
         </section>
 
-        {/* Section 4: Transportation */}
+        {/* 4. Transportation */}
         <section>
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
-              Transportation Service
-            </h2>
-            <p className="text-gray-500 text-sm">
-              편안하고 안전한 차량 서비스 요금
+          <div className="mb-10 md:mb-12 text-left">
+            <p className="text-[10px] md:text-[11px] uppercase tracking-[0.2em] text-[#4A7C7E] font-bold mb-3">
+              VEHICLE OPTIONS
             </p>
+            <h2
+              className={`${hangameFont.className} text-xl md:text-2xl font-bold text-gray-900 leading-tight`}
+            >
+              Transportation
+            </h2>
           </div>
 
-          <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse">
-                <thead>
-                  {/* ⭐ 깔끔한 다크 그레이 배경 */}
-                  <tr className="bg-gray-800 text-white text-sm uppercase tracking-wide">
-                    <th className="px-6 py-4 text-center font-medium">
-                      Vehicle
-                    </th>
-                    <th className="px-6 py-4 text-center font-medium">
-                      Max 4 Hours
-                    </th>
-                    <th className="px-6 py-4 text-center font-medium">
-                      Max 8 Hours
-                    </th>
-                    <th className="px-6 py-4 text-center font-medium">
-                      Airport Pickup/Sending
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100 text-sm">
-                  {transportations.map((transport, idx) => (
-                    <tr
-                      key={idx}
-                      className="hover:bg-gray-50 transition-colors"
-                    >
-                      <td className="px-6 py-4">
-                        <div className="flex flex-col items-center gap-3 min-w-[140px]">
-                          <img
-                            src={transport.image}
-                            alt={transport.name}
-                            className="w-28 h-16 object-cover rounded-lg border border-gray-200"
-                          />
-                          <div className="text-center">
-                            <p className="font-bold text-gray-900">
-                              {transport.name}
-                            </p>
-                            <p className="text-xs text-gray-500 mt-0.5">
-                              {transport.passengers}
-                            </p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-center font-medium text-gray-700">
-                        KRW {transport.max4h}
-                      </td>
-                      <td className="px-6 py-4 text-center font-medium text-gray-700">
-                        KRW {transport.max8h}
-                      </td>
-                      <td className="px-6 py-4 text-center font-medium text-gray-700">
-                        KRW {transport.airport}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+          {/* ✅ 상대 위치 컨테이너 (화살표 배치용) */}
+          <div className="relative group">
+            {/* 좌우 화살표 (모바일용) */}
+            <ScrollButton
+              direction="left"
+              onClick={() => scroll(vehicleScrollRef, "left")}
+            />
+            <ScrollButton
+              direction="right"
+              onClick={() => scroll(vehicleScrollRef, "right")}
+            />
+
+            <div
+              ref={vehicleScrollRef}
+              className="
+                flex gap-6 overflow-x-auto snap-x snap-mandatory pt-12 pb-8 -mx-6 px-6 scrollbar-hide
+                md:grid md:grid-cols-2 lg:grid-cols-4 md:gap-y-16 md:gap-x-6 md:overflow-visible md:pt-0 md:pb-0 md:mx-0 md:px-0
+              "
+            >
+              {transportations.map((transport, idx) => (
+                <div
+                  key={idx}
+                  className="group relative flex flex-col items-center min-w-[85vw] md:min-w-0 snap-center"
+                >
+                  {/* 차량 이미지 (3D 효과) */}
+                  <div className="relative z-20 w-full flex flex-col items-center -mb-12 hover:-translate-y-2 transition-transform duration-300">
+                    <img
+                      src={transport.image}
+                      alt={transport.name}
+                      className="w-[90%] h-32 object-contain drop-shadow-lg"
+                    />
+                    <div className="w-[70%] h-4 bg-black/20 blur-lg rounded-[100%] -mt-2"></div>
+                  </div>
+
+                  {/* 요금표 카드 */}
+                  <div className="w-full bg-white border border-gray-200 rounded-[6px] shadow-sm pt-14 pb-6 px-5 relative z-10 group-hover:shadow-md transition-shadow">
+                    <div className="text-center mb-4">
+                      <h3 className="text-lg font-bold text-gray-900">
+                        {transport.name}
+                      </h3>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {transport.passengers}
+                      </p>
+                    </div>
+
+                    <div className="space-y-3">
+                      <div className="w-10 h-0.5 bg-gray-100 mx-auto mb-3"></div>
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="text-gray-500 font-medium">
+                          Max 4H
+                        </span>
+                        <span className="font-bold text-gray-800">
+                          ₩{transport.max4h}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="text-gray-500 font-medium">
+                          Max 8H
+                        </span>
+                        <span className="font-bold text-gray-800">
+                          ₩{transport.max8h}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center text-sm pt-2 border-t border-gray-50">
+                        <span className="text-[#ad3928] font-semibold text-xs uppercase tracking-wide">
+                          Airport
+                        </span>
+                        <span className="font-bold text-[#ad3928]">
+                          ₩{transport.airport}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 
-          <div className="mt-4 space-y-1 text-xs text-gray-400 font-light pl-1">
-            <p>* This price is only within Seoul.</p>
-            <p>
-              * Extra charges apply for trips outside Seoul based on distance.
-            </p>
-            <p>* Overtime (beyond 8 hours) incurs an extra hourly charge.</p>
-            <p>* Usage over 4 hours is charged as a full day fare.</p>
-            <p>* Tolls and parking fees are not included.</p>
-            <p>
-              * Driver/Guide accommodation fees are not included for overnight
-              trips.
-            </p>
+          <div className="mt-8 p-6 bg-gray-50 rounded-[6px] text-sm text-gray-600 border border-gray-100">
+            <ul className="space-y-2 list-none">
+              <li className="flex gap-2">
+                <span>*</span>
+                <span>This price is only Seoul.</span>
+              </li>
+              <li className="flex gap-2">
+                <span>*</span>
+                <span>
+                  In case of going out of Seoul, there is extra charge according
+                  the distance.
+                </span>
+              </li>
+              <li className="flex gap-2">
+                <span>*</span>
+                <span>
+                  In case of using over 8hours, there will be extra charge per
+                  1hour.
+                </span>
+              </li>
+              <li className="flex gap-2">
+                <span>*</span>
+                <span>
+                  In case of using over 4hours, the fare will be charged as full
+                  day fare.
+                </span>
+              </li>
+              <li className="flex gap-2">
+                <span>*</span>
+                <span>The toll fee and parking fee is not included.</span>
+              </li>
+              <li className="flex gap-2">
+                <span>*</span>
+                <span>
+                  In case of staying overnight tour guide and driver ,
+                  accommodation fee is not included.
+                </span>
+              </li>
+            </ul>
           </div>
         </section>
       </div>
