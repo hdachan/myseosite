@@ -1,13 +1,15 @@
-// app/[lang]/blog/[slug]/page.tsx
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { PortableText, PortableTextComponents } from "@portabletext/react";
 import { blogDetailQuery } from "@/sanity/lib/queries";
-import { ArrowLeft, Calendar, Clock, User } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { format } from "date-fns";
 import { urlFor } from "@/sanity/lib/image";
 import { client } from "@/sanity/lib/client";
+
+/* ✅ 폰트 가져오기 */
+import { hangameFont } from "@/lib/fonts";
 
 type SanityPost = {
   title: string;
@@ -18,6 +20,7 @@ type SanityPost = {
   readTime?: number | string;
   publishedAt?: string;
   author?: string;
+  image?: any;
 };
 
 export async function generateStaticParams() {
@@ -35,7 +38,7 @@ export async function generateMetadata({
   const { slug } = await params;
   const post = await client.fetch(
     `*[_type == "post" && slug.current == $slug][0]{
-      title, description
+      title, description, image
     }`,
     { slug }
   );
@@ -46,47 +49,56 @@ export async function generateMetadata({
     openGraph: {
       title: post.title,
       description: post.description,
-      images: [],
+      images: post.image ? [urlFor(post.image).url()] : [],
     },
   };
 }
 
+// ✅ PortableText 컴포넌트 (가독성 & 이미지 고정 설정)
 const ptComponents: PortableTextComponents = {
   block: {
+    // 제목 스타일 (한게임 폰트)
     h1: ({ children }) => (
-      <h1 className="text-3xl font-serif font-bold mt-12 mb-6 text-[#2C2420] border-l-4 border-[#D97959] pl-4">
+      <h1
+        className={`${hangameFont.className} text-3xl md:text-4xl font-bold mt-16 mb-6 text-gray-900 leading-tight border-b-2 border-gray-900 pb-4`}
+      >
         {children}
       </h1>
     ),
     h2: ({ children }) => (
-      <h2 className="text-2xl font-serif font-bold mt-10 mb-4 text-[#2C2420]">
+      <h2
+        className={`${hangameFont.className} text-2xl md:text-3xl font-bold mt-14 mb-5 text-gray-900 leading-tight`}
+      >
         {children}
       </h2>
     ),
     h3: ({ children }) => (
-      <h3 className="text-xl font-serif font-semibold mt-8 mb-3 text-[#3F6E70]">
+      <h3
+        className={`${hangameFont.className} text-xl md:text-2xl font-bold mt-10 mb-4 text-gray-900`}
+      >
         {children}
       </h3>
     ),
+    // 본문 스타일 (가독성 최적화: 18px, 1.8 줄간격)
     normal: ({ children }) => (
-      <p className="mb-6 leading-8 text-[#4A4A4A] text-[17px] font-light tracking-wide">
+      <p className="mb-6 leading-[1.8] text-[17px] md:text-[18px] text-gray-800 font-normal break-keep">
         {children}
       </p>
     ),
     blockquote: ({ children }) => (
-      <blockquote className="my-8 pl-6 border-l-[3px] border-[#D97959] italic text-xl text-[#5D544F] font-serif bg-[#F5F5F0] py-4 pr-4 rounded-r-lg">
-        "{children}"
+      <blockquote className="my-10 pl-6 border-l-4 border-gray-900 text-xl text-gray-800 italic leading-relaxed bg-gray-50 py-6 pr-6">
+        {children}
       </blockquote>
     ),
   },
   list: {
     bullet: ({ children }) => (
-      <ul className="list-disc pl-6 mb-6 space-y-2 text-[#4A4A4A] marker:text-[#D97959]">
+      <ul className="list-disc pl-6 mb-8 space-y-3 text-[17px] text-gray-800 leading-relaxed marker:text-gray-500">
         {children}
       </ul>
     ),
     number: ({ children }) => (
-      <ol className="list-decimal pl-6 mb-6 space-y-2 text-[#4A4A4A] marker:font-bold marker:text-[#3F6E70]">
+      <ol className="list-decimal pl-6 mb-8 space-y-3 text-[17px] text-gray-800 leading-relaxed marker:text-gray-900 marker:font-bold">
         {children}
       </ol>
     ),
@@ -100,30 +112,38 @@ const ptComponents: PortableTextComponents = {
         <a
           href={value?.href}
           rel={rel}
-          className="text-[#3F6E70] underline decoration-1 underline-offset-4 hover:text-[#D97959] transition-colors font-medium"
+          className="text-[#D97959] underline decoration-1 underline-offset-4 hover:bg-[#D97959] hover:text-white transition-all font-medium"
         >
           {children}
         </a>
       );
     },
     strong: ({ children }) => (
-      <strong className="font-bold text-[#2C2420] bg-[#D97959]/10 px-1 rounded-sm">
+      <strong className="font-bold text-black bg-yellow-100 px-1">
         {children}
       </strong>
     ),
   },
   types: {
+    // ✅ 본문 이미지 설정 (비율 고정 & 중앙 정렬)
     image: ({ value }) => {
       if (!value?.asset?._ref) return null;
       return (
-        <div className="my-8">
-          <Image
-            src={urlFor(value).width(800).url()}
-            alt={value.alt || "Blog image"}
-            width={800}
-            height={600}
-            className="rounded-xl shadow-lg object-cover mx-auto"
-          />
+        <div className="my-12">
+          {/* aspect-[3/2]: 3:2 비율로 강제 고정 (넘치면 자름) */}
+          <figure className="relative w-full aspect-[3/2] bg-gray-100 overflow-hidden">
+            <Image
+              src={urlFor(value).width(1200).url()}
+              alt={value.alt || "Blog image"}
+              fill
+              className="object-cover" // 꽉 채우기 (찌그러짐 방지)
+            />
+          </figure>
+          {value.caption && (
+            <figcaption className="mt-3 text-center text-sm text-gray-500 font-medium">
+              {value.caption}
+            </figcaption>
+          )}
         </div>
       );
     },
@@ -143,84 +163,112 @@ export default async function BlogPostPage({
     ? format(new Date(post.publishedAt), "MMMM dd, yyyy")
     : "No date";
 
-  const authorName = post.author || "Unknown Author";
+  const authorName = post.author || "Seoul City Tour Editor";
 
   return (
-    <article className="min-h-screen bg-[#FDFBF7] text-[#2C2420] relative selection:bg-[#D97959] selection:text-white">
-      <div className="fixed inset-0 opacity-[0.6] pointer-events-none mix-blend-multiply bg-[url('https://www.transparenttextures.com/patterns/cream-paper.png')] z-0"></div>
-
-      <nav className="relative z-10 max-w-4xl mx-auto px-6 py-8">
+    <article className="min-h-screen bg-white text-gray-900 pb-32">
+      {/* ✅ 1. 상단 네비게이션 (중앙 정렬) */}
+      <nav className="max-w-3xl mx-auto px-6 pt-12 pb-12">
         <Link
           href="/blog"
-          className="inline-flex items-center gap-2 text-sm font-medium text-[#6B5F57] hover:text-[#D97959] transition-colors group"
+          className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-gray-500 hover:text-black transition-colors group"
         >
           <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-          Back to Blog
+          Back to list
         </Link>
       </nav>
 
-      <main className="relative z-10 max-w-4xl mx-auto px-6 pb-24">
-        <header className="mb-12 text-center md:text-left">
-          <div className="flex flex-wrap gap-2 mb-6 justify-center md:justify-start">
-            {post.category && (
-              <span className="px-3 py-1 rounded-full bg-[#3F6E70]/10 text-[#3F6E70] text-xs font-bold uppercase tracking-wider">
-                {post.category}
-              </span>
-            )}
-            {post.tags?.map((tag) => (
-              <span
-                key={tag}
-                className="px-3 py-1 rounded-full border border-[#EBE5DE] text-[#6B5F57] text-xs font-medium"
-              >
-                #{tag}
-              </span>
-            ))}
-          </div>
-
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold leading-[1.2] mb-6 text-[#2C2420]">
-            {post.title}
-          </h1>
-
-          {post.description && (
-            <p className="text-lg md:text-xl text-[#6B5F57] font-light leading-relaxed mb-8 max-w-2xl">
-              {post.description}
-            </p>
+      {/* ✅ 2. 헤더 영역 (중앙 정렬) */}
+      <header className="max-w-3xl mx-auto px-6 mb-12">
+        {/* 카테고리 & 태그 */}
+        <div className="flex flex-wrap gap-2 mb-6">
+          {post.category && (
+            <span className="px-3 py-1 bg-black text-white text-sm font-bold uppercase tracking-wide">
+              {post.category}
+            </span>
           )}
+          {post.tags?.map((tag) => (
+            <span
+              key={tag}
+              className="px-3 py-1 bg-gray-100 text-gray-600 text-sm font-medium border border-gray-200"
+            >
+              #{tag}
+            </span>
+          ))}
+        </div>
 
-          <div className="flex flex-wrap items-center gap-6 text-sm text-[#8C847F] border-t border-b border-[#EBE5DE] py-4 justify-center md:justify-start">
-            <div className="flex items-center gap-2">
-              <User className="w-4 h-4" />
-              <span className="font-medium text-[#2C2420]">{authorName}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4" />
-              <time dateTime={post.publishedAt || undefined}>
-                {formattedDate}
-              </time>
-            </div>
+        {/* 제목: 한게임 폰트 */}
+        <h1
+          className={`${hangameFont.className} text-4xl md:text-5xl lg:text-6xl font-bold leading-[1.15] mb-8 text-black tracking-tight`}
+        >
+          {post.title}
+        </h1>
+
+        {/* 메타 정보 */}
+        <div className="flex items-center border-t-2 border-black py-6 mt-8">
+          <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-6 text-sm">
+            <span className="font-bold text-black uppercase tracking-wide">
+              By {authorName}
+            </span>
+            <span className="hidden md:inline w-px h-4 bg-gray-300"></span>
+            <span className="text-gray-600">{formattedDate}</span>
             {post.readTime && (
-              <div className="flex items-center gap-2">
-                <Clock className="w-4 h-4" />
-                <span>{post.readTime} min read</span>
-              </div>
+              <>
+                <span className="hidden md:inline w-px h-4 bg-gray-300"></span>
+                <span className="text-gray-600">{post.readTime} min read</span>
+              </>
             )}
           </div>
-        </header>
+        </div>
+      </header>
 
-        <div className="max-w-none prose prose-lg prose-stone prose-p:text-[#4A4A4A] prose-headings:font-serif prose-headings:text-[#2C2420] prose-a:text-[#3F6E70]">
+      {/* ✅ 3. 메인 커버 이미지 (중앙 정렬 + 16:9 고정) */}
+      {post.image && (
+        <div className="max-w-3xl mx-auto px-6 mb-16">
+          <div className="relative aspect-[16/9] w-full bg-gray-100">
+            <Image
+              src={urlFor(post.image).width(1200).url()}
+              alt={post.title}
+              fill
+              className="object-cover" // 모서리 직각 (rounded 없음)
+              priority
+            />
+          </div>
+        </div>
+      )}
+
+      {/* ✅ 4. 본문 컨텐츠 (중앙 정렬 + 가독성 최적화) */}
+      <main className="max-w-3xl mx-auto px-6">
+        <div
+          className="prose prose-lg prose-slate max-w-none 
+          prose-p:text-gray-800 prose-p:leading-[1.8] prose-p:text-[18px]
+          prose-headings:text-black prose-headings:font-bold 
+          prose-a:text-[#D97959] prose-a:no-underline 
+          prose-img:rounded-none prose-img:shadow-none"
+        >
           <PortableText value={post.content} components={ptComponents} />
         </div>
 
-        <hr className="my-12 border-[#EBE5DE]" />
+        {/* 하단 구분선 */}
+        <hr className="my-20 border-t-2 border-black" />
 
-        <div className="flex justify-between items-center">
-          <Link
-            href="/blog"
-            className="text-[#3F6E70] font-serif hover:underline"
-          >
-            &larr; More articles
-          </Link>
-        </div>
+        {/* 하단 네비게이션 */}
+        <Link
+          href="/blog"
+          className="group block bg-gray-50 border border-gray-200 p-8 hover:bg-black hover:border-black transition-all duration-300"
+        >
+          <div className="flex justify-between items-center">
+            <div>
+              <p className="text-sm font-bold uppercase tracking-widest text-gray-500 mb-2 group-hover:text-gray-400">
+                Back to Overview
+              </p>
+              <h4 className="text-2xl font-bold text-black group-hover:text-white">
+                View All Articles
+              </h4>
+            </div>
+            <ArrowRight className="w-6 h-6 text-black group-hover:text-white transition-transform group-hover:translate-x-2" />
+          </div>
+        </Link>
       </main>
     </article>
   );

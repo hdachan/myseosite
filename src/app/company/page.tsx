@@ -2,6 +2,7 @@ import PageHero from "@/components/PageHero";
 import { Building2, Calendar, User, Users, Quote } from "lucide-react";
 /* ✅ 폰트 가져오기 */
 import { hangameFont } from "@/lib/fonts";
+import Image from "next/image";
 
 export default function CompanyPage() {
   const companyInfo = [
@@ -99,13 +100,11 @@ export default function CompanyPage() {
       {/* 2. Company Overview */}
       <section className="relative w-full py-16 lg:py-24">
         <div className="max-w-6xl mx-auto px-8 lg:px-12">
-          {/* 상단: 텍스트 + 원형 이미지 */}
-          <div className="grid md:grid-cols-2 gap-12 items-center mb-16">
+          {/* 상단 정렬 적용: items-start (텍스트와 이미지 상단 높이 맞춤) */}
+          <div className="grid md:grid-cols-2 gap-12 items-start mb-16">
             {/* Left: Text */}
             <div>
-              {/* ❌ "ABOUT US" 라벨 삭제됨 */}
-
-              {/* ✅ 제목: Sincerity and Expertise 적용 */}
+              {/* 제목: Sincerity and Expertise 적용 */}
               <h2
                 className={`${hangameFont.className} text-2xl font-bold text-gray-900 mb-6 leading-tight`}
               >
@@ -128,49 +127,41 @@ export default function CompanyPage() {
               </div>
             </div>
 
-            {/* Right: Circular Image */}
+            {/* Right: Landscape Image */}
             <div className="flex justify-center md:justify-end">
-              <div className="relative w-[300px] h-[300px] md:w-[380px] md:h-[380px] rounded-full overflow-hidden shadow-xl border-4 border-white">
+              {/* 가로형 비율(aspect-[3/2]) + 라운드 6px 유지 */}
+              <div className="relative w-full aspect-[3/2] rounded-[6px] overflow-hidden shadow-xl border-4 border-white">
+                {/* ✅ 이미지 소스 변경됨 */}
                 <img
-                  src="https://images.unsplash.com/photo-1528605248644-14dd04022da1?w=800&h=800&fit=crop"
-                  alt="Seoul City Tour"
+                  src="/images/company/dmz-group-photo.jpg"
+                  alt="Seoul City Tour DMZ Group Photo"
                   className="w-full h-full object-cover"
                 />
               </div>
             </div>
           </div>
-
-          {/* 하단: 기업 정보 바 */}
-          <div className="bg-white border border-gray-200 rounded-xl shadow-sm">
-            <div className="grid grid-cols-2 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-gray-100">
-              {companyInfo.map((info, idx) => (
-                <div
-                  key={idx}
-                  className="flex flex-col items-center justify-center py-6 px-4 text-center group hover:bg-gray-50 transition-colors first:rounded-tl-xl md:first:rounded-l-xl last:rounded-br-xl md:last:rounded-r-xl"
-                >
-                  <div className="mb-3 p-3 bg-gray-50 text-[#4A7C7E] rounded-full group-hover:bg-white group-hover:shadow-sm transition-all">
-                    <info.icon className="w-6 h-6" />
-                  </div>
-                  <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wide mb-1">
-                    {info.label}
-                  </h3>
-                  <p className="text-base font-bold text-gray-900">
-                    {info.value}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
       </section>
 
-      {/* 3. CEO Message Section */}
-      <section className="bg-[#F8F9FA] py-16 lg:py-24">
-        <div className="max-w-6xl mx-auto px-8 lg:px-12">
-          <div className="grid md:grid-cols-12 gap-10 items-center">
-            {/* 1. 이미지 영역 (Left) - Pill Shape */}
-            <div className="md:col-span-5 flex justify-center md:justify-start">
-              <div className="relative w-[300px] h-[400px] rounded-[150px] overflow-hidden shadow-lg border-[6px] border-white">
+      <section className="relative bg-[#F8F9FA] py-16 lg:py-24 overflow-hidden">
+        {/* 배경 이미지 */}
+        <div className="absolute inset-0 z-0">
+          <Image
+            src="/images/company/typeC_01.png"
+            alt="Background Pattern"
+            fill
+            className="object-cover opacity-40 pointer-events-none mix-blend-multiply"
+          />
+        </div>
+
+        {/* 레이아웃 컨테이너 */}
+        <div className="relative z-10 max-w-6xl mx-auto px-8 lg:px-12">
+          <div className="grid md:grid-cols-12 gap-12 lg:gap-16">
+            {/* 1. 이미지 영역 (Left) */}
+            <div className="md:col-span-5 relative">
+              {/* ✅ 수정됨: 투명도 10% 적용 (bg-white/90) */}
+              {/* bg-white/90: 흰색 배경인데 10% 정도 뒤가 비침 */}
+              <div className="w-full h-full min-h-[350px] rounded-[6px] overflow-hidden shadow-lg bg-white/20 border-white border-4 relative backdrop-blur-sm">
                 <img
                   src="/images/company/park-do-young-ceo.png"
                   alt="Do-Young Park, CEO"
@@ -180,17 +171,27 @@ export default function CompanyPage() {
             </div>
 
             {/* 2. 텍스트 영역 (Right) */}
-            <div className="md:col-span-7 space-y-6">
-              <Quote className="w-10 h-10 text-[#4A7C7E]" />
+            <div className="md:col-span-7 flex flex-col justify-center space-y-6 relative">
+              {/* 제목 + 따옴표 영역 */}
+              <div className="relative">
+                {/* ✅ 수정됨: 모바일에서도 따옴표 보이게 설정 */}
+                {/* 1. 모바일용 (block md:hidden): 글자 바로 위에 나옴 */}
+                <Quote className="block md:hidden w-8 h-8 text-[#4A7C7E] scale-x-[-1] mb-2" />
 
-              {/* ✅ 인용구: 제목(2xl)보다 약간 작게 (text-xl) 조정하여 위계 설정 */}
-              <h3
-                className={`${hangameFont.className} text-xl md:text-2xl font-bold text-gray-900 leading-tight`}
-              >
-                "At Seoul City Tour, we believe that great travel is more than
-                visiting places — it is about understanding people, culture, and
-                stories."
-              </h3>
+                {/* 2. PC용 (hidden md:block): 왼쪽으로 튀어나오게 배치 (-left-12) */}
+                <Quote className="hidden md:block absolute -left-12 -top-2 w-10 h-10 text-[#4A7C7E] scale-x-[-1]" />
+
+                <h3
+                  className={`${hangameFont.className} text-xl md:text-2xl font-bold text-gray-900 leading-tight relative z-10`}
+                >
+                  At Seoul City Tour, we believe that great travel is more than
+                  visiting places — it is about understanding people, culture,
+                  and stories.
+                  {/* 끝 따옴표 */}
+                  <Quote className="inline-block w-8 h-8 md:w-10 md:h-10 text-[#4A7C7E] ml-2 align-top opacity-50" />
+                  "
+                </h3>
+              </div>
 
               <div className="text-gray-600 text-[15px] leading-7 space-y-4">
                 <p>
@@ -205,14 +206,12 @@ export default function CompanyPage() {
                 </p>
               </div>
 
-              {/* 강조 박스 */}
               <div className="inline-block">
                 <span className="bg-[#4A7C7E] text-white px-3 py-1 font-bold text-sm md:text-base shadow-sm">
                   THIS IS OUR PROMISE TO YOU.
                 </span>
               </div>
 
-              {/* 이름 및 직함 */}
               <div className="pt-2">
                 <p className="text-xl font-bold text-gray-900">Do-Young Park</p>
                 <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mt-1">

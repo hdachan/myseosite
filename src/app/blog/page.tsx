@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import BlogClient, { SanityPost } from "./BlogClient";
+import BlogClient, { SanityPost } from "./BlogClient"; // ✅ BlogClient와 타입 가져오기
 import { client } from "@/sanity/lib/client";
 import { blogListQuery } from "@/sanity/lib/queries";
 
@@ -16,8 +16,10 @@ export const metadata: Metadata = {
 };
 
 export default async function BlogPage() {
+  // Sanity 데이터 가져오기 (캐싱 적용됨)
   const posts = await client.fetch<SanityPost[]>(blogListQuery);
 
+  // 카테고리 목록 추출 (중복 제거)
   const categories: string[] = [
     "All Posts",
     ...Array.from(
