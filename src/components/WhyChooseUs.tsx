@@ -1,7 +1,7 @@
 import React from "react";
 import Image from "next/image";
 
-/* ✅ 폰트 가져오기 (설정해주신 localFont 경로) */
+/* ✅ 폰트 가져오기 */
 import { hangameFont } from "@/lib/fonts";
 
 export default function WhyChooseUs() {
@@ -29,11 +29,20 @@ export default function WhyChooseUs() {
   ];
 
   return (
-    <section className="w-full py-12 lg:py-24 bg-white border-t border-gray-100">
-      <div className="max-w-6xl mx-auto px-8 lg:px-12">
+    <section className="relative w-full py-12 lg:py-24 bg-white border-t border-gray-100 overflow-hidden">
+      {/* 배경 이미지 (투명도 10%) - 섹션 전체에 깔림 */}
+      <div className="absolute inset-0 z-0">
+        <Image
+          src="/images/company/typeA_01.png"
+          alt="Background Pattern"
+          fill
+          className="object-cover opacity-50 pointer-events-none"
+          priority
+        />
+      </div>
+
+      <div className="relative z-10 max-w-6xl mx-auto px-8 lg:px-12">
         {/* 섹션 제목 */}
-        {/* 모바일: 20px(xl) / PC: 24px(2xl) */}
-        {/* 폰트: 한게임 포커체 Bold (700) 적용 */}
         <div className="mb-8 md:mb-12 text-left">
           <h2
             className={`${hangameFont.className} text-xl md:text-2xl font-bold text-gray-900 leading-tight`}
@@ -42,22 +51,23 @@ export default function WhyChooseUs() {
           </h2>
         </div>
 
-        {/* 2x2 그리드 레이아웃 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 border-t border-gray-200">
+        {/* ✅ [수정됨] bg-white 추가! */}
+        {/* bg-white: 이 박스에 흰색 배경을 칠해서, 뒤쪽 무늬를 가리고 앞으로 튀어나오게 함 */}
+        <div className="grid grid-cols-1 md:grid-cols-2 border border-gray-200 rounded-[6px] overflow-hidden bg-white">
           {features.map((item, idx) => {
             const borderClass = `
               ${idx % 2 === 0 ? "md:border-r" : ""} 
-              border-b border-gray-200
+              ${idx < features.length - 1 ? "border-b" : ""} 
+              md:border-b-0 md:[&:nth-child(-n+2)]:border-b
+              border-gray-200
             `;
 
             return (
               <div
                 key={idx}
-                // 여백: 모바일 p-6 / PC p-12
                 className={`flex items-start p-6 md:p-12 ${borderClass}`}
               >
-                {/* ✅ 아이콘 이미지 영역 */}
-                {/* 모바일: 47.5px (정확히 5% 축소) / PC: 66px */}
+                {/* 아이콘 */}
                 <div className="flex-shrink-0 mr-5 md:mr-8">
                   <div className="relative w-[47.5px] h-[47.5px] md:w-[66px] md:h-[66px]">
                     <Image
@@ -70,18 +80,14 @@ export default function WhyChooseUs() {
                   </div>
                 </div>
 
-                {/* 텍스트 영역 */}
-                {/* 텍스트 영역 */}
+                {/* 텍스트 */}
                 <div>
-                  {/* 1. 제목: 한게임 폰트 + 세미볼드(600) */}
                   <h3
                     className={`${hangameFont.className} text-base md:text-xl font-semibold text-gray-900 mb-2 md:mb-3`}
                   >
                     {item.title}
                   </h3>
 
-                  {/* 2. 설명: 한게임 폰트 + 노멀(400, 기본 두께) */}
-                  {/* font-normal을 적으면 HangamePoker-Regular.ttf가 적용됩니다 */}
                   <p
                     className={`${hangameFont.className} text-sm text-gray-600 leading-relaxed font-normal`}
                   >

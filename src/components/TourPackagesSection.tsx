@@ -28,7 +28,7 @@ export default function TourPackagesSection() {
             South Korea Tour Packages
           </h2>
 
-          {/* ✅ [PC용] See all 링크 */}
+          {/* PC용 See all 링크 */}
           <Link
             href="/package"
             className={`${hangameFont.className} hidden sm:flex items-center gap-1 text-sm font-semibold text-gray-500 hover:text-[#ad3928] transition-colors pb-1`}
@@ -49,8 +49,12 @@ export default function TourPackagesSection() {
           </Link>
         </motion.div>
 
-        {/* 그리드 레이아웃 */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-10">
+        {/* ✅ 그리드 레이아웃 수정: 모바일 1열(리스트) -> PC 4열(그리드) */}
+        {/* 1. grid-cols-1: 모바일에서는 무조건 한 줄에 하나! (그래야 가로로 긴 카드가 됨) */}
+        {/* 2. sm:grid-cols-2: 태블릿에선 2개 */}
+        {/* 3. lg:grid-cols-4: PC에선 4개 */}
+        {/* 4. gap-y-4: 모바일 리스트 간격 */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-y-4 sm:gap-x-6 sm:gap-y-10">
           {favoriteTours.map((tour, index) => (
             <motion.div
               key={tour.id}
@@ -64,10 +68,8 @@ export default function TourPackagesSection() {
           ))}
         </div>
 
-        {/* ✅ [모바일용] View all tours 버튼 */}
+        {/* 모바일용 View all tours 버튼 */}
         <div className="mt-8 sm:hidden text-center">
-          {/* 폰트: 한게임 포커체 적용 */}
-          {/* 두께: font-semibold (600)으로 변경하여 더 버튼답게 만듦 */}
           <Link
             href="/package"
             className={`${hangameFont.className} inline-block px-6 py-3 border border-gray-300 rounded-lg text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors`}

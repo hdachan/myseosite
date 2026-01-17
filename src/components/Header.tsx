@@ -5,11 +5,19 @@ import Image from "next/image";
 import { Menu, ShoppingCart, X } from "lucide-react";
 import { useCartStore } from "@/store/cartStore";
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation"; // ✅ 1. 주소 확인용 훅 추가
 
 /* ✅ 폰트 가져오기 */
 import { hangameFont } from "@/lib/fonts";
 
 export default function Header() {
+  const pathname = usePathname(); // ✅ 2. 현재 주소 가져오기
+
+  // ✅ 3. 만약 주소가 '/studio'로 시작하면? -> 헤더를 아예 그리지 않음 (null 반환)
+  if (pathname?.startsWith("/studio")) {
+    return null;
+  }
+
   const menuItems = [
     { href: "/", label: "Home" },
     { href: "/company", label: "About Us" },
@@ -20,8 +28,6 @@ export default function Header() {
 
   const [cartItemsCount, setCartItemsCount] = useState(0);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-  // 🗑️ isScrolled 상태 제거: 이제 항상 흰색 배경이므로 스크롤 감지 불필요
 
   useEffect(() => {
     const unsubscribe = useCartStore.subscribe((state) => {
@@ -34,17 +40,14 @@ export default function Header() {
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const closeMenu = () => setIsMenuOpen(false);
 
-  // ⭐ 색상 변수 고정 (항상 다크 그레이)
   const textColorClass = "text-gray-800 hover:text-[#FF5B00]";
   const iconColorClass = "text-gray-600 hover:text-[#FF5B00]";
 
   return (
-    // ⭐ Header 스타일 고정: 항상 흰색 배경(bg-white), 테두리(border-b), 그림자(shadow-sm) 적용
     <header className="fixed top-0 inset-x-0 z-50 bg-white border-b border-gray-200 shadow-sm transition-all duration-300">
       <nav className="relative max-w-6xl mx-auto flex items-center justify-between px-4 md:px-8 lg:px-12 py-3 lg:py-4">
         {/* Logo */}
         <Link href="/" className="flex items-center" onClick={closeMenu}>
-          {/* ⭐ 로고: 색상 반전 로직 제거 -> 항상 원본 로고 출력 */}
           <Image
             src="/images/logo.png"
             alt="Seoul City Tour Logo"
@@ -56,7 +59,6 @@ export default function Header() {
         </Link>
 
         {/* Desktop Menu */}
-        {/* 위치 조정 유지 (self-end pb-2) */}
         <div className="hidden lg:flex items-center gap-8 self-end pb-2">
           {menuItems.map(({ href, label }) => (
             <Link

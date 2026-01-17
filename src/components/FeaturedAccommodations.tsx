@@ -60,10 +60,10 @@ export default function FeaturedAccommodations() {
       {/* 배경 이미지 영역 */}
       <div className="absolute inset-0 z-0 overflow-hidden">
         <Image
-          src="/images/background_korea_img.png"
+          src="/images/company/typeB_01.png"
           alt="Section Background"
           fill
-          className="object-cover opacity-5"
+          className="object-cover opacity-100"
           priority
         />
       </div>
@@ -168,7 +168,7 @@ export default function FeaturedAccommodations() {
 
         {/* 하단 배경 일러스트 이미지 (PC에서만 보임 - 모바일 숨김 or 유지 선택 가능) */}
         {/* 현재 설정: hidden md:block (모바일에서는 숨김 처리되어 있어 깔끔함) */}
-        <div className="absolute bottom-0 left-6 lg:left-[calc((100%-1152px)/2+1.5rem)] z-0 pointer-events-none">
+        {/* <div className="absolute bottom-0 left-6 lg:left-[calc((100%-1152px)/2+1.5rem)] z-0 pointer-events-none">
           <Image
             src="/images/card_koreaimg_v2.png"
             alt="K-culture illustration"
@@ -177,7 +177,7 @@ export default function FeaturedAccommodations() {
             className="hidden md:block md:w-[40vw] md:max-w-[380px] lg:w-[35vw] lg:max-w-[450px] h-auto object-bottom object-left translate-y-[45%] lg:translate-y-[40%] drop-shadow-2xl opacity-70"
             priority
           />
-        </div>
+        </div> */}
       </div>
     </section>
   );

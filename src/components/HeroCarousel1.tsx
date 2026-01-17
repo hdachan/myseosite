@@ -82,13 +82,7 @@ export default function HeroCarousel1() {
         />
 
         {/* 배경 그라디언트 */}
-        <div
-          className="absolute inset-0 z-10 pointer-events-none"
-          // style={{
-          //   background:
-          //     "radial-gradient(circle at center, rgba(26, 24, 24, 0.54) 20%, rgba(47, 42, 42, 0) 80%)",
-          // }}
-        />
+        <div className="absolute inset-0 z-10 pointer-events-none" />
 
         {/* 2. 메인 콘텐츠 */}
         <div className="absolute inset-0 z-20 flex flex-col items-center justify-center px-4 text-center">
@@ -97,17 +91,9 @@ export default function HeroCarousel1() {
               className={`${hangameFont.className} text-white leading-tight relative z-10`}
             >
               <span className="flex flex-col items-center">
-                {/* ✅ 수정됨: 
-                   모바일: text-4xl (기존 5xl보다 작게)
-                   색상: text-white (흰색 유지)
-                */}
                 <span className="font-bold text-white text-4xl sm:text-6xl md:text-7xl lg:text-8xl mb-3 tracking-wide">
                   Seoul City Tour
                 </span>
-
-                {/* ✅ 수정됨: 
-                   모바일: text-xl (기존 2xl보다 작게)
-                */}
                 <span className="font-normal text-xl sm:text-3xl md:text-4xl lg:text-5xl tracking-normal opacity-100">
                   Walks for You, Not Just the View.
                 </span>
@@ -178,8 +164,9 @@ export default function HeroCarousel1() {
               </div>
             )}
 
-            <div className="flex flex-wrap items-center justify-center gap-2 mt-3">
-              <span className="text-white/90 font-bold text-[10px] uppercase tracking-wider">
+            {/* ✅ 수정됨: 높이를 Popular 텍스트와 맞춤 */}
+            <div className="flex flex-wrap items-center justify-center gap-3 mt-6">
+              <span className="text-white font-bold text-sm sm:text-base drop-shadow-md">
                 Popular:
               </span>
               {["DMZ", "JSA", "Drama", "ski"].map((keyword) => (
@@ -189,7 +176,23 @@ export default function HeroCarousel1() {
                     setSearchQuery(keyword);
                     setOpen(true);
                   }}
-                  className="text-[10px] text-white font-medium hover:text-[#D97959] bg-black/30 hover:bg-black/50 backdrop-blur-sm px-2.5 py-0.5 rounded-full transition border border-white/10"
+                  className="
+                    /* 1. 크기: py-0.5로 줄여서 높이를 텍스트와 거의 동일하게 맞춤 */
+                    px-3 py-0.5
+                    
+                    /* 2. 라운드값 */
+                    rounded-[10px]
+                    
+                    /* 폰트 */
+                    text-sm sm:text-base font-bold text-white
+                    
+                    /* 컬러 */
+                    bg-[#d9bd8b] 
+                    hover:bg-[#ad3928] 
+                    
+                    /* 효과 */
+                    transition-colors duration-300 shadow-md hover:shadow-lg
+                  "
                 >
                   {keyword}
                 </button>
