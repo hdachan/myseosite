@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     // ⭐ [수정됨] 여기 경로를 맞춰주셔야 메인 페이지 공유할 때 이 사진이 나옵니다!
     images: [
       {
-        url: "/images/background_v3.png",
+        url: "/images/background_v4_test.png",
         width: 1200,
         height: 630,
         alt: "Seoul City Tour Preview",

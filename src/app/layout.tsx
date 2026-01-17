@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     images: [
       {
         // 실제 작동 경로: https://myseosite.vercel.app/images/background_v3.png
-        url: "/images/background_v3.png",
+        url: "/images/background_v4_test.png",
         width: 1200,
         height: 630,
         alt: "Seoul City Tour Preview",
@@ -52,7 +52,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "DMZ Tour from Seoul",
     description: "Explore the Korean Demilitarized Zone.",
-    images: ["/images/background_v3.png"],
+    images: ["/images/background_v4_test.png"],
   },
 };
 
