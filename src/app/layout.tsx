@@ -7,8 +7,9 @@ import FloatingChatButton from "@/components/FloatingChatButton";
 import ScrollToTop from "@/components/ScrollToTop";
 
 export const metadata: Metadata = {
-  // ✅ 실제 도메인 주소 (나중에 꼭 변경!)
-  metadataBase: new URL("https://mysite.com"),
+  // ⭐ [정답] Vercel 임시 주소를 넣으시면 됩니다!
+  // 이제 이미지는 https://myseosite.vercel.app/images/background_v3.png 경로로 제공됩니다.
+  metadataBase: new URL("https://myseosite.vercel.app"),
 
   title: {
     default: "Korea DMZ Tours & Seoul Travel | Seoul City Tour",
@@ -17,6 +18,7 @@ export const metadata: Metadata = {
   description:
     "Seoul departure DMZ tour specialist. One-day course including the 3rd Tunnel, Dora Observatory, and Dorasan Station. Daily departure with lunch and English-speaking guide.",
 
+  // 테스트 중이니 로봇 수집 차단 유지
   robots: {
     index: false,
     follow: false,
@@ -28,7 +30,6 @@ export const metadata: Metadata = {
     canonical: "/",
   },
 
-  // Open Graph (카톡/페북 공유 미리보기)
   openGraph: {
     title: "DMZ Tour from Seoul – Full Day Experience",
     description: "The most complete DMZ tour departing from Seoul.",
@@ -36,6 +37,7 @@ export const metadata: Metadata = {
     url: "/",
     images: [
       {
+        // 실제 작동 경로: https://myseosite.vercel.app/images/background_v3.png
         url: "/images/background_v3.png",
         width: 1200,
         height: 630,
@@ -46,12 +48,10 @@ export const metadata: Metadata = {
     type: "website",
   },
 
-  // Twitter (트위터 미리보기)
   twitter: {
     card: "summary_large_image",
     title: "DMZ Tour from Seoul",
     description: "Explore the Korean Demilitarized Zone.",
-    // ✅ [수정됨] 여기도 똑같이 교체!
     images: ["/images/background_v3.png"],
   },
 };
@@ -73,10 +73,10 @@ export default function RootLayout({
               "@context": "https://schema.org",
               "@type": "TravelAgency",
               name: "Seoul City Tour",
-              // ✅ [수정됨] 구조화 데이터 이미지도 교체
-              image: "https://mysite.com/images/background_v3.png",
-              url: "https://mysite.com",
-              logo: "https://mysite.com/images/logo.png",
+              // 구조화 데이터도 임시 주소 기반으로 변경
+              image: "https://myseosite.vercel.app/images/background_v3.png",
+              url: "https://myseosite.vercel.app",
+              logo: "https://myseosite.vercel.app/images/logo.png",
               description: "DMZ tour specialist departing from Seoul.",
               telephone: "+82-2-774-3345",
               address: {
