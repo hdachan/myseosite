@@ -1,3 +1,5 @@
+// src/components/TourCard.tsx
+
 import Link from "next/link";
 import Image from "next/image";
 import { Star } from "lucide-react";
@@ -18,7 +20,13 @@ export default function TourCard({ tour, priority = false }: TourCardProps) {
 
   return (
     <div className="group cursor-pointer flex flex-col h-full">
-      <Link href={`/package/${tour.slug}`} className="block h-full">
+      <Link
+        href={`/package/${tour.slug}`}
+        className="block h-full"
+        /* ✅ 새 창에서 열기 설정 추가 */
+        target="_blank"
+        rel="noopener noreferrer"
+      >
         {/* ⭐ 카드 컨테이너 */}
         <div className="h-full flex flex-col bg-white rounded-xl overflow-hidden border border-gray-200 shadow-sm shadow-[inset_0_0_14px_rgba(0,0,0,0.04)] hover:shadow-md transition-all duration-300">
           {/* 1. 이미지 영역 (높이 유지) */}

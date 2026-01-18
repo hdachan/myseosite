@@ -11,96 +11,128 @@ import {
   Phone,
   Calendar,
   MapPin,
-  MessageSquare,
-  CalendarCheck, // ✅ 예약 아이콘 추가
+  CalendarCheck,
+  Minus,
+  Plus,
 } from "lucide-react";
 
 function BookingContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  // 1. URL 쿼리 스트링에서 데이터 받아오기
-  const tourData = {
+  // 1. 기본 투어 정보 (URL 쿼리에서 가져오기)
+  const tourBaseData = {
     slug: searchParams.get("slug") || "",
     title: searchParams.get("title") || "Unknown Tour",
     image: searchParams.get("image") || "",
     optionName: searchParams.get("optionName") || "Standard Option",
     price: Number(searchParams.get("price")) || 0,
-    adults: Number(searchParams.get("adults")) || 0,
-    children: Number(searchParams.get("children")) || 0,
-    totalPrice: Number(searchParams.get("totalPrice")) || 0,
   };
 
   // 2. 폼 상태 관리
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
+    fullName: "",
     email: "",
     phone: "",
-    messenger: "",
-    tourDate: "",
-    hotelName: "",
-    hotelAddress: "",
-    requests: "",
+    // ✅ URL에서 날짜(date)가 넘어오면 초기값으로 설정
+    tourDate: searchParams.get("date") || "",
+    // ✅ URL에서 인원수가 넘어오면 초기값으로 설정 (기본값 1)
+    adults: Number(searchParams.get("adults")) || 1,
+    children: Number(searchParams.get("children")) || 0,
+    hotelInfo: "", // 호텔 정보 통합
     agreed: false,
   });
 
-  // ⭐ 버튼 종류 구분 상태 (PAYMENT | RESERVATION)
+  // 동적 총 가격 계산
+  const currentTotalPrice =
+    (formData.adults + formData.children) * tourBaseData.price;
+
+  // 버튼 종류 구분 상태 (결제 vs 예약)
   const [submissionType, setSubmissionType] = useState<
     "PAYMENT" | "RESERVATION"
   >("PAYMENT");
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value, type } = e.target;
     if (type === "checkbox") {
       const checked = (e.target as HTMLInputElement).checked;
       setFormData((prev) => ({ ...prev, [name]: checked }));
+    } else if (type === "number") {
+      const numValue = Math.max(0, Number(value));
+      setFormData((prev) => ({ ...prev, [name]: numValue }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
 
-  // 3. 제출 핸들러 (결제 or 예약 공통)
+  // 인원수 조절 핸들러 (버튼용)
+  const handlePaxChange = (type: "adults" | "children", delta: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      [type]: Math.max(0, prev[type] + delta),
+    }));
+  };
+
+  // 3. 제출 핸들러
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // 공통 유효성 검사
+    // 🚨 유효성 검사
+    const requiredFields = [
+      { key: "fullName", label: "Full Name" },
+      { key: "email", label: "Email Address" },
+      { key: "phone", label: "Phone Number" },
+      { key: "tourDate", label: "Tour Date" },
+      { key: "hotelInfo", label: "Hotel Information" },
+    ];
+
+    for (const field of requiredFields) {
+      if (!formData[field.key as keyof typeof formData]) {
+        alert(`Please enter your ${field.label}.`);
+        return;
+      }
+    }
+
+    if (formData.adults < 1) {
+      alert("At least 1 adult is required.");
+      return;
+    }
+
     if (!formData.agreed) {
       alert("Please agree to the Terms and Conditions.");
       return;
     }
-    if (!formData.tourDate) {
-      alert("Please select a tour date.");
-      return;
-    }
 
-    // ⭐ 분기 처리: 어떤 버튼을 눌렀는지에 따라 다르게 동작
+    // 데이터 전송 준비
+    const submitData = {
+      ...tourBaseData,
+      ...formData,
+      totalPrice: currentTotalPrice,
+      type: submissionType,
+    };
+
     if (submissionType === "PAYMENT") {
-      // 🚀 결제 로직 (PG사 연동)
-      console.log("=== PAYMENT REQUEST ===");
-      console.log("Data:", { ...tourData, ...formData, type: "PAYMENT" });
-      alert("Redirecting to Payment Gateway...");
-      // router.push("/booking/payment"); // 나중에 구현
+      alert(`Proceeding to payment for $${currentTotalPrice}...`);
+      console.log("PAYMENT REQUEST:", submitData);
+      // 여기에 결제 모듈 연동 (예: Stripe, PortOne 등)
     } else {
-      // 🚀 단순 예약 로직 (DB 저장만)
-      console.log("=== RESERVATION REQUEST ===");
-      console.log("Data:", { ...tourData, ...formData, type: "RESERVATION" });
-      alert("Reservation Submitted Successfully! We will contact you shortly.");
-      // router.push("/booking/success"); // 나중에 구현
+      alert("Reservation Submitted Successfully!");
+      console.log("RESERVATION REQUEST:", submitData);
+      // 여기에 예약 DB 저장 로직 (API 호출)
     }
   };
 
-  if (!tourData.slug) {
+  if (!tourBaseData.slug) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
         <p className="text-xl text-gray-600 mb-4">Invalid booking request.</p>
         <button
-          onClick={() => router.push("/package")}
+          onClick={() => router.back()}
           className="text-orange-600 font-bold hover:underline"
         >
-          Return to Packages
+          Go Back
         </button>
       </div>
     );
@@ -114,7 +146,7 @@ function BookingContent() {
           className="flex items-center text-gray-600 hover:text-gray-900 mb-6 transition-colors"
         >
           <ChevronLeft className="w-5 h-5 mr-1" />
-          Back to Tour Details
+          Back
         </button>
 
         <h1 className="text-3xl font-bold text-gray-900 mb-8">
@@ -125,42 +157,32 @@ function BookingContent() {
           onSubmit={handleSubmit}
           className="grid grid-cols-1 lg:grid-cols-3 gap-8"
         >
-          {/* 왼쪽: 입력 폼 */}
+          {/* ✅ 왼쪽: 입력 폼 (여행자 정보 + 투어 상세) */}
           <div className="lg:col-span-2 space-y-6">
             {/* 1. 여행자 정보 */}
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+            <div className="bg-white p-6 rounded-[6px] shadow-sm border border-gray-200">
               <h2 className="text-xl font-bold text-gray-900 mb-4 border-b pb-2 flex items-center gap-2">
                 <User className="w-5 h-5 text-orange-500" />
                 1. Traveler Information
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
+                <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    First Name *
+                    Full Name <span className="text-red-500">*</span>
                   </label>
                   <input
                     required
-                    name="firstName"
+                    name="fullName"
+                    value={formData.fullName}
                     onChange={handleChange}
-                    className="w-full border border-gray-300 p-2.5 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none"
-                    placeholder="e.g. Gildong"
+                    className="w-full border border-gray-300 p-2.5 rounded-[6px] focus:ring-2 focus:ring-orange-500 outline-none"
+                    placeholder="Passport Name (e.g. Gildong Hong)"
                   />
                 </div>
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Last Name *
-                  </label>
-                  <input
-                    required
-                    name="lastName"
-                    onChange={handleChange}
-                    className="w-full border border-gray-300 p-2.5 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none"
-                    placeholder="e.g. Hong"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Email *
+                    Email Address <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
@@ -168,15 +190,17 @@ function BookingContent() {
                       required
                       type="email"
                       name="email"
+                      value={formData.email}
                       onChange={handleChange}
-                      className="w-full border border-gray-300 p-2.5 pl-10 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none"
+                      className="w-full border border-gray-300 p-2.5 pl-10 rounded-[6px] focus:ring-2 focus:ring-orange-500 outline-none"
                       placeholder="name@example.com"
                     />
                   </div>
                 </div>
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Phone Number *
+                    Phone Number <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
                     <Phone className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
@@ -184,123 +208,75 @@ function BookingContent() {
                       required
                       type="tel"
                       name="phone"
+                      value={formData.phone}
                       onChange={handleChange}
-                      className="w-full border border-gray-300 p-2.5 pl-10 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none"
+                      className="w-full border border-gray-300 p-2.5 pl-10 rounded-[6px] focus:ring-2 focus:ring-orange-500 outline-none"
                       placeholder="+82 10-1234-5678"
                     />
                   </div>
                 </div>
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Messenger ID (Optional)
-                  </label>
-                  <div className="relative">
-                    <MessageSquare className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
-                    <input
-                      name="messenger"
-                      onChange={handleChange}
-                      className="w-full border border-gray-300 p-2.5 pl-10 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none"
-                      placeholder="Kakao/WhatsApp ID"
-                    />
-                  </div>
-                </div>
               </div>
             </div>
 
-            {/* 2. 투어 상세 정보 */}
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+            {/* 2. 투어 상세 (날짜 및 픽업) */}
+            <div className="bg-white p-6 rounded-[6px] shadow-sm border border-gray-200">
               <h2 className="text-xl font-bold text-gray-900 mb-4 border-b pb-2 flex items-center gap-2">
                 <Calendar className="w-5 h-5 text-orange-500" />
-                2. Tour Details
+                2. Tour Details & Pickup
               </h2>
               <div className="space-y-4">
+                {/* 날짜 선택 (URL에서 왔으면 자동 입력됨) */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Tour Date *
+                    Tour Date <span className="text-red-500">*</span>
                   </label>
-                  <input
-                    required
-                    type="date"
-                    name="tourDate"
-                    onChange={handleChange}
-                    className="w-full border border-gray-300 p-2.5 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none cursor-pointer"
-                  />
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Pickup Hotel Name *
-                    </label>
-                    <div className="relative">
-                      <MapPin className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
-                      <input
-                        required
-                        name="hotelName"
-                        onChange={handleChange}
-                        className="w-full border border-gray-300 p-2.5 pl-10 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none"
-                        placeholder="e.g. Lotte Hotel"
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Address / Room No.
-                    </label>
+                  <div className="relative">
                     <input
-                      name="hotelAddress"
+                      required
+                      type="date"
+                      name="tourDate"
+                      value={formData.tourDate}
                       onChange={handleChange}
-                      className="w-full border border-gray-300 p-2.5 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none"
-                      placeholder="Room number if known"
+                      className="w-full border border-gray-300 p-2.5 rounded-[6px] focus:ring-2 focus:ring-orange-500 outline-none cursor-pointer"
                     />
                   </div>
                 </div>
+
+                {/* 호텔 정보 통합 필드 */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Special Requests
+                    Hotel Information (Name & Address){" "}
+                    <span className="text-red-500">*</span>
                   </label>
-                  <textarea
-                    name="requests"
-                    onChange={handleChange}
-                    rows={3}
-                    className="w-full border border-gray-300 p-2.5 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none resize-none"
-                    placeholder="Any dietary restrictions?"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* 3. 결제 수단 안내 */}
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 opacity-90">
-              <h2 className="text-xl font-bold text-gray-900 mb-4 border-b pb-2 flex items-center gap-2">
-                <CreditCard className="w-5 h-5 text-orange-500" />
-                3. Payment Method
-              </h2>
-              <div className="flex items-center gap-4 p-4 border border-orange-200 bg-orange-50 rounded-lg">
-                <CreditCard className="w-8 h-8 text-orange-600" />
-                <div>
-                  <p className="font-bold text-gray-800">
-                    Credit Card / Global Payment
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    Secure payment via PG (Stripe/PayPal etc.)
-                  </p>
+                  <div className="relative">
+                    <MapPin className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
+                    <input
+                      required
+                      name="hotelInfo"
+                      value={formData.hotelInfo}
+                      onChange={handleChange}
+                      className="w-full border border-gray-300 p-2.5 pl-10 rounded-[6px] focus:ring-2 focus:ring-orange-500 outline-none"
+                      placeholder="e.g. Lotte Hotel Seoul, Room 1204"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* 오른쪽: 주문 요약 */}
+          {/* ✅ 오른쪽: 주문 요약 & 인원 수정 (Sticky) */}
           <div className="lg:col-span-1">
-            <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-200 sticky top-24">
+            <div className="bg-white p-6 rounded-[6px] shadow-lg border border-gray-200 sticky top-24">
               <h3 className="text-lg font-bold text-gray-900 mb-4 border-b pb-2">
                 Order Summary
               </h3>
 
+              {/* 상품 썸네일 */}
               <div className="flex gap-4 mb-6">
-                <div className="relative w-20 h-20 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100">
-                  {tourData.image ? (
+                <div className="relative w-20 h-20 rounded-[6px] overflow-hidden flex-shrink-0 bg-gray-100">
+                  {tourBaseData.image ? (
                     <Image
-                      src={tourData.image}
+                      src={tourBaseData.image}
                       alt="Thumbnail"
                       fill
                       className="object-cover"
@@ -313,43 +289,105 @@ function BookingContent() {
                 </div>
                 <div>
                   <h4 className="font-bold text-gray-800 text-sm leading-snug line-clamp-2">
-                    {tourData.title}
+                    {tourBaseData.title}
                   </h4>
-                  <p className="text-xs text-orange-600 font-medium mt-1 bg-orange-50 inline-block px-1.5 py-0.5 rounded">
-                    {tourData.optionName}
+                  <p className="text-xs text-orange-600 font-medium mt-1 bg-orange-50 inline-block px-1.5 py-0.5 rounded-[4px]">
+                    {tourBaseData.optionName}
                   </p>
                 </div>
               </div>
 
-              <div className="space-y-3 text-sm text-gray-600 border-t border-gray-100 pt-4 mb-4">
+              {/* 인원수 수정 영역 (Order Summary 내부) */}
+              <div className="space-y-4 mb-6 pb-4 border-b border-gray-100">
+                {/* Adult */}
+                <div className="flex justify-between items-center">
+                  <div className="text-sm text-gray-700">
+                    <span className="block font-medium">
+                      Adults <span className="text-red-500">*</span>
+                    </span>
+                    <span className="text-xs text-gray-400">
+                      ${tourBaseData.price} / person
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handlePaxChange("adults", -1)}
+                      className="w-7 h-7 rounded-[4px] border border-gray-300 flex items-center justify-center hover:bg-gray-50"
+                    >
+                      <Minus className="w-3 h-3 text-gray-600" />
+                    </button>
+                    <span className="w-6 text-center font-bold text-gray-900">
+                      {formData.adults}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => handlePaxChange("adults", 1)}
+                      className="w-7 h-7 rounded-[4px] border border-gray-300 flex items-center justify-center hover:bg-gray-50"
+                    >
+                      <Plus className="w-3 h-3 text-gray-600" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Child */}
+                <div className="flex justify-between items-center">
+                  <div className="text-sm text-gray-700">
+                    <span className="block font-medium">Children</span>
+                    <span className="text-xs text-gray-400">
+                      ${tourBaseData.price} / person
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handlePaxChange("children", -1)}
+                      className="w-7 h-7 rounded-[4px] border border-gray-300 flex items-center justify-center hover:bg-gray-50"
+                    >
+                      <Minus className="w-3 h-3 text-gray-600" />
+                    </button>
+                    <span className="w-6 text-center font-bold text-gray-900">
+                      {formData.children}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => handlePaxChange("children", 1)}
+                      className="w-7 h-7 rounded-[4px] border border-gray-300 flex items-center justify-center hover:bg-gray-50"
+                    >
+                      <Plus className="w-3 h-3 text-gray-600" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* 가격 계산 상세 */}
+              <div className="space-y-2 text-sm text-gray-600 mb-4">
                 <div className="flex justify-between">
-                  <span>
-                    Adults ({tourData.adults} x ${tourData.price})
-                  </span>
+                  <span>Subtotal (Adults)</span>
                   <span className="font-medium">
-                    $ {tourData.price * tourData.adults}
+                    $ {tourBaseData.price * formData.adults}
                   </span>
                 </div>
-                {tourData.children > 0 && (
+                {formData.children > 0 && (
                   <div className="flex justify-between">
-                    <span>
-                      Children ({tourData.children} x ${tourData.price})
-                    </span>
+                    <span>Subtotal (Children)</span>
                     <span className="font-medium">
-                      $ {tourData.price * tourData.children}
+                      $ {tourBaseData.price * formData.children}
                     </span>
                   </div>
                 )}
               </div>
 
+              {/* 총 가격 */}
               <div className="flex justify-between items-center border-t border-gray-200 pt-4 mb-6">
                 <span className="text-lg font-bold text-gray-900">Total</span>
                 <span className="text-2xl font-bold text-red-600">
-                  $ {tourData.totalPrice.toFixed(2)}
+                  $ {currentTotalPrice.toFixed(2)}
                 </span>
               </div>
 
-              <div className="flex items-start gap-3 mb-6 p-3 bg-gray-50 rounded-lg">
+              {/* 약관 동의 */}
+              <div className="flex items-start gap-3 mb-6 p-3 bg-gray-50 rounded-[6px]">
                 <input
                   type="checkbox"
                   id="agreed"
@@ -363,37 +401,32 @@ function BookingContent() {
                   className="text-xs text-gray-600 cursor-pointer leading-relaxed"
                 >
                   I have read and agree to the{" "}
-                  <a href="/terms" className="underline hover:text-orange-600">
+                  <a href="#" className="underline hover:text-orange-600">
                     Terms
                   </a>{" "}
                   and{" "}
-                  <a
-                    href="/cancellation-policy"
-                    className="underline hover:text-orange-600"
-                  >
+                  <a href="#" className="underline hover:text-orange-600">
                     Cancellation Policy
                   </a>
                   .
                 </label>
               </div>
 
-              {/* ✅ 버튼 2개: 결제 vs 단순예약 */}
+              {/* 버튼 그룹 */}
               <div className="flex flex-col gap-3">
-                {/* 1. 즉시 결제 버튼 */}
                 <button
                   type="submit"
                   onClick={() => setSubmissionType("PAYMENT")}
-                  className="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3.5 rounded-xl transition-all shadow-md flex items-center justify-center gap-2"
+                  className="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3.5 rounded-[6px] transition-all shadow-md flex items-center justify-center gap-2"
                 >
                   Proceed to Payment
                   <CreditCard className="w-5 h-5" />
                 </button>
 
-                {/* 2. 단순 예약 버튼 (회색/다른 스타일) */}
                 <button
                   type="submit"
                   onClick={() => setSubmissionType("RESERVATION")}
-                  className="w-full bg-gray-800 hover:bg-gray-900 text-white font-bold py-3.5 rounded-xl transition-all shadow-md flex items-center justify-center gap-2"
+                  className="w-full bg-gray-800 hover:bg-gray-900 text-white font-bold py-3.5 rounded-[6px] transition-all shadow-md flex items-center justify-center gap-2"
                 >
                   Make a Reservation (Pay Later)
                   <CalendarCheck className="w-5 h-5" />
@@ -416,10 +449,7 @@ export default function BookingPage() {
     <Suspense
       fallback={
         <div className="min-h-screen flex items-center justify-center bg-white">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mb-4"></div>
-          <p className="text-gray-500 font-medium">
-            Loading booking details...
-          </p>
+          Loading...
         </div>
       }
     >
