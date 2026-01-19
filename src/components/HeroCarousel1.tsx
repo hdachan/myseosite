@@ -4,11 +4,17 @@ import { useState, useMemo, useRef, useEffect } from "react";
 import Image from "next/image";
 import { Search } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { basicPackages as packageTours } from "@/app/package/packageData_OLD.ts";
+// ❌ [삭제] 로컬 데이터 import 제거
+// import { basicPackages as packageTours } from "@/app/package/packageData_OLD.ts";
+
+// ✅ [추가] Sanity Client
+import { client } from "@/sanity/lib/client";
+import { groq } from "next-sanity";
+
 import { hangameFont } from "@/lib/fonts";
 
 function highlight(text: string, keyword: string) {
-  if (!keyword) return text;
+  if (!keyword || !text) return text; // text가 없을 경우 방어
   const regex = new RegExp(`(${keyword})`, "ig");
   return text.split(regex).map((part, i) =>
     part.toLowerCase() === keyword.toLowerCase() ? (
@@ -27,16 +33,52 @@ export default function HeroCarousel1() {
   const [searchQuery, setSearchQuery] = useState("");
   const [open, setOpen] = useState(false);
 
+  // ✅ Sanity에서 가져온 데이터를 담을 State
+  const [tours, setTours] = useState<any[]>([]);
+
+  // ✅ 1. 컴포넌트 로드 시 Sanity에서 투어 데이터 가져오기
+  useEffect(() => {
+    const fetchTours = async () => {
+      try {
+        const query = groq`
+          *[_type == "tour"] {
+            _id,
+            title,
+            "slug": slug.current,
+            location,
+            "image": mainImage.asset->url,
+            price,
+            tags // 키워드 검색용
+          }
+        `;
+        const data = await client.fetch(query);
+        setTours(data);
+      } catch (error) {
+        console.error("Failed to fetch tours for search:", error);
+      }
+    };
+
+    fetchTours();
+  }, []);
+
+  // ✅ 2. 검색 로직 (Sanity 데이터 기준)
   const results = useMemo(() => {
     if (!searchQuery.trim()) return [];
     const q = searchQuery.toLowerCase();
-    return packageTours.filter(
-      (tour) =>
-        tour.title.toLowerCase().includes(q) ||
-        tour.location.toLowerCase().includes(q) ||
-        tour.keywords?.some((k) => k.toLowerCase().includes(q)),
-    );
-  }, [searchQuery]);
+
+    return tours.filter((tour) => {
+      // 제목 검색
+      const matchTitle = tour.title?.toLowerCase().includes(q);
+      // 위치 검색 (location이 없을 수도 있으니 체크)
+      const matchLocation = tour.location?.toLowerCase().includes(q);
+      // 태그(키워드) 검색
+      const matchTags = tour.tags?.some((tag: string) =>
+        tag.toLowerCase().includes(q),
+      );
+
+      return matchTitle || matchLocation || matchTags;
+    });
+  }, [searchQuery, tours]); // tours가 로드되면 다시 계산
 
   const handleSelect = (slug: string) => {
     setOpen(false);
@@ -105,7 +147,7 @@ export default function HeroCarousel1() {
             ref={wrapperRef}
             className="relative w-full max-w-md sm:max-w-lg mb-4 z-20"
           >
-            {/* ✅ 검색창 컨테이너: rounded-[6px] 적용 */}
+            {/* ✅ 검색창 컨테이너 */}
             <div className="flex bg-white rounded-[6px] overflow-hidden border border-gray-200">
               <div className="flex-1 flex items-center px-4 py-2.5">
                 <Search className="w-4 h-4 text-gray-400 mr-2" />
@@ -127,8 +169,8 @@ export default function HeroCarousel1() {
               </button>
             </div>
 
+            {/* ✅ 검색 결과 드롭다운 */}
             {open && searchQuery.trim() && (
-              /* ✅ 검색 결과 드롭다운: rounded-[6px] 적용 */
               <div className="absolute z-50 mt-2 w-full bg-white rounded-[6px] border border-gray-200 max-h-[240px] overflow-y-auto overscroll-contain">
                 {results.length === 0 ? (
                   <div className="px-4 py-6 text-sm text-gray-500 text-center">
@@ -137,28 +179,30 @@ export default function HeroCarousel1() {
                 ) : (
                   results.map((tour) => (
                     <button
-                      key={tour.id}
+                      key={tour._id || tour.slug} // _id가 없으면 slug 사용
                       onClick={() => handleSelect(tour.slug)}
                       className="w-full flex items-center gap-4 px-4 py-3 hover:bg-gray-50 text-left border-b border-gray-100 last:border-0"
                     >
-                      {/* ✅ 썸네일 이미지: rounded-[6px] 적용 */}
-                      <div className="relative w-16 h-16 rounded-[6px] overflow-hidden shrink-0">
-                        <Image
-                          src={tour.image}
-                          alt={tour.title}
-                          fill
-                          className="object-cover"
-                        />
+                      {/* 썸네일 이미지 */}
+                      <div className="relative w-16 h-16 rounded-[6px] overflow-hidden shrink-0 bg-gray-100">
+                        {tour.image && (
+                          <Image
+                            src={tour.image}
+                            alt={tour.title}
+                            fill
+                            className="object-cover"
+                          />
+                        )}
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-bold text-gray-900 line-clamp-1 mb-0.5">
                           {highlight(tour.title, searchQuery)}
                         </p>
                         <p className="text-xs text-gray-500 mb-0.5">
-                          {highlight(tour.location, searchQuery)}
+                          {highlight(tour.location || "", searchQuery)}
                         </p>
                         <p className="text-sm font-semibold text-[#4A7C7E]">
-                          from ${tour.price}
+                          from ${tour.price || 0}
                         </p>
                       </div>
                     </button>
@@ -191,7 +235,6 @@ export default function HeroCarousel1() {
                     text-white font-medium 
                     px-3 py-[1px] md:px-5 
                     bg-[#4A7C7E] hover:bg-[#3D6566]
-                    /* ✅ 버튼: rounded-[6px] 유지 */
                     rounded-[6px] transition border border-white/10
                   "
                 >
