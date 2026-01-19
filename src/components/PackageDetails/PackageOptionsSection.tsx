@@ -6,13 +6,13 @@ import { Minus, Plus, Calendar } from "lucide-react";
 import toast from "react-hot-toast";
 import { hangameFont } from "@/lib/fonts";
 
-// ✅ [추가] 타입을 여기서 직접 정의합니다 (이제 packageData.ts 필요 없음)
+// 타입을 여기서 직접 정의합니다
 interface PackageOption {
   id: string;
   name: string;
   price: number;
   badge?: string;
-  details?: string[]; // 없을 수도 있으니 ? 붙임
+  details?: string[];
 }
 
 interface PackageOptionsSectionProps {
@@ -23,6 +23,9 @@ interface PackageOptionsSectionProps {
   tourSlug: string;
   tourTitle: string;
   tourImage: string;
+
+  // ✅ [추가 1] 부모(Client)가 던져준 ID를 받을 준비!
+  tourId: string;
 }
 
 export default function PackageOptionsSection({
@@ -33,6 +36,9 @@ export default function PackageOptionsSection({
   tourSlug,
   tourTitle,
   tourImage,
+
+  // ✅ [추가 2] 실제로 받기
+  tourId,
 }: PackageOptionsSectionProps) {
   const router = useRouter();
   const [selectedOption, setSelectedOption] = useState("");
@@ -79,6 +85,9 @@ export default function PackageOptionsSection({
     }
 
     onAddToCart({
+      // ✅ [추가 3] 장바구니 데이터에 ID 챙겨 넣기
+      tourId: tourId,
+
       slug: tourSlug,
       title: tourTitle,
       image: tourImage,
@@ -107,6 +116,9 @@ export default function PackageOptionsSection({
     }
 
     const query = new URLSearchParams({
+      // ✅ [추가 4] 바로 예약할 때도 URL에 ID 챙겨 보내기
+      tourId: tourId,
+
       slug: tourSlug,
       title: tourTitle,
       image: tourImage,
@@ -181,7 +193,7 @@ export default function PackageOptionsSection({
                       <span className="font-semibold text-gray-800">
                         Route:{" "}
                       </span>
-                      {/* ✅ [안전장치] 데이터가 없어도 에러 안 나게 처리됨 */}
+                      {/* 데이터가 없어도 에러 안 나게 처리 */}
                       {opt.details?.join(" → ") || "View schedule details"}
                     </div>
                     <div className="mt-2 text-right">

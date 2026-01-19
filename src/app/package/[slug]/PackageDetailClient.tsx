@@ -238,6 +238,7 @@ export default function PackageDetailClient({ tour }: Props) {
                 tourSlug={tour.slug}
                 tourTitle={tour.title}
                 tourImage={images[0]}
+                tourId={tour._id}
               />
               {/* ❌ 여기에 있던 TourItinerarySection을 지웠습니다! */}
             </div>
