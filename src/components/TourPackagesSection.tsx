@@ -1,27 +1,49 @@
-"use client";
-
 import Link from "next/link";
-import { motion } from "framer-motion";
 import TourCard from "@/components/TourCard";
-import { basicPackages as packageTours } from "@/app/package/packageData";
-
-/* ✅ 폰트 가져오기 */
+import { client } from "@/sanity/lib/client"; // ✅ Sanity Client 가져오기
+import { groq } from "next-sanity"; // ✅ 쿼리 작성을 위해 필요
 import { hangameFont } from "@/lib/fonts";
 
-export default function TourPackagesSection() {
-  const favoriteTours = packageTours.slice(0, 4);
+// ✅ 서버 컴포넌트로 변경 (async 추가)
+export default async function TourPackagesSection() {
+  // 1️⃣ Sanity에서 "Top 4" 투어 가져오기
+  // (평점이 높은 순, 혹은 최신순으로 4개만 가져옵니다)
+  const query = groq`
+    *[_type == "tour"] | order(rating desc)[0...4] {
+      _id,
+      title,
+      "slug": slug.current,
+      "image": mainImage.asset->url,
+      category,
+      price,
+      originalPrice,
+      discount,
+      rating,
+      reviews,
+      bookings,
+      tags
+    }
+  `;
+
+  const sanityTours = await client.fetch(query);
+
+  // 2️⃣ 데이터 매핑 (Sanity 데이터 -> TourCard용)
+  const favoriteTours = sanityTours.map((tour: any) => ({
+    ...tour,
+    id: tour._id, // TourCard는 id를 쓰므로 _id를 id로 매핑
+    image: tour.image || "",
+    price: tour.price || 0,
+    rating: tour.rating || 5.0,
+    reviews: tour.reviews || 0,
+    bookings: tour.bookings || "0+ booked",
+    tags: tour.tags || [],
+  }));
 
   return (
     <section className="w-full py-12 lg:py-24 bg-white">
       <div className="max-w-6xl mx-auto px-8 lg:px-12">
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="flex items-end justify-between mb-8 md:mb-12"
-        >
-          {/* 섹션 제목 */}
+        {/* 헤더 영역 */}
+        <div className="flex items-end justify-between mb-8 md:mb-12">
           <h2
             className={`${hangameFont.className} text-xl md:text-2xl font-bold text-gray-900 leading-tight`}
           >
@@ -47,23 +69,22 @@ export default function TourPackagesSection() {
               />
             </svg>
           </Link>
-        </motion.div>
+        </div>
 
-        {/* 그리드 레이아웃 */}
+        {/* 그리드 레이아웃 (Sanity 데이터 렌더링) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-y-4 sm:gap-x-6 sm:gap-y-10">
-          {favoriteTours.map((tour) => (
-            <motion.div
-              key={tour.id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              /* ✅ 수정됨: margin을 주어 화면에 들어오기 살짝 전부터 로딩 시작 */
-              viewport={{ once: true, margin: "0px 0px -50px 0px" }}
-              /* ✅ 수정됨: index * 0.1 딜레이 제거 -> 모바일에서 즉시 반응 */
-              transition={{ duration: 0.4 }}
-            >
-              <TourCard tour={tour} />
-            </motion.div>
-          ))}
+          {favoriteTours.length > 0 ? (
+            favoriteTours.map((tour: any) => (
+              <div key={tour.id}>
+                <TourCard tour={tour} />
+              </div>
+            ))
+          ) : (
+            // 데이터가 없을 때 표시할 내용 (선택사항)
+            <div className="col-span-4 text-center text-gray-500 py-10">
+              Loading tours...
+            </div>
+          )}
         </div>
 
         {/* 모바일용 View all tours 버튼 */}

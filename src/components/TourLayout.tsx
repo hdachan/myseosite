@@ -1,11 +1,6 @@
-// src/components/TourLayout.tsx
-
 import Link from "next/link";
 import PageHero from "./PageHero";
-import { type PackageTour } from "@/app/package/packageData";
 import TourCard from "./TourCard";
-
-/* ✅ 폰트 가져오기 */
 import { hangameFont } from "@/lib/fonts";
 
 const categories = [
@@ -19,7 +14,7 @@ const categories = [
 ];
 
 interface TourLayoutProps {
-  tours: PackageTour[];
+  tours: any[]; // ✅ 타입을 유연하게 변경 (Sanity 데이터 수용)
   currentCategory: string;
   heroTitle: string;
   heroSubtitle: string;
@@ -64,7 +59,6 @@ export default function TourLayout({
             <Link
               key={key}
               href={path}
-              /* ✅ 수정됨: 폰트 적용 + 패딩(크기) 축소 (px-4 py-2) */
               className={`
                 flex-shrink-0 snap-center 
                 px-4 py-2 rounded-[6px] 

@@ -12,24 +12,27 @@ import {
   ChevronRight,
   AlertTriangle,
 } from "lucide-react";
-import { PackageTour, PackageOption } from "../packageData";
 import { useCartStore } from "@/store/cartStore";
 import PackageOptionsSection from "@/components/PackageDetails/PackageOptionsSection";
 import PackageDetailSidebar from "@/components/PackageDetails/PackageDetailSidebar";
 import TourOverviewSection from "@/components/PackageDetails/TourOverviewSection";
+
+// ❌ [삭제] 메인 화면용 일정표 컴포넌트는 이제 필요 없습니다. (사이드바에 넣었으니까요!)
+// import TourItinerarySection from "@/components/PackageDetails/TourItinerarySection";
+
 /* ✅ 폰트 가져오기 */
 import { hangameFont } from "@/lib/fonts";
 
 interface Props {
-  tour: PackageTour;
+  tour: any; // Sanity 데이터
 }
 
 export default function PackageDetailClient({ tour }: Props) {
   const addItem = useCartStore((state) => state.addItem);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [selectedPackage, setSelectedPackage] = useState<PackageOption | null>(
-    null,
-  );
+
+  // 선택된 패키지 상태
+  const [selectedPackage, setSelectedPackage] = useState<any | null>(null);
 
   const isSuspended =
     tour.bookings === "Suspended" || tour.tags?.includes("Suspended");
@@ -50,7 +53,6 @@ export default function PackageDetailClient({ tour }: Props) {
       {/* 1. Breadcrumb Navigation */}
       <nav
         aria-label="Breadcrumb"
-        // ✅ [레이아웃] max-w-6xl + px-8 lg:px-12 통일
         className="max-w-6xl mx-auto px-8 lg:px-12 pt-24 pb-6"
       >
         <ol className="flex items-center gap-2 text-sm text-gray-500">
@@ -75,19 +77,21 @@ export default function PackageDetailClient({ tour }: Props) {
         </ol>
       </nav>
 
-      {/* 2. Image Gallery (Full Width or Container Width? 보통 상세페이지는 컨테이너 폭 맞춤이 깔끔함) */}
+      {/* 2. Image Gallery */}
       <section className="max-w-6xl mx-auto px-8 lg:px-12 pb-8">
         <div className="relative w-full h-80 md:h-[480px] rounded-lg overflow-hidden bg-gray-100 shadow-sm">
-          <Image
-            src={images[currentImageIndex]}
-            alt={`${tour.title} - Image ${currentImageIndex + 1}`}
-            fill
-            priority
-            sizes="(max-width: 768px) 100vw, 1200px"
-            className={`object-cover transition-all duration-500 ${
-              isSuspended ? "grayscale opacity-50" : ""
-            }`}
-          />
+          {images[currentImageIndex] && (
+            <Image
+              src={images[currentImageIndex]}
+              alt={`${tour.title} - Image ${currentImageIndex + 1}`}
+              fill
+              priority
+              sizes="(max-width: 768px) 100vw, 1200px"
+              className={`object-cover transition-all duration-500 ${
+                isSuspended ? "grayscale opacity-50" : ""
+              }`}
+            />
+          )}
 
           {isSuspended && (
             <div className="absolute inset-0 flex items-center justify-center bg-black/60 z-10">
@@ -98,7 +102,7 @@ export default function PackageDetailClient({ tour }: Props) {
             </div>
           )}
 
-          {/* 화살표 버튼 (이미지가 2개 이상일 때만) */}
+          {/* 화살표 버튼 */}
           {images.length > 1 && (
             <>
               <button
@@ -116,7 +120,6 @@ export default function PackageDetailClient({ tour }: Props) {
             </>
           )}
 
-          {/* 페이지네이션 뱃지 */}
           <div className="absolute bottom-4 right-4 bg-black/60 text-white px-3 py-1 rounded-full text-xs font-medium z-20 backdrop-blur-sm">
             {currentImageIndex + 1} / {images.length}
           </div>
@@ -128,12 +131,10 @@ export default function PackageDetailClient({ tour }: Props) {
         <article className="space-y-10">
           {/* 3. Header Info */}
           <header>
-            {/* 태그 */}
             <div className="flex flex-wrap gap-2 mb-3">
-              {tour.tags?.map((tag, i) => (
+              {tour.tags?.map((tag: string, i: number) => (
                 <span
                   key={i}
-                  // ✅ [소제목/라벨] 스타일 적용
                   className={`text-[10px] md:text-[11px] uppercase tracking-wider font-bold px-2 py-1 rounded ${
                     tag === "Suspended"
                       ? "bg-red-100 text-red-600"
@@ -145,20 +146,18 @@ export default function PackageDetailClient({ tour }: Props) {
               ))}
             </div>
 
-            {/* ✅ [제목 H2] 한게임 폰트 적용 */}
             <h1
               className={`${hangameFont.className} text-2xl md:text-4xl font-bold text-gray-900 mb-4 leading-tight`}
             >
               {tour.title}
             </h1>
 
-            {/* 리뷰 및 예약 수 */}
             <div className="flex items-center gap-4 text-sm text-gray-600">
               <div className="flex items-center gap-1">
                 <Star className="w-4 h-4 fill-orange-400 text-orange-400" />
                 <span className="font-bold text-gray-900">{tour.rating}</span>
                 <span className="text-gray-400">
-                  ({tour.reviews.toLocaleString()} reviews)
+                  ({tour.reviews?.toLocaleString()} reviews)
                 </span>
               </div>
               <span className="w-px h-3 bg-gray-300"></span>
@@ -169,7 +168,7 @@ export default function PackageDetailClient({ tour }: Props) {
           </header>
 
           {/* Suspended Alert */}
-          {isSuspended && (
+          {isSuspended && tour.description && (
             <div className="bg-red-50 border-l-4 border-red-500 p-5 rounded-r-md">
               <div className="flex items-start gap-3">
                 <AlertTriangle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
@@ -188,7 +187,7 @@ export default function PackageDetailClient({ tour }: Props) {
             </div>
           )}
 
-          {/* 4. Trust Badges (Grid) */}
+          {/* 4. Trust Badges */}
           <section className="grid grid-cols-1 md:grid-cols-3 gap-4 border-y border-gray-100 py-6">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-green-50 rounded-full flex items-center justify-center flex-shrink-0">
@@ -225,9 +224,9 @@ export default function PackageDetailClient({ tour }: Props) {
             </div>
           </section>
 
-          {/* 5. Package Options & Sidebar (Grid Layout) */}
+          {/* 5. Package Options & Sidebar */}
           <section className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
-            {/* 왼쪽: 옵션 선택 영역 */}
+            {/* 왼쪽: 옵션 선택만 남김 (일정표 삭제) */}
             <div
               className={selectedPackage ? "lg:col-span-2" : "lg:col-span-3"}
             >
@@ -240,15 +239,16 @@ export default function PackageDetailClient({ tour }: Props) {
                 tourTitle={tour.title}
                 tourImage={images[0]}
               />
+              {/* ❌ 여기에 있던 TourItinerarySection을 지웠습니다! */}
             </div>
 
-            {/* 오른쪽: 사이드바 (옵션 선택 시 등장) */}
+            {/* 오른쪽: 사이드바 (여기서 일정표가 나옴) */}
             {selectedPackage && (
               <div className="lg:col-span-1">
                 <div className="sticky top-24">
+                  {/* Sidebar 코드를 수정했으므로, 여기에 selectedPackage만 넘기면 알아서 일정표를 보여줍니다 */}
                   <PackageDetailSidebar
                     selectedPackage={selectedPackage}
-                    commonIncludes={tour.includes}
                     meetingPoint={tour.meetingPoint}
                   />
                 </div>

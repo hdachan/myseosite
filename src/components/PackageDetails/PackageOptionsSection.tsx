@@ -1,13 +1,19 @@
-// src/components/PackageOptionsSection.tsx
-
 "use client";
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Minus, Plus, Calendar } from "lucide-react";
-import { PackageOption } from "@/app/package/packageData";
 import toast from "react-hot-toast";
 import { hangameFont } from "@/lib/fonts";
+
+// ✅ [추가] 타입을 여기서 직접 정의합니다 (이제 packageData.ts 필요 없음)
+interface PackageOption {
+  id: string;
+  name: string;
+  price: number;
+  badge?: string;
+  details?: string[]; // 없을 수도 있으니 ? 붙임
+}
 
 interface PackageOptionsSectionProps {
   packageOptions: PackageOption[];
@@ -42,7 +48,7 @@ export default function PackageOptionsSection({
     ? selectedPackage.price * (adults + children)
     : 0;
 
-  // ✅ 버튼 활성화 여부 체크 변수 (날짜 없음 OR 인원 0명이면 true = 비활성)
+  // 버튼 활성화 여부 체크
   const isButtonDisabled = !tourDate || (adults === 0 && children === 0);
 
   const handleReset = () => {
@@ -63,7 +69,6 @@ export default function PackageOptionsSection({
     if (isSuspended) return;
     if (!selectedPackage) return;
 
-    // disabled 처리를 했지만 안전장치로 한번 더 체크
     if (!tourDate) {
       toast.error("Please select a tour date");
       return;
@@ -176,7 +181,8 @@ export default function PackageOptionsSection({
                       <span className="font-semibold text-gray-800">
                         Route:{" "}
                       </span>
-                      {opt.details.join(" → ")}
+                      {/* ✅ [안전장치] 데이터가 없어도 에러 안 나게 처리됨 */}
+                      {opt.details?.join(" → ") || "View schedule details"}
                     </div>
                     <div className="mt-2 text-right">
                       <span className="text-lg font-bold text-gray-900">
@@ -285,7 +291,6 @@ export default function PackageOptionsSection({
           <div className="flex gap-3">
             <button
               onClick={handleAddToCart}
-              /* ✅ 수정됨: 날짜 없거나 인원 없으면 disabled */
               disabled={isButtonDisabled}
               className="flex-1 bg-gray-800 hover:bg-gray-900 text-white font-bold py-4 rounded-[6px] transition shadow-md disabled:bg-gray-300 disabled:cursor-not-allowed text-sm"
             >
@@ -293,7 +298,6 @@ export default function PackageOptionsSection({
             </button>
             <button
               onClick={handleBookNow}
-              /* ✅ 수정됨: 날짜 없거나 인원 없으면 disabled */
               disabled={isButtonDisabled}
               className="flex-1 bg-orange-600 hover:bg-orange-700 text-white font-bold py-4 rounded-[6px] transition shadow-md disabled:bg-gray-300 disabled:cursor-not-allowed text-sm"
             >

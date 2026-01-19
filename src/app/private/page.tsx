@@ -1,32 +1,82 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import PageHero from "@/components/PageHero";
 import TourCard from "@/components/TourCard";
-import { basicPackages as packageTours } from "@/app/package/packageData";
+
+// ✅ 1. 로컬 데이터 삭제
+// import { basicPackages as packageTours } from "@/app/package/packageData";
+
+// ✅ 2. Sanity Client 추가
+import { client } from "@/sanity/lib/client";
+import { groq } from "next-sanity";
+
 import { hangameFont } from "@/lib/fonts";
 
 export default function PrivateTourPage() {
-  const MAX_ITEMS = 4;
-  const privateTours = packageTours.slice(0, MAX_ITEMS);
+  // ✅ 3. Sanity 데이터를 담을 State 생성
+  const [privateTours, setPrivateTours] = useState<any[]>([]);
 
-  // ✅ 스크롤 제어를 위한 Ref 생성
+  // ✅ 4. 데이터 가져오기 (useEffect)
+  useEffect(() => {
+    const fetchPrivateTours = async () => {
+      try {
+        // 평점 높은 순으로 4개만 가져오기 (Popular Private Tours용)
+        const query = groq`
+          *[_type == "tour"] | order(rating desc)[0...4] {
+            _id,
+            title,
+            "slug": slug.current,
+            "image": mainImage.asset->url,
+            category,
+            price,
+            originalPrice,
+            discount,
+            rating,
+            reviews,
+            bookings,
+            tags
+          }
+        `;
+        const data = await client.fetch(query);
+
+        const mappedData = data.map((tour: any) => ({
+          ...tour,
+          id: tour._id,
+          image: tour.image || "",
+          price: tour.price || 0,
+          rating: tour.rating || 5.0,
+          reviews: tour.reviews || 0,
+          bookings: tour.bookings || "0+ booked",
+          tags: tour.tags || [],
+        }));
+
+        setPrivateTours(mappedData);
+      } catch (error) {
+        console.error("Failed to fetch private tours:", error);
+      }
+    };
+
+    fetchPrivateTours();
+  }, []);
+
+  // ✅ 스크롤 제어를 위한 Ref
   const tourScrollRef = useRef<HTMLDivElement>(null);
   const vehicleScrollRef = useRef<HTMLDivElement>(null);
 
-  // ✅ 스크롤 핸들러 함수
+  // ✅ 스크롤 핸들러
   const scroll = (
     ref: React.RefObject<HTMLDivElement>,
-    direction: "left" | "right"
+    direction: "left" | "right",
   ) => {
     if (ref.current) {
       const { current } = ref;
-      const scrollAmount = direction === "left" ? -300 : 300; // 한 번에 이동할 거리
+      const scrollAmount = direction === "left" ? -300 : 300;
       current.scrollBy({ left: scrollAmount, behavior: "smooth" });
     }
   };
 
-  // 가이드 요금 데이터
+  // 가이드 요금 데이터 (정적 데이터 유지)
   const guideCharges = [
     {
       language: "English",
@@ -46,7 +96,7 @@ export default function PrivateTourPage() {
     },
   ];
 
-  // 차량 요금 데이터
+  // 차량 요금 데이터 (정적 데이터 유지)
   const transportations = [
     {
       name: "Deluxe Sedan",
@@ -82,7 +132,7 @@ export default function PrivateTourPage() {
     },
   ];
 
-  // ✅ 화살표 아이콘 컴포넌트 (내부 사용)
+  // 화살표 버튼 컴포넌트
   const ScrollButton = ({
     direction,
     onClick,
@@ -96,7 +146,7 @@ export default function PrivateTourPage() {
         absolute top-1/2 -translate-y-1/2 z-20
         bg-white/90 border border-gray-100 shadow-md rounded-full p-2
         text-gray-700 hover:text-[#ad3928] hover:bg-white transition-all
-        md:hidden /* PC(그리드)에서는 숨김 */
+        md:hidden 
         ${direction === "left" ? "left-2" : "right-2"}
       `}
       aria-label={direction === "left" ? "Previous" : "Next"}
@@ -144,7 +194,7 @@ export default function PrivateTourPage() {
       />
 
       <div className="max-w-6xl mx-auto px-6 lg:px-12 mt-12 pb-24 space-y-20 md:space-y-24">
-        {/* 1. Popular Private Tours */}
+        {/* 1. Popular Private Tours (Sanity Data) */}
         <section>
           <div className="mb-6 md:mb-12 text-left">
             <p className="text-[10px] md:text-[11px] uppercase tracking-[0.2em] text-[#4A7C7E] font-bold mb-3">
@@ -157,9 +207,7 @@ export default function PrivateTourPage() {
             </h2>
           </div>
 
-          {/* ✅ 상대 위치 컨테이너 (화살표 배치용) */}
           <div className="relative group">
-            {/* 좌우 화살표 (모바일용) */}
             <ScrollButton
               direction="left"
               onClick={() => scroll(tourScrollRef, "left")}
@@ -169,7 +217,6 @@ export default function PrivateTourPage() {
               onClick={() => scroll(tourScrollRef, "right")}
             />
 
-            {/* 스크롤 컨테이너 */}
             <div
               ref={tourScrollRef}
               className="
@@ -177,14 +224,22 @@ export default function PrivateTourPage() {
                 md:grid md:grid-cols-2 md:lg:grid-cols-4 md:gap-6 md:overflow-visible md:pb-0 md:mx-0 md:px-0
               "
             >
-              {privateTours.map((tour, index) => (
-                <div
-                  key={tour.id}
-                  className="min-w-[85vw] md:min-w-0 snap-center"
-                >
-                  <TourCard tour={tour} priority={index === 0} />
+              {/* ✅ 데이터가 로딩 중이거나 없을 때 처리 */}
+              {privateTours.length > 0 ? (
+                privateTours.map((tour, index) => (
+                  <div
+                    key={tour.id}
+                    className="min-w-[85vw] md:min-w-0 snap-center"
+                  >
+                    <TourCard tour={tour} priority={index === 0} />
+                  </div>
+                ))
+              ) : (
+                // 로딩 스켈레톤 or 메시지
+                <div className="col-span-full text-center py-10 text-gray-400">
+                  Loading popular tours...
                 </div>
-              ))}
+              )}
             </div>
           </div>
         </section>
@@ -309,9 +364,7 @@ export default function PrivateTourPage() {
             </h2>
           </div>
 
-          {/* ✅ 상대 위치 컨테이너 (화살표 배치용) */}
           <div className="relative group">
-            {/* 좌우 화살표 (모바일용) */}
             <ScrollButton
               direction="left"
               onClick={() => scroll(vehicleScrollRef, "left")}

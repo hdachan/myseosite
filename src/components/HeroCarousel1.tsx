@@ -4,7 +4,7 @@ import { useState, useMemo, useRef, useEffect } from "react";
 import Image from "next/image";
 import { Search } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { basicPackages as packageTours } from "@/app/package/packageData";
+import { basicPackages as packageTours } from "@/app/package/packageData_OLD.ts";
 import { hangameFont } from "@/lib/fonts";
 
 function highlight(text: string, keyword: string) {
@@ -17,7 +17,7 @@ function highlight(text: string, keyword: string) {
       </span>
     ) : (
       part
-    )
+    ),
   );
 }
 
@@ -34,7 +34,7 @@ export default function HeroCarousel1() {
       (tour) =>
         tour.title.toLowerCase().includes(q) ||
         tour.location.toLowerCase().includes(q) ||
-        tour.keywords?.some((k) => k.toLowerCase().includes(q))
+        tour.keywords?.some((k) => k.toLowerCase().includes(q)),
     );
   }, [searchQuery]);
 

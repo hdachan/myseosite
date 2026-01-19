@@ -1,63 +1,83 @@
-// src/components/TourCard.tsx
-
 import Link from "next/link";
 import Image from "next/image";
 import { Star } from "lucide-react";
-import { type PackageTour } from "@/app/package/packageData";
-
-/* ✅ 폰트 가져오기 */
 import { hangameFont } from "@/lib/fonts";
 
+// ✅ Sanity 데이터에 맞춘 새로운 인터페이스 정의 (기존 PackageTour 제거)
+interface TourData {
+  id: string | number; // Sanity는 string, 기존 데이터는 number일 수 있으니 둘 다 허용
+  slug: string;
+  image: string;
+  title: string;
+  location?: string;
+  description?: string;
+  tags?: string[]; // Sanity 태그 배열
+  rating: number;
+  reviews: number;
+  bookings: string;
+  price: number;
+  originalPrice?: number;
+  discount?: number;
+}
+
 interface TourCardProps {
-  tour: PackageTour;
+  tour: TourData; // ✅ 교체
   priority?: boolean;
 }
 
 export default function TourCard({ tour, priority = false }: TourCardProps) {
-  const tags = tour.description
-    ? tour.description.split(",").map((tag) => tag.trim())
-    : [];
+  // ✅ 태그 로직 개선: Sanity 태그가 있으면 그거 쓰고, 없으면 설명에서 쉼표로 잘라 씀
+  const displayTags =
+    tour.tags && tour.tags.length > 0
+      ? tour.tags
+      : tour.description
+        ? tour.description.split(",").map((tag) => tag.trim())
+        : [];
 
   return (
     <div className="group cursor-pointer flex flex-col h-full">
       <Link
         href={`/package/${tour.slug}`}
         className="block h-full"
-        /* ✅ 새 창에서 열기 설정 추가 */
         target="_blank"
         rel="noopener noreferrer"
       >
-        {/* ⭐ 카드 컨테이너 */}
         <div className="h-full flex flex-col bg-white rounded-xl overflow-hidden border border-gray-200 shadow-sm shadow-[inset_0_0_14px_rgba(0,0,0,0.04)] hover:shadow-md transition-all duration-300">
-          {/* 1. 이미지 영역 (높이 유지) */}
+          {/* 1. 이미지 영역 */}
           <div className="relative h-[150px] md:h-[200px] w-full overflow-hidden bg-gray-50 border-b border-gray-100">
-            <Image
-              src={tour.image}
-              alt={tour.title}
-              fill
-              sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
-              className="object-cover group-hover:scale-110 transition-transform duration-700"
-              priority={priority}
-            />
+            {tour.image ? (
+              <Image
+                src={tour.image}
+                alt={tour.title}
+                fill
+                sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+                className="object-cover group-hover:scale-110 transition-transform duration-700"
+                priority={priority}
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center bg-gray-200 text-gray-400 text-xs">
+                No Image
+              </div>
+            )}
           </div>
 
           {/* 2. 텍스트 내용 영역 */}
           <div className="p-3 md:p-4 flex flex-col flex-1">
-            {/* 카테고리 (글씨 조금 더 작게: 10px 유지하되 PC에서 11px) */}
+            {/* Location */}
             <div className="text-[10px] md:text-[11px] text-gray-400 mb-1 truncate font-medium uppercase tracking-wide">
-              {tour.location}
+              {tour.location || "Korea"}
             </div>
 
-            {/* ✅ 제목: 사이즈 축소 (14px/15px) + 줄간격 좁힘 */}
+            {/* Title */}
             <h3
               className={`${hangameFont.className} h-[40px] md:h-[44px] text-[14px] md:text-[15px] font-bold text-gray-900 leading-snug mb-2 line-clamp-2 group-hover:text-[#ad3928] transition-colors tracking-tight`}
             >
               {tour.title}
             </h3>
 
-            {/* 태그 영역 */}
+            {/* Tags */}
             <div className="h-[24px] md:h-[26px] mb-3 overflow-hidden flex flex-wrap gap-1">
-              {tags.map((tag, index) => (
+              {displayTags.slice(0, 3).map((tag, index) => (
                 <span
                   key={index}
                   className="inline-block px-1.5 py-0.5 bg-gray-50 text-gray-500 text-[10px] md:text-[11px] rounded-md font-medium border border-gray-100 whitespace-nowrap"
@@ -90,13 +110,12 @@ export default function TourCard({ tour, priority = false }: TourCardProps) {
                   From
                 </span>
 
-                {/* ✅ 가격: 사이즈 축소 (15px/17px) */}
                 {tour.discount ? (
                   <div className="flex items-baseline gap-1.5">
                     <span
                       className={`${hangameFont.className} text-[15px] md:text-[17px] font-bold text-[#ad3928]`}
                     >
-                      ₩{tour.price.toLocaleString()}
+                      ₩{tour.price?.toLocaleString()}
                     </span>
                     <span className="text-[10px] md:text-[11px] text-gray-300 line-through decoration-gray-300">
                       ₩{tour.originalPrice?.toLocaleString()}
@@ -106,7 +125,7 @@ export default function TourCard({ tour, priority = false }: TourCardProps) {
                   <span
                     className={`${hangameFont.className} text-[15px] md:text-[17px] font-bold text-gray-900`}
                   >
-                    ₩{tour.price.toLocaleString()}
+                    ₩{tour.price?.toLocaleString()}
                   </span>
                 )}
               </div>
