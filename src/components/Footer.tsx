@@ -40,11 +40,6 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/my-bookings" className="hover:text-[#4A7C7E]">
-                  Manage My Booking
-                </Link>
-              </li>
-              <li>
                 <Link
                   href="/cancellation-policy"
                   className="hover:text-[#4A7C7E]"

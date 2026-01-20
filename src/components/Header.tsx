@@ -14,7 +14,11 @@ export default function Header() {
   const pathname = usePathname(); // ✅ 2. 현재 주소 가져오기
 
   // ✅ 3. 만약 주소가 '/studio'로 시작하면? -> 헤더를 아예 그리지 않음 (null 반환)
-  if (pathname?.startsWith("/studio")) {
+  if (
+    pathname?.startsWith("/studio") ||
+    pathname?.startsWith("/admin") ||
+    pathname?.startsWith("/login")
+  ) {
     return null;
   }
 

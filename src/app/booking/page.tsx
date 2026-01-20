@@ -1,17 +1,38 @@
 "use client";
 
-import React, { useState, Suspense } from "react";
+import React, { useState, Suspense, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
-// ✅ 분리한 컴포넌트 임포트
 import BookingForm from "@/components/booking/BookingForm";
 import OrderSummary from "@/components/booking/OrderSummary";
 
 function BookingContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // ✅ 1. KPN 스크립트 로드 (테스트용 dev, 실서버용은 나중에 변경)
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://dev.firstpay.co.kr/js/firstpay.js";
+    script.async = true;
+    document.body.appendChild(script);
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
+
+  // ✅ 2. 암호(Hash) 생성 함수 (아까 테스트 성공한 버전)
+  async function generateHash(message: string) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(message);
+    const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+  }
 
   const tourBaseData = {
+    tourId: searchParams.get("tourId") || "",
     slug: searchParams.get("slug") || "",
     title: searchParams.get("title") || "Unknown Tour",
     image: searchParams.get("image") || "",
@@ -59,53 +80,100 @@ function BookingContent() {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // ✅ [핵심] 제출 및 결제 처리
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // 유효성 검사
-    const requiredFields = [
-      { key: "fullName", label: "Full Name" },
-      { key: "email", label: "Email Address" },
-      { key: "phone", label: "Phone Number" },
-      { key: "tourDate", label: "Tour Date" },
-      { key: "hotelInfo", label: "Hotel Information" },
-    ];
+    if (!tourBaseData.tourId) return alert("오류: 투어 ID가 없습니다.");
+    if (!formData.agreed) return alert("이용약관에 동의해주세요.");
+    if (formData.adults < 1) return alert("최소 1명의 성인이 필요합니다.");
 
-    for (const field of requiredFields) {
-      if (!formData[field.key as keyof typeof formData]) {
-        alert(`Please enter your ${field.label}.`);
-        return;
-      }
-    }
-    if (formData.adults < 1) return alert("At least 1 adult is required.");
-    if (!formData.agreed) return alert("Please agree to the Terms.");
+    setIsSubmitting(true);
+
+    // 1. 주문번호 생성 (KPN용: 32자 이내)
+    // 예: ORD_1705648291234
+    const orderNumber = `ORD_${new Date().getTime()}`;
 
     const submitData = {
       ...tourBaseData,
       ...formData,
       totalPrice: currentTotalPrice,
       type: submissionType,
+      // ✅ DB에 저장할 주문번호 추가
+      order_number: orderNumber,
     };
 
-    if (submissionType === "PAYMENT") {
-      alert(`Proceeding to payment for $${currentTotalPrice}...`);
-      console.log("PAYMENT:", submitData);
-    } else {
-      alert("Reservation Submitted!");
-      console.log("RESERVATION:", submitData);
+    try {
+      // 2. 일단 DB에 저장 (Pending 상태)
+      const response = await fetch("/api/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(submitData),
+      });
+
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Booking failed");
+
+      // 3. 분기 처리: 결제냐 단순 예약이냐
+      if (submissionType === "RESERVATION") {
+        // [단순 예약] -> 완료 페이지 이동
+        alert("예약이 접수되었습니다. 담당자가 곧 연락드립니다.");
+        router.push("/");
+      } else {
+        // [결제 하기] -> KPN 창 띄우기
+        if (typeof window === "undefined" || !(window as any).FirstPay) {
+          alert("결제 시스템을 불러오는 중입니다. 잠시 후 다시 시도해주세요.");
+          setIsSubmitting(false);
+          return;
+        }
+
+        // --- 결제 데이터 준비 ---
+        const mxId = "testcorp"; // 테스트 ID
+        const passKey = "6aMoJujE34XnL9gvUqdKGMqs9GzYaNo6"; // 테스트 키
+        const amount = currentTotalPrice; // 실제 금액
+
+        // 해시 생성 (날짜 제외 공식 사용)
+        const hashString = mxId + orderNumber + amount + passKey;
+        const callHash = await generateHash(hashString);
+
+        const pay = new (window as any).FirstPay({
+          env: "develop", // 테스트 환경
+          isMobile: false, // 모바일 여부 (필요시 userAgent 체크 로직 추가)
+          openType: "popup",
+        });
+
+        pay.goPay({
+          mxId: mxId,
+          mxIssueNo: orderNumber, // DB에 저장한 그 번호!
+          mxIssueDate: new Date()
+            .toISOString()
+            .replace(/[-T:\.Z]/g, "")
+            .slice(0, 14),
+          amount: amount,
+          currency: "KRW",
+          orderName: tourBaseData.title, // 상품명
+          buyerName: formData.fullName,
+          buyerEmail: formData.email,
+          // ✅ 결제 끝나면 신호를 받을 API 주소 (다음 단계에서 만들 예정)
+          returnUrl: `${window.location.origin}/api/payment-return`,
+          callHash: callHash,
+        });
+
+        // 결제창이 떴으므로 로딩 상태 유지 (사용자가 닫거나 결제할 때까지)
+      }
+    } catch (error: any) {
+      console.error("Error:", error);
+      alert("처리 중 오류가 발생했습니다: " + error.message);
+      setIsSubmitting(false);
     }
   };
 
+  // 잘못된 접근 처리
   if (!tourBaseData.slug) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
-        <p className="text-xl text-gray-600 mb-4">Invalid booking request.</p>
-        <button
-          onClick={() => router.back()}
-          className="text-orange-600 font-bold hover:underline"
-        >
-          Go Back
-        </button>
+      <div className="min-h-screen flex items-center justify-center">
+        <p>Invalid booking request.</p>
+        <button onClick={() => router.back()}>Go Back</button>
       </div>
     );
   }
@@ -115,10 +183,9 @@ function BookingContent() {
       <div className="max-w-6xl mx-auto">
         <button
           onClick={() => router.back()}
-          className="flex items-center text-gray-600 hover:text-gray-900 mb-6 transition-colors"
+          className="flex items-center text-gray-600 mb-6"
         >
-          <ChevronLeft className="w-5 h-5 mr-1" />
-          Back
+          <ChevronLeft className="w-5 h-5 mr-1" /> Back
         </button>
 
         <h1 className="text-3xl font-bold text-gray-900 mb-8">
@@ -129,12 +196,12 @@ function BookingContent() {
           onSubmit={handleSubmit}
           className="grid grid-cols-1 lg:grid-cols-3 gap-8"
         >
-          {/* ✅ 왼쪽: 입력 폼 (컴포넌트로 대체) */}
-          <div className="lg:col-span-2">
+          <div
+            className={`lg:col-span-2 ${isSubmitting ? "opacity-50 pointer-events-none" : ""}`}
+          >
             <BookingForm formData={formData} handleChange={handleChange} />
           </div>
 
-          {/* ✅ 오른쪽: 주문 요약 (컴포넌트로 대체) */}
           <div className="lg:col-span-1">
             <OrderSummary
               tourBaseData={tourBaseData}
@@ -144,6 +211,13 @@ function BookingContent() {
               handleChange={handleChange}
               setSubmissionType={setSubmissionType}
             />
+            {isSubmitting && (
+              <div className="mt-4 p-4 bg-blue-50 text-blue-700 text-center rounded-lg font-bold">
+                {submissionType === "PAYMENT"
+                  ? "결제창을 띄우고 있습니다..."
+                  : "예약을 저장 중입니다..."}
+              </div>
+            )}
           </div>
         </form>
       </div>
@@ -153,13 +227,7 @@ function BookingContent() {
 
 export default function BookingPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen flex items-center justify-center">
-          Loading...
-        </div>
-      }
-    >
+    <Suspense fallback={<div>Loading...</div>}>
       <BookingContent />
     </Suspense>
   );
