@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
+// ✅ 여기 인터페이스에 2줄 추가!
 export interface CartItem {
   slug: string;
   title: string;
@@ -11,17 +12,22 @@ export interface CartItem {
   children: number;
   pricePerPerson: number;
   totalPrice: number;
+
+  // 👇 이 두 줄을 꼭 추가해주세요! (결제할 때 필수)
+  tourId: string;
+  date: string;
 }
 
 interface CartState {
   items: CartItem[];
   addItem: (item: CartItem) => void;
   removeItem: (slug: string, optionId: string) => void;
+  // ... (나머지는 그대로 두셔도 됩니다)
   updateQuantity: (
     slug: string,
     optionId: string,
     adults: number,
-    children: number
+    children: number,
   ) => void;
   clearCart: () => void;
   getTotalItems: () => number;
@@ -35,13 +41,15 @@ export const useCartStore = create<CartState>()(
 
       addItem: (item) =>
         set((state) => {
-          // 중복 체크: 같은 상품 + 같은 옵션 있는지 확인
+          // 중복 체크: 같은 상품 + 같은 옵션 + 같은 날짜(date)까지 같아야 진짜 중복
           const existingIndex = state.items.findIndex(
-            (i) => i.slug === item.slug && i.optionId === item.optionId
+            (i) =>
+              i.slug === item.slug &&
+              i.optionId === item.optionId &&
+              i.date === item.date,
           );
 
           if (existingIndex !== -1) {
-            // 이미 있으면 수량만 증가
             const updated = [...state.items];
             updated[existingIndex] = {
               ...updated[existingIndex],
@@ -56,18 +64,17 @@ export const useCartStore = create<CartState>()(
             };
             return { items: updated };
           }
-
-          // 없으면 새로 추가
           return { items: [...state.items, item] };
         }),
 
       removeItem: (slug, optionId) =>
         set((state) => ({
           items: state.items.filter(
-            (i) => !(i.slug === slug && i.optionId === optionId)
+            (i) => !(i.slug === slug && i.optionId === optionId),
           ),
         })),
 
+      // ... 나머지 함수들은 그대로 두세요 ...
       updateQuantity: (slug, optionId, adults, children) =>
         set((state) => ({
           items: state.items.map((item) =>
@@ -78,7 +85,7 @@ export const useCartStore = create<CartState>()(
                   children,
                   totalPrice: (adults + children) * item.pricePerPerson,
                 }
-              : item
+              : item,
           ),
         })),
 
@@ -88,7 +95,7 @@ export const useCartStore = create<CartState>()(
         const state = get();
         return state.items.reduce(
           (sum, item) => sum + item.adults + item.children,
-          0
+          0,
         );
       },
 
@@ -98,7 +105,7 @@ export const useCartStore = create<CartState>()(
       },
     }),
     {
-      name: "cart-storage", // localStorage 키 이름
-    }
-  )
+      name: "cart-storage",
+    },
+  ),
 );

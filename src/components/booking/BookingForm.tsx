@@ -102,15 +102,18 @@ export default function BookingForm({
             </div>
           </div>
 
+          {/* ✅ 호텔 정보 수정됨 (선택사항) */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Hotel Information (Name & Address){" "}
-              <span className="text-red-500">*</span>
+              <span className="text-gray-400 font-normal ml-1 text-xs uppercase tracking-wide">
+                (Optional)
+              </span>
             </label>
             <div className="relative">
               <MapPin className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
               <input
-                required
+                // required 제거됨
                 name="hotelInfo"
                 value={formData.hotelInfo}
                 onChange={handleChange}
@@ -118,6 +121,9 @@ export default function BookingForm({
                 placeholder="e.g. Lotte Hotel Seoul, Room 1204"
               />
             </div>
+            <p className="text-xs text-gray-500 mt-1">
+              If you haven't booked a hotel yet, you can let us know later.
+            </p>
           </div>
         </div>
       </div>

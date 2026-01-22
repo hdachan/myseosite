@@ -1,12 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Minus, Plus, Calendar } from "lucide-react";
 import toast from "react-hot-toast";
 import { hangameFont } from "@/lib/fonts";
 
-// 타입을 여기서 직접 정의합니다
 interface PackageOption {
   id: string;
   name: string;
@@ -23,8 +22,6 @@ interface PackageOptionsSectionProps {
   tourSlug: string;
   tourTitle: string;
   tourImage: string;
-
-  // ✅ [추가 1] 부모(Client)가 던져준 ID를 받을 준비!
   tourId: string;
 }
 
@@ -36,8 +33,6 @@ export default function PackageOptionsSection({
   tourSlug,
   tourTitle,
   tourImage,
-
-  // ✅ [추가 2] 실제로 받기
   tourId,
 }: PackageOptionsSectionProps) {
   const router = useRouter();
@@ -45,6 +40,38 @@ export default function PackageOptionsSection({
   const [tourDate, setTourDate] = useState("");
   const [adults, setAdults] = useState(0);
   const [children, setChildren] = useState(0);
+
+  // 오늘 날짜(최소 선택 가능 날짜) 상태
+  const [minDate, setMinDate] = useState("");
+
+  // ✅ KST 날짜 구하는 함수 (재사용을 위해 분리)
+  const getKoreaDate = () => {
+    const now = new Date();
+    const utc = now.getTime() + now.getTimezoneOffset() * 60 * 1000;
+    const kstGap = 9 * 60 * 60 * 1000;
+    const todayKST = new Date(utc + kstGap);
+    return todayKST.toISOString().split("T")[0];
+  };
+
+  useEffect(() => {
+    setMinDate(getKoreaDate());
+  }, []);
+
+  // ✅ [모바일 방어 코드] 날짜 변경 핸들러 추가
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selected = e.target.value;
+    const today = getKoreaDate(); // 현재 한국 날짜 다시 계산
+
+    // 만약 선택한 날짜가 오늘보다 이전이라면?
+    if (selected < today) {
+      toast.error("You cannot select a past date."); // 경고 메시지
+      setTourDate(""); // 날짜 입력창 비워버림 (강제 취소)
+      return;
+    }
+
+    // 정상이면 상태 업데이트
+    setTourDate(selected);
+  };
 
   const selectedPackage = packageOptions?.find(
     (opt) => opt.id === selectedOption,
@@ -54,7 +81,6 @@ export default function PackageOptionsSection({
     ? selectedPackage.price * (adults + children)
     : 0;
 
-  // 버튼 활성화 여부 체크
   const isButtonDisabled = !tourDate || (adults === 0 && children === 0);
 
   const handleReset = () => {
@@ -79,15 +105,19 @@ export default function PackageOptionsSection({
       toast.error("Please select a tour date");
       return;
     }
+    // ✅ 제출 전 한 번 더 검사 (이중 방어)
+    if (tourDate < minDate) {
+      toast.error("Invalid date selected.");
+      return;
+    }
+
     if (adults === 0 && children === 0) {
       toast.error("Please select at least 1 person");
       return;
     }
 
     onAddToCart({
-      // ✅ [추가 3] 장바구니 데이터에 ID 챙겨 넣기
       tourId: tourId,
-
       slug: tourSlug,
       title: tourTitle,
       image: tourImage,
@@ -110,15 +140,19 @@ export default function PackageOptionsSection({
       toast.error("Please select a tour date");
       return;
     }
+    // ✅ 제출 전 한 번 더 검사 (이중 방어)
+    if (tourDate < minDate) {
+      toast.error("Invalid date selected.");
+      return;
+    }
+
     if (adults === 0 && children === 0) {
       toast.error("Please select at least 1 person");
       return;
     }
 
     const query = new URLSearchParams({
-      // ✅ [추가 4] 바로 예약할 때도 URL에 ID 챙겨 보내기
       tourId: tourId,
-
       slug: tourSlug,
       title: tourTitle,
       image: tourImage,
@@ -193,7 +227,6 @@ export default function PackageOptionsSection({
                       <span className="font-semibold text-gray-800">
                         Route:{" "}
                       </span>
-                      {/* 데이터가 없어도 에러 안 나게 처리 */}
                       {opt.details?.join(" → ") || "View schedule details"}
                     </div>
                     <div className="mt-2 text-right">
@@ -228,8 +261,11 @@ export default function PackageOptionsSection({
                 <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
                   type="date"
+                  // 1. UI적으로 막기 (데스크탑 등 지원 브라우저용)
+                  min={minDate}
                   value={tourDate}
-                  onChange={(e) => setTourDate(e.target.value)}
+                  // 2. 로직으로 막기 (모바일 등 강제 선택 방어용)
+                  onChange={handleDateChange}
                   className="w-full border border-gray-300 p-3 pl-10 rounded-[6px] focus:ring-2 focus:ring-orange-500 outline-none cursor-pointer bg-white text-gray-900 font-medium"
                 />
               </div>

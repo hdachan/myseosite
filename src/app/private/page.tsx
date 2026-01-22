@@ -3,25 +3,53 @@
 import React, { useRef, useState, useEffect } from "react";
 import PageHero from "@/components/PageHero";
 import TourCard from "@/components/TourCard";
-
-// ✅ 1. 로컬 데이터 삭제
-// import { basicPackages as packageTours } from "@/app/package/packageData";
-
-// ✅ 2. Sanity Client 추가
 import { client } from "@/sanity/lib/client";
 import { groq } from "next-sanity";
-
 import { hangameFont } from "@/lib/fonts";
 
+// ✅ 모바일용 카드 컴포넌트 추가
+function MobileGuideCard({ guide }: { guide: any }) {
+  return (
+    <div className="bg-white border border-gray-200 rounded-[6px] p-5 shadow-sm mb-4 last:mb-0">
+      {/* 헤더: 언어 표시 */}
+      <div className="flex items-center gap-2 mb-4 border-b border-gray-100 pb-3">
+        <div className="w-1.5 h-5 bg-[#4A7C7E] rounded-full"></div>
+        <h3 className="font-bold text-gray-900 text-lg">{guide.language}</h3>
+      </div>
+
+      {/* 내용: 가격 정보 */}
+      {guide.isContact ? (
+        <div className="text-center py-4 bg-gray-50 rounded text-gray-500 font-medium italic">
+          Please, contact us for details.
+        </div>
+      ) : (
+        <div className="space-y-3">
+          <div className="flex justify-between items-center text-sm">
+            <span className="text-gray-500">Max, 4 Hours</span>
+            <span className="font-bold text-gray-800">₩ {guide.max4h}</span>
+          </div>
+          <div className="flex justify-between items-center text-sm">
+            <span className="text-gray-500">Max, 8 Hours</span>
+            <span className="font-bold text-gray-800">₩ {guide.max8h}</span>
+          </div>
+          <div className="flex justify-between items-center text-sm pt-2 border-t border-gray-50">
+            <span className="text-[#ad3928] font-semibold text-xs uppercase">
+              Over 20 Pax
+            </span>
+            <span className="font-bold text-[#ad3928]">₩ {guide.over20}</span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function PrivateTourPage() {
-  // ✅ 3. Sanity 데이터를 담을 State 생성
   const [privateTours, setPrivateTours] = useState<any[]>([]);
 
-  // ✅ 4. 데이터 가져오기 (useEffect)
   useEffect(() => {
     const fetchPrivateTours = async () => {
       try {
-        // 평점 높은 순으로 4개만 가져오기 (Popular Private Tours용)
         const query = groq`
           *[_type == "tour"] | order(rating desc)[0...4] {
             _id,
@@ -39,7 +67,6 @@ export default function PrivateTourPage() {
           }
         `;
         const data = await client.fetch(query);
-
         const mappedData = data.map((tour: any) => ({
           ...tour,
           id: tour._id,
@@ -50,21 +77,17 @@ export default function PrivateTourPage() {
           bookings: tour.bookings || "0+ booked",
           tags: tour.tags || [],
         }));
-
         setPrivateTours(mappedData);
       } catch (error) {
         console.error("Failed to fetch private tours:", error);
       }
     };
-
     fetchPrivateTours();
   }, []);
 
-  // ✅ 스크롤 제어를 위한 Ref
   const tourScrollRef = useRef<HTMLDivElement>(null);
   const vehicleScrollRef = useRef<HTMLDivElement>(null);
 
-  // ✅ 스크롤 핸들러
   const scroll = (
     ref: React.RefObject<HTMLDivElement>,
     direction: "left" | "right",
@@ -76,7 +99,6 @@ export default function PrivateTourPage() {
     }
   };
 
-  // 가이드 요금 데이터 (정적 데이터 유지)
   const guideCharges = [
     {
       language: "English",
@@ -96,7 +118,6 @@ export default function PrivateTourPage() {
     },
   ];
 
-  // 차량 요금 데이터 (정적 데이터 유지)
   const transportations = [
     {
       name: "Deluxe Sedan",
@@ -132,7 +153,6 @@ export default function PrivateTourPage() {
     },
   ];
 
-  // 화살표 버튼 컴포넌트
   const ScrollButton = ({
     direction,
     onClick,
@@ -144,10 +164,11 @@ export default function PrivateTourPage() {
       onClick={onClick}
       className={`
         absolute top-1/2 -translate-y-1/2 z-20
-        bg-white/90 border border-gray-100 shadow-md rounded-full p-2
-        text-gray-700 hover:text-[#ad3928] hover:bg-white transition-all
+        w-12 h-12 flex items-center justify-center
+        bg-white/95 border border-gray-100 shadow-lg rounded-full
+        text-gray-700 hover:text-[#ad3928] hover:bg-white active:scale-95 transition-all
         md:hidden 
-        ${direction === "left" ? "left-2" : "right-2"}
+        ${direction === "left" ? "-left-2" : "-right-2"}
       `}
       aria-label={direction === "left" ? "Previous" : "Next"}
     >
@@ -156,9 +177,9 @@ export default function PrivateTourPage() {
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
-          strokeWidth={2}
+          strokeWidth={2.5}
           stroke="currentColor"
-          className="w-5 h-5"
+          className="w-6 h-6"
         >
           <path
             strokeLinecap="round"
@@ -171,9 +192,9 @@ export default function PrivateTourPage() {
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
-          strokeWidth={2}
+          strokeWidth={2.5}
           stroke="currentColor"
-          className="w-5 h-5"
+          className="w-6 h-6"
         >
           <path
             strokeLinecap="round"
@@ -194,7 +215,7 @@ export default function PrivateTourPage() {
       />
 
       <div className="max-w-6xl mx-auto px-6 lg:px-12 mt-12 pb-24 space-y-20 md:space-y-24">
-        {/* 1. Popular Private Tours (Sanity Data) */}
+        {/* 1. Popular Private Tours */}
         <section>
           <div className="mb-6 md:mb-12 text-left">
             <p className="text-[10px] md:text-[11px] uppercase tracking-[0.2em] text-[#4A7C7E] font-bold mb-3">
@@ -224,7 +245,6 @@ export default function PrivateTourPage() {
                 md:grid md:grid-cols-2 md:lg:grid-cols-4 md:gap-6 md:overflow-visible md:pb-0 md:mx-0 md:px-0
               "
             >
-              {/* ✅ 데이터가 로딩 중이거나 없을 때 처리 */}
               {privateTours.length > 0 ? (
                 privateTours.map((tour, index) => (
                   <div
@@ -235,7 +255,6 @@ export default function PrivateTourPage() {
                   </div>
                 ))
               ) : (
-                // 로딩 스켈레톤 or 메시지
                 <div className="col-span-full text-center py-10 text-gray-400">
                   Loading popular tours...
                 </div>
@@ -244,7 +263,7 @@ export default function PrivateTourPage() {
           </div>
         </section>
 
-        {/* 2. Intro Section (VIP) */}
+        {/* 2. Intro Section */}
         <section>
           <div className="mb-6 md:mb-12 text-left">
             <p className="text-[10px] md:text-[11px] uppercase tracking-[0.2em] text-[#4A7C7E] font-bold mb-3">
@@ -278,7 +297,7 @@ export default function PrivateTourPage() {
           </div>
         </section>
 
-        {/* 3. Guide Service Charge */}
+        {/* ✅ 3. Guide Service Charge (반응형 적용) */}
         <section>
           <div className="mb-6 md:mb-12 text-left">
             <p className="text-[10px] md:text-[11px] uppercase tracking-[0.2em] text-[#4A7C7E] font-bold mb-3">
@@ -291,7 +310,15 @@ export default function PrivateTourPage() {
             </h2>
           </div>
 
-          <div className="bg-white border border-gray-200 rounded-[6px] overflow-hidden shadow-sm">
+          {/* 📱 Mobile View: 카드 리스트 */}
+          <div className="block md:hidden">
+            {guideCharges.map((guide, idx) => (
+              <MobileGuideCard key={idx} guide={guide} />
+            ))}
+          </div>
+
+          {/* 💻 Desktop View: 기존 테이블 (md:block hidden) */}
+          <div className="hidden md:block bg-white border border-gray-200 rounded-[6px] overflow-hidden shadow-sm">
             <div className="overflow-x-auto scrollbar-hide">
               <table className="w-full border-collapse min-w-[600px]">
                 <thead>
@@ -342,10 +369,8 @@ export default function PrivateTourPage() {
                 </tbody>
               </table>
             </div>
-            <div className="block md:hidden text-center bg-gray-50 text-[10px] text-gray-400 py-1">
-              ← Swipe table to see details →
-            </div>
           </div>
+
           <p className="text-[#ad3928] text-sm mt-3 font-medium px-1">
             * If there is over time. It&apos;ll be extra charge.
           </p>
@@ -386,7 +411,7 @@ export default function PrivateTourPage() {
                   key={idx}
                   className="group relative flex flex-col items-center min-w-[85vw] md:min-w-0 snap-center"
                 >
-                  {/* 차량 이미지 (3D 효과) */}
+                  {/* 차량 이미지 */}
                   <div className="relative z-20 w-full flex flex-col items-center -mb-12 hover:-translate-y-2 transition-transform duration-300">
                     <img
                       src={transport.image}

@@ -1,7 +1,7 @@
 "use client";
 
 import { createClient } from "@/lib/supabase";
-import { useRouter, notFound } from "next/navigation"; // ✅ notFound 추가
+import { useRouter, notFound } from "next/navigation";
 import { useEffect, useState } from "react";
 
 // 예약 데이터 타입 정의
@@ -20,6 +20,20 @@ interface Booking {
   total_price: number;
   status: string;
   submission_type: string;
+  order_number: string; // ✅ 추가됨
+}
+
+// ✅ 그룹화된 주문 타입 정의 (화면 표시용)
+interface GroupedOrder {
+  orderNumber: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  hotelInfo: string;
+  createdAt: string;
+  status: string;
+  totalOrderPrice: number;
+  items: Booking[]; // 이 주문에 포함된 상품들 리스트
 }
 
 export default function AdminPage() {
@@ -58,7 +72,6 @@ export default function AdminPage() {
         data: { user },
       } = await supabase.auth.getUser();
 
-      // ✅ 수정됨: 로그인 안 된 유저는 404 페이지로 보냄 (관리자 페이지 존재 숨김)
       if (!user) {
         notFound();
         return;
@@ -74,17 +87,21 @@ export default function AdminPage() {
   const handleLogout = async () => {
     if (window.confirm("로그아웃 하시겠습니까?")) {
       await supabase.auth.signOut();
-      router.push("/login"); // 로그아웃 후에는 로그인 페이지로 이동
+      router.push("/login");
       router.refresh();
     }
   };
 
-  // 4. 상태 변경 함수
-  const handleStatusChange = async (id: string, newStatus: string) => {
+  // ✅ 4. 상태 변경 (주문번호 기준 일괄 처리)
+  const handleStatusChange = async (orderNumber: string, newStatus: string) => {
+    if (!confirm(`이 주문(${orderNumber})의 상태를 변경하시겠습니까?`)) return;
+
+    // 주문번호가 있으면 그 번호 전체 업데이트, 없으면(옛날 데이터) ID로 업데이트해야 하는데
+    // 여기서는 orderNumber가 있다는 전제로 짭니다.
     const { error } = await supabase
       .from("bookings")
       .update({ status: newStatus })
-      .eq("id", id);
+      .eq("order_number", orderNumber);
 
     if (error) {
       alert("변경 실패: " + error.message);
@@ -93,12 +110,17 @@ export default function AdminPage() {
     }
   };
 
-  // 5. 삭제 함수
-  const handleDelete = async (id: string) => {
-    if (!window.confirm("정말로 삭제하시겠습니까? (복구 불가)")) {
+  // ✅ 5. 삭제 함수 (주문번호 기준 일괄 삭제)
+  const handleDelete = async (orderNumber: string) => {
+    if (
+      !window.confirm("정말로 이 주문 전체를 삭제하시겠습니까? (복구 불가)")
+    ) {
       return;
     }
-    const { error } = await supabase.from("bookings").delete().eq("id", id);
+    const { error } = await supabase
+      .from("bookings")
+      .delete()
+      .eq("order_number", orderNumber);
 
     if (error) {
       alert("삭제 실패: " + error.message);
@@ -112,6 +134,39 @@ export default function AdminPage() {
     if (!dateString) return "-";
     return new Date(dateString).toLocaleDateString("ko-KR");
   };
+
+  // ✅ [핵심 로직] 예약 데이터를 '주문번호' 기준으로 그룹화하기
+  const getGroupedBookings = () => {
+    const groups: Record<string, GroupedOrder> = {};
+
+    bookings.forEach((booking) => {
+      // 주문번호가 없으면(옛날 데이터) ID를 키로 사용
+      const key = booking.order_number || booking.id;
+
+      if (!groups[key]) {
+        groups[key] = {
+          orderNumber: key,
+          customerName: booking.customer_name,
+          customerEmail: booking.customer_email,
+          customerPhone: booking.customer_phone,
+          hotelInfo: booking.hotel_info,
+          createdAt: booking.created_at,
+          status: booking.status,
+          totalOrderPrice: 0,
+          items: [],
+        };
+      }
+
+      // 아이템 추가 및 가격 누적
+      groups[key].items.push(booking);
+      groups[key].totalOrderPrice += booking.total_price;
+    });
+
+    // 객체를 배열로 변환해서 리턴
+    return Object.values(groups);
+  };
+
+  const groupedBookings = getGroupedBookings();
 
   if (loading)
     return (
@@ -140,7 +195,7 @@ export default function AdminPage() {
       <div className="max-w-7xl mx-auto bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
         <div className="p-4 border-b flex justify-between items-center bg-gray-50">
           <h2 className="text-lg font-bold text-gray-700">
-            📋 예약 관리 ({bookings.length}건)
+            📋 예약 관리 (총 {groupedBookings.length}건의 주문)
           </h2>
           <button
             onClick={fetchBookings}
@@ -154,101 +209,142 @@ export default function AdminPage() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-gray-100 text-gray-600 text-sm uppercase font-semibold">
-                <th className="p-4 border-b w-32">투어 날짜</th>
-                <th className="p-4 border-b">고객 정보</th>
-                <th className="p-4 border-b">상품 / 옵션</th>
-                <th className="p-4 border-b w-20">인원</th>
-                <th className="p-4 border-b w-28">총 금액</th>
-                <th className="p-4 border-b w-44 text-center">상태 변경</th>
-                <th className="p-4 border-b w-20 text-center">관리</th>
+                <th className="p-4 border-b w-32">접수일 / 번호</th>
+                <th className="p-4 border-b w-48">고객 정보</th>
+                <th className="p-4 border-b">주문 상품 목록 (Items)</th>
+                <th className="p-4 border-b w-32">총 결제금액</th>
+                <th className="p-4 border-b w-40 text-center">상태 관리</th>
+                <th className="p-4 border-b w-16 text-center">삭제</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {bookings.map((booking) => (
-                <tr key={booking.id} className="hover:bg-gray-50 transition">
+              {groupedBookings.map((group) => (
+                <tr
+                  key={group.orderNumber}
+                  className="hover:bg-gray-50 transition align-top"
+                >
+                  {/* 1. 접수일 & 주문번호 */}
                   <td className="p-4 text-sm text-gray-700">
-                    <div className="font-bold text-lg">
-                      {formatDate(booking.tour_date)}
+                    <div className="font-bold mb-1">
+                      {formatDate(group.createdAt)}
                     </div>
-                    <div className="text-xs text-gray-400 mt-1">
-                      접수: {formatDate(booking.created_at)}
+                    <div className="text-[10px] text-gray-400 font-mono bg-gray-100 p-1 rounded break-all">
+                      {group.orderNumber}
                     </div>
-                  </td>
-                  <td className="p-4">
-                    <div className="font-bold text-gray-900">
-                      {booking.customer_name}
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      {booking.customer_email}
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      {booking.customer_phone}
-                    </div>
-                    {booking.hotel_info && (
-                      <div className="text-xs text-blue-600 mt-1 bg-blue-50 inline-block px-1 rounded">
-                        🏨 {booking.hotel_info}
-                      </div>
-                    )}
-                  </td>
-                  <td className="p-4 text-sm text-gray-600">
-                    <div className="font-medium text-gray-800">
-                      {booking.tour_title}
-                    </div>
-                    {booking.option_name && (
-                      <div className="text-xs text-gray-500 mt-1">
-                        🏷️ {booking.option_name}
-                      </div>
-                    )}
-                  </td>
-                  <td className="p-4 text-sm text-gray-600">
-                    <div>성인 {booking.adults}</div>
-                    <div>아동 {booking.children}</div>
-                  </td>
-                  <td className="p-4 font-bold text-gray-900">
-                    ${(booking.total_price || 0).toLocaleString()}
                   </td>
 
-                  {/* 상태 변경 드롭다운 */}
+                  {/* 2. 고객 정보 */}
+                  <td className="p-4">
+                    <div className="font-bold text-gray-900">
+                      {group.customerName}
+                    </div>
+                    <div className="text-xs text-gray-500 mt-0.5">
+                      {group.customerEmail}
+                    </div>
+                    <div className="text-xs text-gray-500 mt-0.5">
+                      {group.customerPhone}
+                    </div>
+                    {group.hotelInfo && (
+                      <div className="text-xs text-blue-600 mt-2 bg-blue-50 inline-block px-2 py-0.5 rounded border border-blue-100">
+                        🏨 {group.hotelInfo}
+                      </div>
+                    )}
+                  </td>
+
+                  {/* 3. 상품 목록 (여기가 핵심!) */}
+                  <td className="p-4">
+                    <div className="space-y-3">
+                      {group.items.map((item, idx) => (
+                        <div
+                          key={item.id}
+                          className="flex flex-col sm:flex-row sm:items-center justify-between bg-gray-50 p-2 rounded border border-gray-100"
+                        >
+                          <div>
+                            <div className="font-bold text-sm text-gray-800">
+                              {idx + 1}. {item.tour_title}
+                            </div>
+                            <div className="text-xs text-gray-500 mt-1 flex gap-2">
+                              <span className="bg-white px-1 rounded border border-gray-200">
+                                📅 {item.tour_date}
+                              </span>
+                              {item.option_name && (
+                                <span>🏷️ {item.option_name}</span>
+                              )}
+                            </div>
+                          </div>
+                          <div className="text-xs font-medium text-gray-600 mt-1 sm:mt-0 text-right">
+                            <span>
+                              성인 {item.adults}, 아동 {item.children}
+                            </span>
+                            <div className="font-bold text-gray-900">
+                              ${item.total_price.toLocaleString()}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </td>
+
+                  {/* 4. 총 금액 */}
+                  <td className="p-4">
+                    <div className="text-lg font-bold text-red-600">
+                      ${group.totalOrderPrice.toLocaleString()}
+                    </div>
+                    <div className="text-xs text-gray-400">
+                      Total ({group.items.length} items)
+                    </div>
+                  </td>
+
+                  {/* 5. 상태 변경 (주문 전체) */}
                   <td className="p-4 text-center">
                     <select
-                      value={booking.status}
+                      value={group.status}
                       onChange={(e) =>
-                        handleStatusChange(booking.id, e.target.value)
+                        handleStatusChange(group.orderNumber, e.target.value)
                       }
                       className={`
-                        border rounded px-2 py-1 text-sm font-bold cursor-pointer outline-none transition w-full
-                        ${booking.status === "paid" ? "bg-green-100 text-green-700 border-green-300" : ""}
-                        ${booking.status === "pending" ? "bg-yellow-100 text-yellow-700 border-yellow-300" : ""}
-                        ${booking.status === "refunded" ? "bg-purple-100 text-purple-700 border-purple-300" : ""} 
-                        ${booking.status === "cancelled" ? "bg-red-100 text-red-700 border-red-300" : ""}
+                        border rounded px-2 py-1.5 text-sm font-bold cursor-pointer outline-none transition w-full shadow-sm
+                        ${group.status === "paid" ? "bg-green-100 text-green-700 border-green-300" : ""}
+                        ${group.status === "pending" ? "bg-yellow-100 text-yellow-700 border-yellow-300" : ""}
+                        ${group.status === "refunded" ? "bg-purple-100 text-purple-700 border-purple-300" : ""} 
+                        ${group.status === "cancelled" ? "bg-red-100 text-red-700 border-red-300" : ""}
+                        ${group.status === "payment_failed" ? "bg-gray-800 text-white border-gray-900" : ""}
                       `}
                     >
                       <option value="pending">⏳ 대기 (Pending)</option>
                       <option value="paid">✅ 완료 (Paid)</option>
                       <option value="refunded">↩️ 환불 (Refunded)</option>
                       <option value="cancelled">🚫 취소 (Cancelled)</option>
+                      <option value="payment_failed">⚠️ 실패 (Failed)</option>
                     </select>
                   </td>
 
+                  {/* 6. 삭제 */}
                   <td className="p-4 text-center">
                     <button
-                      onClick={() => handleDelete(booking.id)}
-                      className="text-gray-400 hover:text-red-600 transition p-2"
-                      title="삭제하기"
+                      onClick={() => handleDelete(group.orderNumber)}
+                      className="text-gray-400 hover:text-red-600 transition p-2 hover:bg-red-50 rounded-full"
+                      title="주문 전체 삭제"
                     >
                       🗑️
                     </button>
                   </td>
                 </tr>
               ))}
+
+              {groupedBookings.length === 0 && (
+                <tr>
+                  <td
+                    colSpan={6}
+                    className="p-12 text-center text-gray-400 bg-gray-50"
+                  >
+                    <div className="text-4xl mb-2">📭</div>
+                    <p>접수된 예약 내역이 없습니다.</p>
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
-          {bookings.length === 0 && (
-            <div className="p-12 text-center text-gray-400 bg-gray-50">
-              <div className="text-4xl mb-2">📭</div>
-              <p>접수된 예약 내역이 없습니다.</p>
-            </div>
-          )}
         </div>
       </div>
     </div>
