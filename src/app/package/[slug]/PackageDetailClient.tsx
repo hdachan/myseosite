@@ -16,11 +16,6 @@ import { useCartStore } from "@/store/cartStore";
 import PackageOptionsSection from "@/components/PackageDetails/PackageOptionsSection";
 import PackageDetailSidebar from "@/components/PackageDetails/PackageDetailSidebar";
 import TourOverviewSection from "@/components/PackageDetails/TourOverviewSection";
-
-// ❌ [삭제] 메인 화면용 일정표 컴포넌트는 이제 필요 없습니다. (사이드바에 넣었으니까요!)
-// import TourItinerarySection from "@/components/PackageDetails/TourItinerarySection";
-
-/* ✅ 폰트 가져오기 */
 import { hangameFont } from "@/lib/fonts";
 
 interface Props {
@@ -30,8 +25,6 @@ interface Props {
 export default function PackageDetailClient({ tour }: Props) {
   const addItem = useCartStore((state) => state.addItem);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-
-  // 선택된 패키지 상태
   const [selectedPackage, setSelectedPackage] = useState<any | null>(null);
 
   const isSuspended =
@@ -102,7 +95,6 @@ export default function PackageDetailClient({ tour }: Props) {
             </div>
           )}
 
-          {/* 화살표 버튼 */}
           {images.length > 1 && (
             <>
               <button
@@ -162,7 +154,8 @@ export default function PackageDetailClient({ tour }: Props) {
               </div>
               <span className="w-px h-3 bg-gray-300"></span>
               <span className="font-medium text-gray-700">
-                {tour.bookings} booked
+                {/* bookings 필드가 삭제되었으므로 대체 텍스트 표시 */}
+                Popular Choice
               </span>
             </div>
           </header>
@@ -189,7 +182,6 @@ export default function PackageDetailClient({ tour }: Props) {
 
           {/* 4. Trust Badges */}
           <section className="grid grid-cols-1 md:grid-cols-3 gap-4 border-y border-gray-100 py-6">
-            {/* 1. 즉시 확정 */}
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-green-50 rounded-full flex items-center justify-center flex-shrink-0">
                 <CheckCircle2 className="w-5 h-5 text-green-600" />
@@ -201,8 +193,6 @@ export default function PackageDetailClient({ tour }: Props) {
                 <p className="text-xs text-gray-500">Hassle-free booking</p>
               </div>
             </div>
-
-            {/* 2. 공식 인증 업체 */}
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center flex-shrink-0">
                 <Shield className="w-5 h-5 text-blue-600" />
@@ -214,8 +204,6 @@ export default function PackageDetailClient({ tour }: Props) {
                 <p className="text-xs text-gray-500">Seoul Gov. Registered</p>
               </div>
             </div>
-
-            {/* 3. 무료 취소 (정책 반영) */}
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-purple-50 rounded-full flex items-center justify-center flex-shrink-0">
                 <RefreshCw className="w-5 h-5 text-purple-600" />
@@ -231,7 +219,6 @@ export default function PackageDetailClient({ tour }: Props) {
 
           {/* 5. Package Options & Sidebar */}
           <section className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
-            {/* 왼쪽: 옵션 선택만 남김 (일정표 삭제) */}
             <div
               className={selectedPackage ? "lg:col-span-2" : "lg:col-span-3"}
             >
@@ -244,15 +231,14 @@ export default function PackageDetailClient({ tour }: Props) {
                 tourTitle={tour.title}
                 tourImage={images[0]}
                 tourId={tour._id}
+                // ✅ [핵심 수정] Sanity에서 가져온 minPax를 전달 (없으면 1)
+                minPax={tour.minPax || 1}
               />
-              {/* ❌ 여기에 있던 TourItinerarySection을 지웠습니다! */}
             </div>
 
-            {/* 오른쪽: 사이드바 (여기서 일정표가 나옴) */}
             {selectedPackage && (
               <div className="lg:col-span-1">
                 <div className="sticky top-24">
-                  {/* Sidebar 코드를 수정했으므로, 여기에 selectedPackage만 넘기면 알아서 일정표를 보여줍니다 */}
                   <PackageDetailSidebar
                     selectedPackage={selectedPackage}
                     meetingPoint={tour.meetingPoint}

@@ -14,7 +14,6 @@ interface TourData {
   tags?: string[];
   rating: number;
   reviews: number;
-  bookings: string;
   price: number;
   originalPrice?: number;
   discount?: number;
@@ -38,7 +37,7 @@ export default function TourCard({ tour, priority = false }: TourCardProps) {
       <Link
         href={`/package/${tour.slug}`}
         className="block h-full"
-        target="_blank"
+        target="_blank" // 새 탭 열기 (선택사항)
         rel="noopener noreferrer"
       >
         <div className="h-full flex flex-col bg-white rounded-[6px] overflow-hidden border border-gray-200 shadow-sm shadow-[inset_0_0_14px_rgba(0,0,0,0.04)] hover:shadow-md transition-all duration-300">
@@ -88,7 +87,6 @@ export default function TourCard({ tour, priority = false }: TourCardProps) {
 
             {/* 하단 정보 (평점 & 가격) */}
             <div className="mt-auto pt-3 border-t border-dashed border-gray-100">
-              {/* 평점 줄 */}
               <div className="flex items-center gap-1 mb-1.5">
                 <Star className="w-3 h-3 md:w-3.5 md:h-3.5 fill-[#37848c] text-[#37848c]" />
                 <span className="text-[#37848c] text-[11px] md:text-xs font-bold">
@@ -97,18 +95,10 @@ export default function TourCard({ tour, priority = false }: TourCardProps) {
                 <span className="text-gray-400 text-[10px] md:text-[11px]">
                   ({tour.reviews})
                 </span>
-                <span className="text-gray-300 text-[10px] mx-1">•</span>
-                <span className="text-gray-500 text-[10px] md:text-[11px] truncate max-w-[80px]">
-                  {tour.bookings}
-                </span>
               </div>
 
               {/* 가격 줄 */}
               <div className="flex items-end gap-1.5">
-                <span className="text-[10px] md:text-[11px] text-gray-400 font-medium mb-1">
-                  From
-                </span>
-
                 {tour.discount ? (
                   <div className="flex items-baseline gap-1.5">
                     <span

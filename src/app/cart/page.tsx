@@ -11,11 +11,13 @@ import {
   CalendarCheck,
   Minus,
   Plus,
+  AlertCircle,
 } from "lucide-react";
 import BookingForm from "@/components/booking/BookingForm";
 import FullScreenLoader from "@/components/FullScreenLoader";
 import { useCartStore } from "@/store/cartStore";
 import { hangameFont } from "@/lib/fonts";
+import toast from "react-hot-toast"; // ✅ 알림을 위해 추가
 
 // Store 아이템 타입 정의
 interface ExtendedCartItem {
@@ -30,13 +32,14 @@ interface ExtendedCartItem {
   totalPrice: number;
   date?: string;
   tourId?: string;
+  minPax?: number; // ✅ 최소 인원 필드 추가
 }
 
 function CartContent() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Zustand Selector 분리
+  // Zustand Selector
   const items = useCartStore((state: any) => state.items as ExtendedCartItem[]);
   const removeItem = useCartStore((state: any) => state.removeItem);
   const getTotalPrice = useCartStore((state: any) => state.getTotalPrice);
@@ -65,7 +68,6 @@ function CartContent() {
     return kstDate.toISOString().split("T")[0];
   }, []);
 
-  // 날짜 동기화
   useEffect(() => {
     let targetDate = minDate;
     if (items.length > 0 && items[0].date) {
@@ -79,7 +81,6 @@ function CartContent() {
     });
   }, [items, minDate]);
 
-  // KPN 결제 스크립트 로드
   useEffect(() => {
     const script = document.createElement("script");
     script.src = "https://dev.firstpay.co.kr/js/firstpay.js";
@@ -110,11 +111,23 @@ function CartContent() {
     }
   };
 
+  // ✅ [수정됨] 수량 조절 핸들러 (최소 인원 체크 로직 추가)
   const handlePaxChange = (
     item: ExtendedCartItem,
     type: "adults" | "children",
     delta: number,
   ) => {
+    // 1. 현재 총 인원
+    const currentTotal = item.adults + item.children;
+    // 2. 최소 인원 (데이터 없으면 1명)
+    const limit = item.minPax || 1;
+
+    // 3. 줄이려고 할 때(-1), 현재 인원이 제한선에 걸려있으면 차단
+    if (delta < 0 && currentTotal <= limit) {
+      toast.error(`Minimum booking for this tour is ${limit} person(s).`);
+      return;
+    }
+
     if (updateItemQuantity) {
       updateItemQuantity(item.slug, item.optionId, type, delta);
     } else {
@@ -126,8 +139,21 @@ function CartContent() {
     removeItem(item.slug, item.optionId);
   };
 
+  // ✅ [추가] 장바구니 전체 검증: 최소 인원 미달인 상품이 하나라도 있는지 확인
+  const invalidItems = items.filter(
+    (item) => item.adults + item.children < (item.minPax || 1),
+  );
+  const isCartInvalid = invalidItems.length > 0;
+
   const processCheckout = async (type: "PAYMENT" | "RESERVATION") => {
     if (items.length === 0) return alert("Cart is empty.");
+
+    // ✅ 결제 시도 시 한 번 더 체크
+    if (isCartInvalid) {
+      toast.error("Some items do not meet the minimum passenger requirement.");
+      return;
+    }
+
     if (!formData.fullName || !formData.email || !formData.phone)
       return alert("Please fill in Traveler Information.");
     if (!formData.agreed) return alert("Please agree to the Terms.");
@@ -235,17 +261,14 @@ function CartContent() {
   }
 
   return (
-    // ✅ [레이아웃 수정] 상단 패딩 제거하고 내부 컨테이너로 이동, pb-24 적용
     <div className="min-h-screen bg-gray-50 pb-24 relative">
       {isSubmitting && <FullScreenLoader />}
 
-      {/* ✅ [레이아웃 핵심] max-w-6xl, px-8 lg:px-12 적용, pt-12 추가 */}
       <div className="max-w-6xl mx-auto px-8 lg:px-12 pt-12">
         <h1 className="text-3xl font-bold text-gray-900 mb-8 flex items-center gap-2">
           <ShoppingBag /> Your Cart
         </h1>
 
-        {/* ✅ [레이아웃 수정] gap-8 -> gap-12 로 변경하여 간격 확보 */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
           {/* [왼쪽] 상품 목록 & 정보 입력 */}
           <div className="lg:col-span-2 space-y-8">
@@ -287,6 +310,12 @@ function CartContent() {
                           {item.optionName}
                         </span>
                       </p>
+                      {/* ✅ 최소 인원 정보 표시 */}
+                      {(item.minPax || 1) > 1 && (
+                        <p className="text-xs text-orange-600 font-medium">
+                          * Minimum {item.minPax} people required
+                        </p>
+                      )}
                     </div>
 
                     <div className="space-y-3 mt-2">
@@ -441,11 +470,27 @@ function CartContent() {
                 </span>
               </div>
 
+              {/* ✅ [추가] 결제 불가 안내 메시지 */}
+              {isCartInvalid && (
+                <div className="mb-4 flex items-start gap-2 bg-red-50 p-3 rounded-[6px] text-xs font-medium text-red-600">
+                  <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                  <p>
+                    One or more items do not meet the minimum passenger
+                    requirement. Please increase the quantity.
+                  </p>
+                </div>
+              )}
+
               <div className="flex flex-col gap-3">
                 <button
                   onClick={() => processCheckout("PAYMENT")}
-                  disabled={isSubmitting}
-                  className="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-4 rounded-lg transition shadow-md flex items-center justify-center gap-2 disabled:bg-gray-300 disabled:cursor-not-allowed"
+                  // ✅ 최소 인원 미달 시 버튼 비활성화
+                  disabled={isSubmitting || isCartInvalid}
+                  className={`w-full font-bold py-4 rounded-lg transition shadow-md flex items-center justify-center gap-2 ${
+                    isSubmitting || isCartInvalid
+                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      : "bg-orange-600 hover:bg-orange-700 text-white"
+                  }`}
                 >
                   <CreditCard className="w-5 h-5" />
                   {isSubmitting ? "Processing..." : "Pay Now"}
@@ -453,8 +498,13 @@ function CartContent() {
 
                 <button
                   onClick={() => processCheckout("RESERVATION")}
-                  disabled={isSubmitting}
-                  className="w-full bg-gray-800 hover:bg-gray-900 text-white font-bold py-4 rounded-lg transition shadow-md flex items-center justify-center gap-2 disabled:bg-gray-300 disabled:cursor-not-allowed"
+                  // ✅ 최소 인원 미달 시 버튼 비활성화
+                  disabled={isSubmitting || isCartInvalid}
+                  className={`w-full font-bold py-4 rounded-lg transition shadow-md flex items-center justify-center gap-2 ${
+                    isSubmitting || isCartInvalid
+                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      : "bg-gray-800 hover:bg-gray-900 text-white"
+                  }`}
                 >
                   <CalendarCheck className="w-5 h-5" />
                   {isSubmitting ? "Processing..." : "Make a Reservation"}

@@ -1,7 +1,7 @@
 import { groq } from "next-sanity";
 
 // ==========================================================
-// 📝 1. 블로그 관련 쿼리 (기존 유지)
+// 📝 1. 블로그 관련 쿼리
 // ==========================================================
 export const blogListQuery = groq`
   *[_type == "post"] | order(date desc){
@@ -34,10 +34,10 @@ export const blogDetailQuery = groq`
 `;
 
 // ==========================================================
-// 🚐 2. 투어 관련 쿼리 (전체/카테고리별/상세)
+// 🚐 2. 투어 관련 쿼리
 // ==========================================================
 
-// ✅ [1] 전체 투어 리스트 (ALL_TOURS_QUERY) - 여기가 빠져서 에러난 것!
+// ✅ [1] 전체 투어 리스트
 export const ALL_TOURS_QUERY = groq`
   *[_type == "tour"] {
     _id,
@@ -51,13 +51,13 @@ export const ALL_TOURS_QUERY = groq`
     location,
     rating,
     reviews,
-    bookings,
     tags,
-    description
+    description,
+    "minPax": coalesce(minPax, 1) // ✅ [추가됨] 리스트에도 정보 있으면 좋음
   }
 `;
 
-// ✅ [2] 카테고리별 투어 리스트 (TOURS_BY_CATEGORY_QUERY)
+// ✅ [2] 카테고리별 투어 리스트
 export const TOURS_BY_CATEGORY_QUERY = groq`
   *[_type == "tour" && category == $category] {
     _id,
@@ -71,15 +71,13 @@ export const TOURS_BY_CATEGORY_QUERY = groq`
     location,
     rating,
     reviews,
-    bookings,
     tags,
-    description
+    description,
+    "minPax": coalesce(minPax, 1) // ✅ [추가됨]
   }
 `;
 
-// src/sanity/lib/queries.ts (TOUR_DETAIL_QUERY 부분만 교체)
-
-// ✅ [투어 상세 페이지용 쿼리] - 최종본
+// ✅ [3] 투어 상세 페이지용 쿼리 (가장 중요!)
 export const TOUR_DETAIL_QUERY = groq`
   *[_type == "tour" && slug.current == $slug][0] {
     _id,
@@ -88,7 +86,6 @@ export const TOUR_DETAIL_QUERY = groq`
     "image": mainImage.asset->url,
     "images": gallery[].asset->url,
     category,
-    bookings,
     tags,
     rating,
     reviews,
@@ -96,17 +93,21 @@ export const TOUR_DETAIL_QUERY = groq`
     fullDescription,    
     meetingPoint,
     includes,
+
+    // 🔥🔥🔥 [핵심 추가] 최소 인원 가져오기 🔥🔥🔥
+    // 값이 없으면 1로 설정 (coalesce 함수 사용)
+    "minPax": coalesce(minPax, 1),
     
-    // 🔥 옵션 데이터 가져오기 (가장 중요!)
+    // 옵션 데이터
     packageOptions[] {
       "id": _key,
       name,
       price,
       badge,
       excluded,
-      details, // 간단 리스트
+      details, 
       
-      // 🚀 일정표 데이터 (이미지 URL 변환 필수)
+      // 일정표 데이터
       itinerary[] {
         time,
         title,
@@ -118,7 +119,7 @@ export const TOUR_DETAIL_QUERY = groq`
   }
 `;
 
-// ✅ [4] 정적 페이지 생성용 (Slug만 가져오기)
+// ✅ [4] 정적 페이지 생성용
 export const TOUR_SLUGS_QUERY = groq`
   *[_type == "tour"] { "slug": slug.current }
 `;

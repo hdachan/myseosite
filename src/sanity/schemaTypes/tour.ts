@@ -3,16 +3,14 @@ import { defineField, defineType } from "sanity";
 /**
  * ✈️ Tour Package Schema
  * 투어 상품의 모든 정보를 담는 스키마입니다.
- * 기본 정보, 상세 설명, 그리고 옵션별 일정표(Timeline)를 포함합니다.
  */
 export default defineType({
-  name: "tour", // DB에 저장될 데이터 타입 이름
-  title: "Tour Package", // Sanity Studio(관리자 페이지) 왼쪽에 뜰 이름
+  name: "tour",
+  title: "Tour Package",
   type: "document",
   fields: [
     // =================================================
     // 1️⃣ 기본 정보 (Basic Info)
-    // 용도: 투어 리스트 페이지(카드), 메인 화면, SEO 태그
     // =================================================
     defineField({
       name: "title",
@@ -58,14 +56,22 @@ export default defineType({
       title: "Main Card Image",
       type: "image",
       description: "리스트 페이지(카드)에 보일 대표 썸네일입니다.",
-      options: { hotspot: true }, // 이미지 크롭 중심점 설정 가능
+      options: { hotspot: true },
     }),
     defineField({
       name: "price",
       title: "Display Price (From $)",
       type: "number",
-      description:
-        "카드에 표시될 '최저가'입니다. (실제 옵션 가격은 아래에서 설정)",
+      description: "카드에 표시될 '최저가'입니다.",
+    }),
+    // ✅ [추가됨] 최소 출발 인원 설정
+    defineField({
+      name: "minPax",
+      title: "Minimum Travelers (최소 출발 인원)",
+      type: "number",
+      initialValue: 1, // 기본값 1명
+      description: "이 투어를 예약하기 위한 최소 인원입니다. (예: 2명 이상)",
+      validation: (Rule) => Rule.required().min(1),
     }),
     defineField({
       name: "originalPrice",
@@ -73,12 +79,7 @@ export default defineType({
       type: "number",
       description: "할인 전 가격 (할인 표시가 필요할 때만 입력)",
     }),
-    defineField({
-      name: "bookings",
-      title: "Bookings / Status Badge",
-      type: "string",
-      description: "예: '6k+ booked' 또는 예약 막으려면 'Suspended' 입력",
-    }),
+    // ❌ [삭제됨] bookings 필드는 삭제했습니다.
     defineField({
       name: "tags",
       title: "Marketing Tags",
@@ -109,7 +110,6 @@ export default defineType({
 
     // =================================================
     // 2️⃣ 상세 정보 (Detailed Info)
-    // 용도: 상세 페이지 본문 (이미지 슬라이더, 긴 설명)
     // =================================================
     defineField({
       name: "gallery",
@@ -142,7 +142,6 @@ export default defineType({
 
     // =================================================
     // 🔥 3️⃣ 옵션 & 일정표 (Pricing & Schedule)
-    // 용도: 옵션 선택 및 우측 사이드바 타임라인
     // =================================================
     defineField({
       name: "packageOptions",
@@ -155,7 +154,6 @@ export default defineType({
           name: "option",
           title: "Option Detail",
           fields: [
-            // --- 옵션 기본 정보 ---
             {
               name: "name",
               title: "Option Name",
@@ -174,23 +172,18 @@ export default defineType({
               type: "string",
               description: "옵션 옆에 붙을 뱃지 (예: Popular)",
             },
-
-            // ✅ 1. 간단 요약 리스트 (카드용)
             defineField({
               name: "details",
               title: "Simple Course List (For Card)",
               description:
-                "🚨 중요: 이곳은 '리스트 페이지(카드)'에 보여줄 간단 코스명만 적으세요. (예: Imjingak -> Tunnel)",
+                "🚨 중요: 리스트 페이지(카드)용 간단 코스명 (예: Imjingak -> Tunnel)",
               type: "array",
               of: [{ type: "string" }],
             }),
-
-            // ✅ 2. 상세 일정표 (사이드바용)
             defineField({
               name: "itinerary",
               title: "Tour Schedule (For Sidebar)",
-              description:
-                "🚀 중요: 이곳은 상세 페이지 '오른쪽 사이드바'에 나올 사진/아이콘이 포함된 타임라인입니다.",
+              description: "🚀 중요: 상세 페이지 사이드바용 타임라인",
               type: "array",
               of: [
                 {
@@ -201,41 +194,33 @@ export default defineType({
                       name: "time",
                       title: "Time",
                       type: "string",
-                      description:
-                        "시간 (예: 08:00). 비워두면 시간 없이 표시됩니다.",
+                      description: "시간 (예: 08:00)",
                     },
                     {
                       name: "title",
                       title: "Activity Title",
                       type: "string",
-                      description: "일정 제목 (예: Hotel Pickup)",
+                      description: "일정 제목",
                     },
                     {
                       name: "description",
                       title: "Description",
                       type: "text",
                       rows: 2,
-                      description: "상세 설명 (줄바꿈 가능)",
+                      description: "상세 설명",
                     },
                     {
                       name: "iconType",
                       title: "Icon Type",
                       type: "string",
-                      description: "타임라인 왼쪽에 표시될 아이콘 종류",
                       options: {
                         list: [
-                          {
-                            title: "📍 Spot / Location (기본)",
-                            value: "location",
-                          },
-                          {
-                            title: "🚌 Transport / Bus (이동)",
-                            value: "transport",
-                          },
-                          { title: "🍴 Food / Meal (식사)", value: "food" },
-                          { title: "🏨 Hotel / Stay (숙박)", value: "hotel" },
-                          { title: "🛍️ Shopping (쇼핑)", value: "shopping" },
-                          { title: "🚶 Walking (도보)", value: "walking" },
+                          { title: "📍 Spot / Location", value: "location" },
+                          { title: "🚌 Transport / Bus", value: "transport" },
+                          { title: "🍴 Food / Meal", value: "food" },
+                          { title: "🏨 Hotel / Stay", value: "hotel" },
+                          { title: "🛍️ Shopping", value: "shopping" },
+                          { title: "🚶 Walking", value: "walking" },
                         ],
                       },
                       initialValue: "location",
@@ -244,11 +229,9 @@ export default defineType({
                       name: "image",
                       title: "Activity Image",
                       type: "image",
-                      description: "해당 일정에 보여줄 작은 사진",
                       options: { hotspot: true },
                     },
                   ],
-                  // Sanity Studio 리스트에서 미리보기 설정
                   preview: {
                     select: {
                       title: "title",
@@ -266,17 +249,14 @@ export default defineType({
                 },
               ],
             }),
-
-            // 불포함 사항 (Overview 하단 참고용)
             {
               name: "excluded",
               title: "Excluded Items",
               type: "array",
               of: [{ type: "string" }],
-              description: "불포함 사항 (개요 하단 표시용)",
+              description: "불포함 사항",
             },
           ],
-          // 옵션 리스트 미리보기
           preview: {
             select: { title: "name", subtitle: "price" },
             prepare({ title, subtitle }) {
