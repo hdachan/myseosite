@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { ChevronLeft, Lock } from "lucide-react";
 import BookingForm from "@/components/booking/BookingForm";
 import OrderSummary from "@/components/booking/OrderSummary";
+import FullScreenLoader from "@/components/FullScreenLoader"; // ✅ 분리한 컴포넌트 import
 import { hangameFont } from "@/lib/fonts";
 
 function BookingContent() {
@@ -12,7 +13,7 @@ function BookingContent() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // 1. KPN 결제 스크립트 로드
+  // KPN 스크립트 로드
   useEffect(() => {
     const script = document.createElement("script");
     script.src = "https://dev.firstpay.co.kr/js/firstpay.js";
@@ -25,10 +26,6 @@ function BookingContent() {
     };
   }, []);
 
-  // ❌ [삭제됨] 클라이언트에서 암호를 만들던 함수 삭제 (보안 강화)
-  // async function generateHash(...) { ... }
-
-  // URL에서 투어 정보 가져오기
   const tourBaseData = {
     tourId: searchParams.get("tourId") || "",
     slug: searchParams.get("slug") || "",
@@ -38,7 +35,6 @@ function BookingContent() {
     price: Number(searchParams.get("price")) || 0,
   };
 
-  // 입력 폼 상태
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -57,7 +53,6 @@ function BookingContent() {
     "PAYMENT" | "RESERVATION"
   >("PAYMENT");
 
-  // 핸들러들
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
@@ -80,22 +75,42 @@ function BookingContent() {
     }));
   };
 
-  // ✅ 제출 핸들러 (보안 로직 적용됨)
+  // 화면 맨 위로 부드럽게 올리는 함수
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // 1. 유효성 검사
     if (!tourBaseData.tourId) return alert("System Error: Tour ID missing.");
-    if (!formData.fullName.trim()) return alert("Please enter your full name.");
-    if (!formData.email.trim() || !formData.email.includes("@"))
-      return alert("Please enter a valid email address.");
-    if (!formData.phone.trim()) return alert("Please enter your phone number.");
-    if (formData.adults < 1) return alert("At least 1 adult is required.");
-    if (!formData.agreed)
+
+    // 유효성 검사 실패 시 -> 스크롤 올리고 -> 경고창
+    if (!formData.fullName.trim()) {
+      scrollToTop();
+      return setTimeout(() => alert("Please enter your full name."), 100);
+    }
+    if (!formData.email.trim() || !formData.email.includes("@")) {
+      scrollToTop();
+      return setTimeout(
+        () => alert("Please enter a valid email address."),
+        100,
+      );
+    }
+    if (!formData.phone.trim()) {
+      scrollToTop();
+      return setTimeout(() => alert("Please enter your phone number."), 100);
+    }
+
+    if (formData.adults < 1) {
+      scrollToTop();
+      return alert("At least 1 adult is required.");
+    }
+    if (!formData.agreed) {
       return alert("Please agree to the Terms and Conditions.");
+    }
 
-    // 🏨 호텔 정보는 검사하지 않음 (선택 사항)
-
+    // --- 검사 통과: 로딩 시작 ---
     setIsSubmitting(true);
 
     const orderNumber = `ORD_${new Date().getTime()}`;
@@ -109,7 +124,7 @@ function BookingContent() {
     };
 
     try {
-      // 2. DB 저장 (Pending 상태)
+      // 1. DB 저장
       const response = await fetch("/api/bookings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -119,23 +134,21 @@ function BookingContent() {
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "Booking failed");
 
-      // 3. 분기 처리
+      // 2. 분기 처리
       if (submissionType === "RESERVATION") {
-        // [예약만 하기]
         alert("Reservation submitted successfully!");
         router.push("/");
       } else {
-        // [결제 하기]
         if (typeof window === "undefined" || !(window as any).FirstPay) {
           alert("Payment system loading... Please try again in a moment.");
-          setIsSubmitting(false);
+          setIsSubmitting(false); // 로딩 끄기
           return;
         }
 
         const mxId = "testcorp";
         const amount = currentTotalPrice;
 
-        // 🔒 [보안 핵심] 서버에게 해시 생성을 요청합니다! (비밀키 노출 X)
+        // 해시 생성 요청
         const hashResponse = await fetch("/api/payment-hash", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -151,13 +164,13 @@ function BookingContent() {
 
         const { hash: callHash } = await hashResponse.json();
 
-        // PG사 결제창 호출
         const pay = new (window as any).FirstPay({
           env: "develop",
           isMobile: /iPhone|iPad|iPod|Android/i.test(navigator.userAgent),
           openType: "popup",
         });
 
+        // PG사 결제창 호출
         pay.goPay({
           mxId: mxId,
           mxIssueNo: orderNumber,
@@ -171,13 +184,17 @@ function BookingContent() {
           buyerName: formData.fullName,
           buyerEmail: formData.email,
           returnUrl: `${window.location.origin}/api/payment-return`,
-          callHash: callHash, // 서버에서 받아온 안전한 해시 사용
+          callHash: callHash,
         });
+
+        // ✅ [핵심 수정] 결제창을 띄웠으면 우리 웹사이트 로딩은 끕니다!
+        // 그래야 사용자가 팝업을 닫고 돌아왔을 때 다시 클릭할 수 있습니다.
+        setIsSubmitting(false);
       }
     } catch (error: any) {
       console.error("Error:", error);
       alert("Error processing request: " + error.message);
-      setIsSubmitting(false);
+      setIsSubmitting(false); // 에러 나면 로딩 끄기
     }
   };
 
@@ -193,9 +210,11 @@ function BookingContent() {
   }
 
   return (
-    <div className="min-h-screen bg-white pb-24">
+    <div className="min-h-screen bg-white pb-24 relative">
+      {/* ✅ 분리된 로딩 컴포넌트 사용 */}
+      {isSubmitting && <FullScreenLoader />}
+
       <div className="max-w-6xl mx-auto px-8 lg:px-12 pt-24">
-        {/* 뒤로가기 버튼 */}
         <button
           onClick={() => router.back()}
           className="group flex items-center text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors mb-8"
@@ -206,7 +225,6 @@ function BookingContent() {
           Back to Tour
         </button>
 
-        {/* 헤더 섹션 */}
         <div className="mb-10 border-b border-gray-100 pb-6">
           <div className="flex items-center gap-2 mb-2">
             <Lock className="w-4 h-4 text-[#4A7C7E]" />
@@ -225,14 +243,17 @@ function BookingContent() {
           onSubmit={handleSubmit}
           className="grid grid-cols-1 lg:grid-cols-3 gap-12"
         >
-          {/* 입력 폼 */}
-          <div
-            className={`lg:col-span-2 ${isSubmitting ? "opacity-50 pointer-events-none" : ""}`}
-          >
-            <BookingForm formData={formData} handleChange={handleChange} />
+          {/* 왼쪽: 입력 폼 */}
+          <div className={`lg:col-span-2`}>
+            {/* 로딩 중일 때 흐리게 보이는 효과는 유지 */}
+            <div
+              className={isSubmitting ? "opacity-50 pointer-events-none" : ""}
+            >
+              <BookingForm formData={formData} handleChange={handleChange} />
+            </div>
           </div>
 
-          {/* 요약 및 버튼 */}
+          {/* 오른쪽: 요약 및 버튼 */}
           <div className="lg:col-span-1">
             <div className="sticky top-24">
               <OrderSummary
@@ -244,11 +265,10 @@ function BookingContent() {
                 setSubmissionType={setSubmissionType}
               />
 
+              {/* 하단 텍스트 안내 (선택 사항) */}
               {isSubmitting && (
-                <div className="mt-4 p-4 bg-gray-50 border border-gray-100 text-gray-600 text-sm text-center rounded-lg animate-pulse">
-                  {submissionType === "PAYMENT"
-                    ? "Connecting to Payment Gateway..."
-                    : "Submitting Reservation..."}
+                <div className="mt-4 p-3 bg-blue-50 text-blue-700 text-xs text-center rounded-lg animate-pulse font-medium">
+                  Opening Secure Payment Window...
                 </div>
               )}
             </div>

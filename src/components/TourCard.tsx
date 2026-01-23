@@ -3,15 +3,15 @@ import Image from "next/image";
 import { Star } from "lucide-react";
 import { hangameFont } from "@/lib/fonts";
 
-// ✅ Sanity 데이터에 맞춘 새로운 인터페이스 정의 (기존 PackageTour 제거)
+// Sanity 데이터 인터페이스
 interface TourData {
-  id: string | number; // Sanity는 string, 기존 데이터는 number일 수 있으니 둘 다 허용
+  id: string | number;
   slug: string;
   image: string;
   title: string;
   location?: string;
   description?: string;
-  tags?: string[]; // Sanity 태그 배열
+  tags?: string[];
   rating: number;
   reviews: number;
   bookings: string;
@@ -21,12 +21,11 @@ interface TourData {
 }
 
 interface TourCardProps {
-  tour: TourData; // ✅ 교체
+  tour: TourData;
   priority?: boolean;
 }
 
 export default function TourCard({ tour, priority = false }: TourCardProps) {
-  // ✅ 태그 로직 개선: Sanity 태그가 있으면 그거 쓰고, 없으면 설명에서 쉼표로 잘라 씀
   const displayTags =
     tour.tags && tour.tags.length > 0
       ? tour.tags
@@ -42,7 +41,7 @@ export default function TourCard({ tour, priority = false }: TourCardProps) {
         target="_blank"
         rel="noopener noreferrer"
       >
-        <div className="h-full flex flex-col bg-white rounded-xl overflow-hidden border border-gray-200 shadow-sm shadow-[inset_0_0_14px_rgba(0,0,0,0.04)] hover:shadow-md transition-all duration-300">
+        <div className="h-full flex flex-col bg-white rounded-[6px] overflow-hidden border border-gray-200 shadow-sm shadow-[inset_0_0_14px_rgba(0,0,0,0.04)] hover:shadow-md transition-all duration-300">
           {/* 1. 이미지 영역 */}
           <div className="relative h-[150px] md:h-[200px] w-full overflow-hidden bg-gray-50 border-b border-gray-100">
             {tour.image ? (

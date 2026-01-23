@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, Suspense } from "react";
 import { useRouter } from "next/navigation";
+import { hangameFont } from "@/lib/fonts"; // 폰트가 정의된 경로에 맞춰 수정하세요
 import {
   Trash2,
   CreditCard,
@@ -179,12 +180,16 @@ function CartContent() {
 
   if (items.length === 0) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
+      // 1. 폰트 변수와 클래스 적용
+      <div
+        className={`${hangameFont.variable} font-hangame min-h-screen flex flex-col items-center justify-center bg-gray-50`}
+      >
         <ShoppingBag className="w-16 h-16 text-gray-300 mb-4" />
         <p className="text-xl text-gray-500 mb-4">Your cart is empty.</p>
         <button
           onClick={() => router.push("/package")}
-          className="bg-orange-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-orange-700"
+          style={{ backgroundColor: "#4A7C82" }}
+          className="text-white px-6 py-2 rounded-lg font-bold hover:brightness-110 transition-all"
         >
           Go to Tours
         </button>

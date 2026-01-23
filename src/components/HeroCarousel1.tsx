@@ -137,7 +137,7 @@ export default function HeroCarousel1() {
                   Seoul City Tour
                 </span>
                 <span className="font-normal text-xl sm:text-3xl md:text-4xl lg:text-5xl tracking-normal opacity-100">
-                  Walks for You, Not Just the View.
+                  Walks for You, Not Just the View
                 </span>
               </span>
             </h1>

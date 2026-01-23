@@ -1,3 +1,5 @@
+"use client";
+
 import PageHero from "@/components/PageHero";
 import { Building2, Calendar, User, Users, Quote } from "lucide-react";
 /* ✅ 폰트 가져오기 */
@@ -5,53 +7,28 @@ import { hangameFont } from "@/lib/fonts";
 import Image from "next/image";
 
 export default function CompanyPage() {
-  const companyInfo = [
-    {
-      icon: Building2,
-      label: "Company",
-      value: "Seoul City Tour Co., Ltd.",
-    },
-    {
-      icon: Calendar,
-      label: "Established",
-      value: "Dec 27, 2004",
-    },
-    {
-      icon: User,
-      label: "CEO",
-      value: "Do-Young Park",
-    },
-    {
-      icon: Users,
-      label: "Team",
-      value: "Professional Experts",
-    },
-  ];
-
+  // ✅ [수정됨] 로컬 이미지 경로로 변경
+  // public/images/company 폴더에 해당 파일명으로 이미지를 넣어주세요.
   const teamMembers = [
     {
       name: "Walter White",
       role: "Chief Executive Officer",
-      image:
-        "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=800",
+      image: "/images/company/team_01.jpg", // 👈 파일명 확인 필요
     },
     {
       name: "Sarah Jhonson",
       role: "Product Manager",
-      image:
-        "https://images.unsplash.com/photo-1573496359-0933d2768dcd?auto=format&fit=crop&q=80&w=800",
+      image: "/images/company/team_02.jpg",
     },
     {
       name: "William Anderson",
       role: "CTO",
-      image:
-        "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=800",
+      image: "/images/company/team_03.jpg",
     },
     {
       name: "Amanda Jepson",
       role: "Accountant",
-      image:
-        "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=800",
+      image: "/images/company/team_04.jpg",
     },
   ];
 
@@ -100,11 +77,9 @@ export default function CompanyPage() {
       {/* 2. Company Overview */}
       <section className="relative w-full py-16 lg:py-24">
         <div className="max-w-6xl mx-auto px-8 lg:px-12">
-          {/* 상단 정렬 적용: items-start (텍스트와 이미지 상단 높이 맞춤) */}
           <div className="grid md:grid-cols-2 gap-12 items-start mb-16">
             {/* Left: Text */}
             <div>
-              {/* 제목: Sincerity and Expertise 적용 */}
               <h2
                 className={`${hangameFont.className} text-2xl font-bold text-gray-900 mb-6 leading-tight`}
               >
@@ -129,9 +104,8 @@ export default function CompanyPage() {
 
             {/* Right: Landscape Image */}
             <div className="flex justify-center md:justify-end">
-              {/* 가로형 비율(aspect-[3/2]) + 라운드 6px 유지 */}
               <div className="relative w-full aspect-[3/2] rounded-[6px] overflow-hidden shadow-xl border-4 border-white">
-                {/* ✅ 이미지 소스 변경됨 */}
+                {/* 기존 img 태그 유지 (또는 Next/Image로 교체 가능) */}
                 <img
                   src="/images/company/dmz-group-photo.jpg"
                   alt="Seoul City Tour DMZ Group Photo"
@@ -143,7 +117,7 @@ export default function CompanyPage() {
         </div>
       </section>
 
-      {/* 3. ceo me */}
+      {/* 3. CEO Message */}
       <section className="relative bg-[#F8F9FA] py-16 lg:py-24 overflow-hidden">
         {/* 배경 이미지 */}
         <div className="absolute inset-0 z-0">
@@ -151,17 +125,14 @@ export default function CompanyPage() {
             src="/images/company/typeC_01.png"
             alt="Background Pattern"
             fill
-            className="object-cover opacity-40 pointer-events-none mix-blend-multiply"
+            className="object-cover object-[80%_center] lg:object-center opacity-40 pointer-events-none mix-blend-multiply"
           />
         </div>
 
-        {/* 레이아웃 컨테이너 */}
         <div className="relative z-10 max-w-6xl mx-auto px-8 lg:px-12">
           <div className="grid md:grid-cols-12 gap-12 lg:gap-16">
             {/* 1. 이미지 영역 (Left) */}
             <div className="md:col-span-5 relative">
-              {/* ✅ 수정됨: 투명도 10% 적용 (bg-white/90) */}
-              {/* bg-white/90: 흰색 배경인데 10% 정도 뒤가 비침 */}
               <div className="w-full h-full min-h-[350px] rounded-[6px] overflow-hidden shadow-lg bg-white/50 border-white border-4 relative backdrop-blur-sm">
                 <img
                   src="/images/company/park-do-young-ceo.png"
@@ -173,13 +144,8 @@ export default function CompanyPage() {
 
             {/* 2. 텍스트 영역 (Right) */}
             <div className="md:col-span-7 flex flex-col justify-center space-y-6 relative">
-              {/* 제목 + 따옴표 영역 */}
               <div className="relative">
-                {/* ✅ 수정됨: 모바일에서도 따옴표 보이게 설정 */}
-                {/* 1. 모바일용 (block md:hidden): 글자 바로 위에 나옴 */}
                 <Quote className="block md:hidden w-8 h-8 text-[#4A7C7E] scale-x-[-1] mb-2" />
-
-                {/* 2. PC용 (hidden md:block): 왼쪽으로 튀어나오게 배치 (-left-12) */}
                 <Quote className="hidden md:block absolute -left-12 -top-2 w-10 h-10 text-[#4A7C7E] scale-x-[-1]" />
 
                 <h3
@@ -188,7 +154,6 @@ export default function CompanyPage() {
                   At Seoul City Tour, we believe that great travel is more than
                   visiting places — it is about understanding people, culture,
                   and stories.
-                  {/* 끝 따옴표 */}
                   <Quote className="inline-block w-8 h-8 md:w-10 md:h-10 text-[#4A7C7E] ml-2 align-top opacity-50" />
                 </h3>
               </div>
@@ -223,7 +188,7 @@ export default function CompanyPage() {
         </div>
       </section>
 
-      {/* 4. Company History - Clean Grid Style */}
+      {/* 4. Company History */}
       <section className="py-16 lg:py-24 bg-white">
         <div className="max-w-6xl mx-auto px-8 lg:px-12">
           <div className="mb-12">
@@ -243,15 +208,12 @@ export default function CompanyPage() {
                 key={idx}
                 className="group flex flex-col items-start border-t border-gray-200 pt-6 hover:border-[#4A7C7E] transition-colors duration-300"
               >
-                {/* 연도 - 텍스트로만 심플하게 */}
                 <span className="text-3xl font-bold text-gray-200 mb-4 group-hover:text-[#4A7C7E] transition-colors duration-300">
                   {item.year}
                 </span>
-
                 <h3 className="text-lg font-bold text-gray-900 mb-3">
                   {item.title}
                 </h3>
-
                 <p className="text-[14px] text-gray-600 leading-relaxed">
                   {item.desc}
                 </p>
@@ -260,14 +222,14 @@ export default function CompanyPage() {
           </div>
         </div>
       </section>
-      {/* 5. Our Team Section */}
+
+      {/* 5. Our Team Section (수정됨) */}
       <section className="py-16 lg:py-24 bg-gray-50">
         <div className="max-w-6xl mx-auto px-8 lg:px-12">
           <div className="mb-12">
             <p className="text-xs font-bold text-[#4A7C7E] uppercase tracking-widest mb-2">
               Our People
             </p>
-            {/* 제목 */}
             <h2
               className={`${hangameFont.className} text-2xl font-bold text-gray-900 mb-4`}
             >
@@ -279,35 +241,21 @@ export default function CompanyPage() {
             </p>
           </div>
 
-          {/* ✅ 수정됨: 모바일 슬라이드 / PC 그리드 */}
-          <div
-            className="
-            /* 모바일: 가로 스크롤 (Flex + Overflow) */
-            flex gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4
-            
-            /* PC: 그리드 복귀 (4열) */
-            lg:grid lg:grid-cols-4 lg:gap-6 lg:overflow-visible lg:pb-0
-          "
-          >
+          {/* ✅ 모바일 슬라이드 / PC 그리드 */}
+          <div className="flex gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4 lg:grid lg:grid-cols-4 lg:gap-6 lg:overflow-visible lg:pb-0">
             {teamMembers.map((member, index) => (
               <div
                 key={index}
-                className="
-                  /* 모바일 카드 크기 고정 (슬라이드용) */
-                  min-w-[260px] flex-shrink-0 snap-center
-                  
-                  /* PC 카드 크기 자동 (그리드용) */
-                  lg:min-w-0 lg:w-auto
-
-                  /* 공통 스타일 (라운드 6px 적용) */
-                  bg-white rounded-[6px] overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 border border-gray-100
-                "
+                className="min-w-[260px] flex-shrink-0 snap-center lg:min-w-0 lg:w-auto bg-white rounded-[6px] overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 border border-gray-100"
               >
+                {/* ✅ [Next/Image 적용] 로컬 이미지 최적화 */}
                 <div className="relative h-64 bg-gray-200">
-                  <img
+                  <Image
                     src={member.image}
                     alt={member.name}
-                    className="w-full h-full object-cover"
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 25vw, 20vw"
                   />
                 </div>
                 <div className="p-5">
@@ -325,7 +273,6 @@ export default function CompanyPage() {
       {/* 6. Simple CTA */}
       <section className="py-16 bg-white border-t border-gray-100">
         <div className="max-w-4xl mx-auto px-8 lg:px-12 text-center">
-          {/* ✅ 제목: 기준이 되는 text-2xl 적용 */}
           <h2
             className={`${hangameFont.className} text-2xl font-bold text-gray-900 mb-4`}
           >

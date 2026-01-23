@@ -1,12 +1,11 @@
 import { Metadata } from "next";
 import FAQClient from "./FAQClient";
-// PageHero 컴포넌트 경로 확인 (예: @/components/PageHero)
 import PageHero from "@/components/PageHero";
-// 폰트 경로 확인 (예: @/styles/fonts)
+// 폰트 경로 (사용하시는 경로에 맞게 유지)
 import { hangameFont } from "@/lib/fonts";
 
 // ==============================
-// SEO Metadata (원본 유지)
+// SEO Metadata
 // ==============================
 export const metadata: Metadata = {
   title: "Seoul City Tours FAQ 2025 – Booking, Prices, Solo & Private Tours",
@@ -30,7 +29,7 @@ export const metadata: Metadata = {
 };
 
 // ==============================
-// FAQ CONTENT (원본 유지)
+// FAQ CONTENT (✅ 취소 규정 업데이트 완료)
 // ==============================
 const faqData = [
   {
@@ -69,9 +68,11 @@ const faqData = [
   {
     question: "What is your cancellation and refund policy?",
     answer:
-      "Cancellations made at least 24 hours before the tour start time are eligible for a full refund. " +
-      "Cancellations made less than 24 hours before departure or no-shows are non-refundable. " +
-      "Refund policies may vary depending on the tour, so please review the specific tour terms before booking.",
+      "Please read our cancellation policy carefully before booking. " +
+      "Free cancellation is available until 3:00 PM (KST) on the day before the tour. " +
+      "Cancellations made after 3:00 PM (KST) on the day before the tour are subject to a 100% cancellation fee (no refund). " +
+      "If the tour is cancelled by the operator due to weather or safety reasons, a full refund will be provided. " +
+      "Refunds are processed to the original payment method and may take 5–10 business days to reflect in your account.",
   },
   {
     question: "How can I book a Seoul city tour?",
@@ -85,7 +86,7 @@ const faqData = [
 ];
 
 // ==============================
-// FAQ Schema (원본 유지)
+// FAQ Schema
 // ==============================
 const faqSchema = {
   "@context": "https://schema.org",
@@ -116,9 +117,9 @@ export default function FAQPage() {
         imageSrc="/images/background_korea_pt2.png"
       />
 
-      {/* Main Container - Left Alignment Consistency */}
+      {/* Main Container */}
       <div className="max-w-6xl mx-auto px-8 lg:px-12 py-16 sm:py-24">
-        {/* Intro Section - Left Aligned */}
+        {/* Intro Section */}
         <div className="mb-12 max-w-2xl">
           <h2 className="text-2xl font-bold text-gray-900 mb-3">
             Common Questions
@@ -129,14 +130,14 @@ export default function FAQPage() {
           </p>
         </div>
 
-        {/* FAQ UI (Width controlled via Grid for readability on very large screens, but aligned left) */}
+        {/* FAQ UI */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-          {/* FAQ List - Takes 8 columns on large screens */}
+          {/* FAQ List */}
           <div className="lg:col-span-8">
             <FAQClient faqData={faqData} />
           </div>
 
-          {/* Side CTA / Info - Takes 4 columns (Optional, keeps layout balanced) */}
+          {/* Side CTA / Info */}
           <div className="lg:col-span-4 space-y-6">
             <div className="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm">
               <h3 className="text-2xl font-bold text-gray-900 mb-4">

@@ -110,8 +110,8 @@ export default function FeaturedAccommodations() {
           src="/images/company/typeB_01.png"
           alt="Section Background"
           fill
-          className="object-cover opacity-100"
           priority
+          className="object-cover object-[0%_center] lg:object-center opacity-100"
         />
       </div>
 
