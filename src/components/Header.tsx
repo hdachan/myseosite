@@ -5,15 +5,12 @@ import Image from "next/image";
 import { Menu, ShoppingCart, X } from "lucide-react";
 import { useCartStore } from "@/store/cartStore";
 import { useEffect, useState } from "react";
-import { usePathname } from "next/navigation"; // ✅ 1. 주소 확인용 훅 추가
-
-/* ✅ 폰트 가져오기 */
+import { usePathname } from "next/navigation";
 import { hangameFont } from "@/lib/fonts";
 
 export default function Header() {
-  const pathname = usePathname(); // ✅ 2. 현재 주소 가져오기
+  const pathname = usePathname();
 
-  // ✅ 3. 만약 주소가 '/studio'로 시작하면? -> 헤더를 아예 그리지 않음 (null 반환)
   if (
     pathname?.startsWith("/studio") ||
     pathname?.startsWith("/admin") ||
@@ -34,10 +31,14 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
+    // ✅ [수정됨] getTotalItems() 대신 items.length를 사용하여 "상품 개수"만 카운트
     const unsubscribe = useCartStore.subscribe((state) => {
-      setCartItemsCount(state.getTotalItems());
+      setCartItemsCount(state.items.length);
     });
-    setCartItemsCount(useCartStore.getState().getTotalItems());
+
+    // 초기값 설정도 items.length로 변경
+    setCartItemsCount(useCartStore.getState().items.length);
+
     return () => unsubscribe();
   }, []);
 

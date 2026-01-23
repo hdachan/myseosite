@@ -12,7 +12,9 @@ export default function Footer() {
             <p className="leading-relaxed">
               Seoul City Tour Co., Ltd.
               <br />
-              Insadong, Jongno-gu, Seoul, South Korea
+              {/* \n 대신 <br /> 태그를 사용하세요 */}
+              Rm 507, Hanaro Bldg, 194-4 Insa-dong, <br />
+              Jongno-gu, Seoul, South Korea
             </p>
             <p className="mt-3">
               <a
@@ -22,7 +24,8 @@ export default function Footer() {
                 mail@seoulcitytour.net
               </a>
               <br />
-              Tel. +82-2-774-3345
+              {/* ✅ 팩스 번호 추가 */}
+              Tel. +82-2-774-3345 / Fax. +82-2-774-8223
             </p>
           </div>
 
@@ -95,8 +98,7 @@ export default function Footer() {
                   Terms of Service
                 </Link>
               </li>
-              <li className="pt-2">Business Reg. No: 507-88-02244</li>
-              <li>Tour License No: 2008-000002</li>
+              <li className="pt-2">Business Reg. No: 101-86-38083</li>
             </ul>
           </div>
         </div>
@@ -110,9 +112,10 @@ export default function Footer() {
               height={24}
             />
             <Image src="/payments/visa.png" alt="visa" width={40} height={24} />
+            <Image src="/payments/jcb.png" alt="jcb" width={40} height={24} />
             <Image
-              src="/payments/paypal.jpg"
-              alt="PayPal"
+              src="/payments/unionpay.png"
+              alt="unionpay"
               width={40}
               height={24}
             />

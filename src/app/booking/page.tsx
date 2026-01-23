@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useState, Suspense, useEffect } from "react";
+import React, { useState, Suspense, useEffect, useMemo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { ChevronLeft, Lock } from "lucide-react";
 import BookingForm from "@/components/booking/BookingForm";
 import OrderSummary from "@/components/booking/OrderSummary";
-import FullScreenLoader from "@/components/FullScreenLoader"; // ✅ 분리한 컴포넌트 import
+import FullScreenLoader from "@/components/FullScreenLoader";
 import { hangameFont } from "@/lib/fonts";
 
 function BookingContent() {
@@ -25,6 +25,24 @@ function BookingContent() {
       }
     };
   }, []);
+
+  // ✅ [추가됨] 한국 시간(KST) 오늘 날짜 계산 (달력 제한용)
+  const minDate = useMemo(() => {
+    const now = new Date();
+    const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+    const kstGap = 9 * 60 * 60000; // 한국시간 +9
+    const kstDate = new Date(utc + kstGap);
+    return kstDate.toISOString().split("T")[0];
+  }, []);
+
+  // 해시 생성 함수
+  async function generateHash(message: string) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(message);
+    const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+  }
 
   const tourBaseData = {
     tourId: searchParams.get("tourId") || "",
@@ -75,7 +93,6 @@ function BookingContent() {
     }));
   };
 
-  // 화면 맨 위로 부드럽게 올리는 함수
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -85,7 +102,7 @@ function BookingContent() {
 
     if (!tourBaseData.tourId) return alert("System Error: Tour ID missing.");
 
-    // 유효성 검사 실패 시 -> 스크롤 올리고 -> 경고창
+    // 유효성 검사
     if (!formData.fullName.trim()) {
       scrollToTop();
       return setTimeout(() => alert("Please enter your full name."), 100);
@@ -101,7 +118,6 @@ function BookingContent() {
       scrollToTop();
       return setTimeout(() => alert("Please enter your phone number."), 100);
     }
-
     if (formData.adults < 1) {
       scrollToTop();
       return alert("At least 1 adult is required.");
@@ -110,7 +126,6 @@ function BookingContent() {
       return alert("Please agree to the Terms and Conditions.");
     }
 
-    // --- 검사 통과: 로딩 시작 ---
     setIsSubmitting(true);
 
     const orderNumber = `ORD_${new Date().getTime()}`;
@@ -136,33 +151,23 @@ function BookingContent() {
 
       // 2. 분기 처리
       if (submissionType === "RESERVATION") {
-        alert("Reservation submitted successfully!");
-        router.push("/");
+        // 예약 완료 페이지로 이동 (타입 파라미터 추가)
+        router.push(`/booking/success?orderId=${orderNumber}&type=RESERVATION`);
       } else {
+        // [결제 로직]
         if (typeof window === "undefined" || !(window as any).FirstPay) {
-          alert("Payment system loading... Please try again in a moment.");
-          setIsSubmitting(false); // 로딩 끄기
+          alert("Payment system loading... Please try again.");
+          setIsSubmitting(false);
           return;
         }
 
-        const mxId = "testcorp";
+        const mxId = "testcorp"; // 테스트 ID
+        const passKey = "6aMoJujE34XnL9gvUqdKGMqs9GzYaNo6"; // 테스트 Key
         const amount = currentTotalPrice;
 
-        // 해시 생성 요청
-        const hashResponse = await fetch("/api/payment-hash", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            orderNumber: orderNumber,
-            amount: amount,
-          }),
-        });
-
-        if (!hashResponse.ok) {
-          throw new Error("Security check failed (Server Hash Error).");
-        }
-
-        const { hash: callHash } = await hashResponse.json();
+        // 해시 생성
+        const hashString = mxId + orderNumber + amount + passKey;
+        const callHash = await generateHash(hashString);
 
         const pay = new (window as any).FirstPay({
           env: "develop",
@@ -185,16 +190,16 @@ function BookingContent() {
           buyerEmail: formData.email,
           returnUrl: `${window.location.origin}/api/payment-return`,
           callHash: callHash,
+          lang: "en", // ✅ 영어 설정
+          cardSelect: "09:18", // ✅ 해외/은련 카드 설정
         });
 
-        // ✅ [핵심 수정] 결제창을 띄웠으면 우리 웹사이트 로딩은 끕니다!
-        // 그래야 사용자가 팝업을 닫고 돌아왔을 때 다시 클릭할 수 있습니다.
         setIsSubmitting(false);
       }
     } catch (error: any) {
       console.error("Error:", error);
       alert("Error processing request: " + error.message);
-      setIsSubmitting(false); // 에러 나면 로딩 끄기
+      setIsSubmitting(false);
     }
   };
 
@@ -211,7 +216,6 @@ function BookingContent() {
 
   return (
     <div className="min-h-screen bg-white pb-24 relative">
-      {/* ✅ 분리된 로딩 컴포넌트 사용 */}
       {isSubmitting && <FullScreenLoader />}
 
       <div className="max-w-6xl mx-auto px-8 lg:px-12 pt-24">
@@ -245,11 +249,15 @@ function BookingContent() {
         >
           {/* 왼쪽: 입력 폼 */}
           <div className={`lg:col-span-2`}>
-            {/* 로딩 중일 때 흐리게 보이는 효과는 유지 */}
             <div
               className={isSubmitting ? "opacity-50 pointer-events-none" : ""}
             >
-              <BookingForm formData={formData} handleChange={handleChange} />
+              {/* ✅ minDate 전달: 오늘 이전 날짜 선택 불가 */}
+              <BookingForm
+                formData={formData}
+                handleChange={handleChange}
+                minDate={minDate}
+              />
             </div>
           </div>
 
@@ -265,7 +273,6 @@ function BookingContent() {
                 setSubmissionType={setSubmissionType}
               />
 
-              {/* 하단 텍스트 안내 (선택 사항) */}
               {isSubmitting && (
                 <div className="mt-4 p-3 bg-blue-50 text-blue-700 text-xs text-center rounded-lg animate-pulse font-medium">
                   Opening Secure Payment Window...

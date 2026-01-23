@@ -1,7 +1,6 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { persist, createJSONStorage } from "zustand/middleware";
 
-// ✅ 여기 인터페이스에 2줄 추가!
 export interface CartItem {
   slug: string;
   title: string;
@@ -12,8 +11,6 @@ export interface CartItem {
   children: number;
   pricePerPerson: number;
   totalPrice: number;
-
-  // 👇 이 두 줄을 꼭 추가해주세요! (결제할 때 필수)
   tourId: string;
   date: string;
 }
@@ -22,12 +19,12 @@ interface CartState {
   items: CartItem[];
   addItem: (item: CartItem) => void;
   removeItem: (slug: string, optionId: string) => void;
-  // ... (나머지는 그대로 두셔도 됩니다)
-  updateQuantity: (
+  // ✅ [수정됨] CartPage에서 사용하는 함수명과 로직으로 변경
+  updateItemQuantity: (
     slug: string,
     optionId: string,
-    adults: number,
-    children: number,
+    type: "adults" | "children",
+    delta: number,
   ) => void;
   clearCart: () => void;
   getTotalItems: () => number;
@@ -41,7 +38,7 @@ export const useCartStore = create<CartState>()(
 
       addItem: (item) =>
         set((state) => {
-          // 중복 체크: 같은 상품 + 같은 옵션 + 같은 날짜(date)까지 같아야 진짜 중복
+          // 중복 체크: 상품 + 옵션 + 날짜까지 같아야 같은 상품으로 취급
           const existingIndex = state.items.findIndex(
             (i) =>
               i.slug === item.slug &&
@@ -51,16 +48,19 @@ export const useCartStore = create<CartState>()(
 
           if (existingIndex !== -1) {
             const updated = [...state.items];
+            const existingItem = updated[existingIndex];
+
+            // 수량 합산
+            const newAdults = existingItem.adults + item.adults;
+            const newChildren = existingItem.children + item.children;
+
             updated[existingIndex] = {
-              ...updated[existingIndex],
-              adults: updated[existingIndex].adults + item.adults,
-              children: updated[existingIndex].children + item.children,
+              ...existingItem,
+              adults: newAdults,
+              children: newChildren,
+              // 가격 재계산
               totalPrice:
-                (updated[existingIndex].adults +
-                  item.adults +
-                  updated[existingIndex].children +
-                  item.children) *
-                item.pricePerPerson,
+                (newAdults + newChildren) * existingItem.pricePerPerson,
             };
             return { items: updated };
           }
@@ -74,19 +74,30 @@ export const useCartStore = create<CartState>()(
           ),
         })),
 
-      // ... 나머지 함수들은 그대로 두세요 ...
-      updateQuantity: (slug, optionId, adults, children) =>
+      // ✅ [핵심 수정] +1, -1 버튼 기능 구현
+      updateItemQuantity: (slug, optionId, type, delta) =>
         set((state) => ({
-          items: state.items.map((item) =>
-            item.slug === slug && item.optionId === optionId
-              ? {
-                  ...item,
-                  adults,
-                  children,
-                  totalPrice: (adults + children) * item.pricePerPerson,
-                }
-              : item,
-          ),
+          items: state.items.map((item) => {
+            // 해당 아이템 찾기
+            if (item.slug === slug && item.optionId === optionId) {
+              const currentQty = item[type];
+              const newQty = currentQty + delta;
+
+              // 0명 미만으로 내려가지 않게 방지
+              if (newQty < 0) return item;
+
+              // 성인/아동 수 변경
+              const updatedItem = { ...item, [type]: newQty };
+
+              // 총 가격 재계산 ( (성인+아동) * 단가 )
+              updatedItem.totalPrice =
+                (updatedItem.adults + updatedItem.children) *
+                updatedItem.pricePerPerson;
+
+              return updatedItem;
+            }
+            return item;
+          }),
         })),
 
       clearCart: () => set({ items: [] }),
@@ -106,6 +117,7 @@ export const useCartStore = create<CartState>()(
     }),
     {
       name: "cart-storage",
+      storage: createJSONStorage(() => localStorage),
     },
   ),
 );

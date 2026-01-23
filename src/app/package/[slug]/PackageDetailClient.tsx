@@ -189,6 +189,7 @@ export default function PackageDetailClient({ tour }: Props) {
 
           {/* 4. Trust Badges */}
           <section className="grid grid-cols-1 md:grid-cols-3 gap-4 border-y border-gray-100 py-6">
+            {/* 1. 즉시 확정 */}
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-green-50 rounded-full flex items-center justify-center flex-shrink-0">
                 <CheckCircle2 className="w-5 h-5 text-green-600" />
@@ -197,18 +198,24 @@ export default function PackageDetailClient({ tour }: Props) {
                 <p className="font-bold text-sm text-gray-900">
                   Instant Confirmation
                 </p>
-                <p className="text-xs text-gray-500">Confirmed after booking</p>
+                <p className="text-xs text-gray-500">Hassle-free booking</p>
               </div>
             </div>
+
+            {/* 2. 공식 인증 업체 */}
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center flex-shrink-0">
                 <Shield className="w-5 h-5 text-blue-600" />
               </div>
               <div>
-                <p className="font-bold text-sm text-gray-900">Safe Travel</p>
-                <p className="text-xs text-gray-500">Licensed Operator</p>
+                <p className="font-bold text-sm text-gray-900">
+                  Licensed Operator
+                </p>
+                <p className="text-xs text-gray-500">Seoul Gov. Registered</p>
               </div>
             </div>
+
+            {/* 3. 무료 취소 (정책 반영) */}
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-purple-50 rounded-full flex items-center justify-center flex-shrink-0">
                 <RefreshCw className="w-5 h-5 text-purple-600" />
@@ -217,9 +224,7 @@ export default function PackageDetailClient({ tour }: Props) {
                 <p className="font-bold text-sm text-gray-900">
                   Free Cancellation
                 </p>
-                <p className="text-xs text-gray-500">
-                  Up to 24-48 hours before
-                </p>
+                <p className="text-xs text-gray-500">Until 3 PM, 1 day prior</p>
               </div>
             </div>
           </section>

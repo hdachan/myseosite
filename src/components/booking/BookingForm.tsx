@@ -12,11 +12,14 @@ interface BookingFormProps {
     hotelInfo: string;
   };
   handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  // ✅ [추가] 날짜 제한을 위한 minDate
+  minDate?: string;
 }
 
 export default function BookingForm({
   formData,
   handleChange,
+  minDate,
 }: BookingFormProps) {
   return (
     <div className="space-y-6">
@@ -95,6 +98,7 @@ export default function BookingForm({
                 required
                 type="date"
                 name="tourDate"
+                min={minDate}
                 value={formData.tourDate}
                 onChange={handleChange}
                 className="w-full border border-gray-300 p-2.5 rounded-[6px] focus:ring-2 focus:ring-orange-500 outline-none cursor-pointer"
@@ -102,7 +106,6 @@ export default function BookingForm({
             </div>
           </div>
 
-          {/* ✅ 호텔 정보 수정됨 (선택사항) */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Hotel Information (Name & Address){" "}
@@ -113,7 +116,6 @@ export default function BookingForm({
             <div className="relative">
               <MapPin className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
               <input
-                // required 제거됨
                 name="hotelInfo"
                 value={formData.hotelInfo}
                 onChange={handleChange}

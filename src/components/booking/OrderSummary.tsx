@@ -193,7 +193,7 @@ export default function OrderSummary({
           onClick={() => setSubmissionType("RESERVATION")}
           className="w-full bg-gray-800 hover:bg-gray-900 text-white font-bold py-3.5 rounded-[6px] transition-all shadow-md flex items-center justify-center gap-2"
         >
-          Make a Reservation (Pay Later)
+          Make a Reservation
           <CalendarCheck className="w-5 h-5" />
         </button>
       </div>
