@@ -7,13 +7,14 @@ import BookingForm from "@/components/booking/BookingForm";
 import OrderSummary from "@/components/booking/OrderSummary";
 import FullScreenLoader from "@/components/FullScreenLoader";
 import { hangameFont } from "@/lib/fonts";
+import toast from "react-hot-toast";
 
 function BookingContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // KPN 스크립트 로드
+  // KPN 스크립트 로드 (기존 유지)
   useEffect(() => {
     const script = document.createElement("script");
     script.src = "https://dev.firstpay.co.kr/js/firstpay.js";
@@ -100,12 +101,10 @@ function BookingContent() {
     e.preventDefault();
 
     if (!tourBaseData.tourId) return alert("System Error: Tour ID missing.");
-
     if (formData.adults + formData.children < minPax) {
       scrollToTop();
       return alert(`Minimum booking requirement is ${minPax} people.`);
     }
-
     if (!formData.fullName.trim()) {
       scrollToTop();
       return setTimeout(() => alert("Please enter your full name."), 100);
@@ -133,6 +132,14 @@ function BookingContent() {
 
     const orderNumber = `ORD_${new Date().getTime()}`;
 
+    // 날짜 포맷 (KST 14자리)
+    const now = new Date();
+    const kstDate = new Date(now.getTime() + 9 * 60 * 60 * 1000);
+    const mxIssueDate = kstDate
+      .toISOString()
+      .replace(/[-T:\.Z]/g, "")
+      .slice(0, 14);
+
     const submitData = {
       ...tourBaseData,
       ...formData,
@@ -154,7 +161,7 @@ function BookingContent() {
       if (submissionType === "RESERVATION") {
         router.push(`/booking/success?orderId=${orderNumber}&type=RESERVATION`);
       } else {
-        // [결제 로직 - 보안 강화 버전]
+        // [결제 로직]
         if (typeof window === "undefined" || !(window as any).FirstPay) {
           alert("Payment system loading... Please try again.");
           setIsSubmitting(false);
@@ -162,51 +169,52 @@ function BookingContent() {
         }
 
         const mxId = "testcorp";
-        const amount = currentTotalPrice;
 
-        // ✅ 1. 서버에 해시 생성을 요청합니다 (API 호출)
+        // 1. 해시 요청
         const hashResponse = await fetch("/api/payment-hash", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             orderNumber: orderNumber,
-            amount: amount,
+            amount: currentTotalPrice,
           }),
         });
 
-        if (!hashResponse.ok) {
+        if (!hashResponse.ok)
           throw new Error("Failed to generate secure payment hash.");
-        }
-
-        // ✅ 2. 서버가 준 안전한 해시를 받습니다.
         const { hash: callHash } = await hashResponse.json();
 
-        // ✅ 3. 결제창을 띄웁니다.
+        // 2. 결제창 띄우기
         const pay = new (window as any).FirstPay({
           env: "develop",
           isMobile: /iPhone|iPad|iPod|Android/i.test(navigator.userAgent),
           openType: "popup",
         });
 
-        pay.goPay({
+        // 🔥 [수정 포인트] payPopup 객체 저장
+        const payPopup = pay.goPay({
           mxId: mxId,
           mxIssueNo: orderNumber,
-          mxIssueDate: new Date()
-            .toISOString()
-            .replace(/[-T:\.Z]/g, "")
-            .slice(0, 14),
-          amount: amount,
+          mxIssueDate: mxIssueDate,
+          amount: currentTotalPrice,
           currency: "KRW",
           orderName: tourBaseData.title,
           buyerName: formData.fullName,
           buyerEmail: formData.email,
+          buyerPhone: formData.phone.replace(/[^0-9]/g, ""),
           returnUrl: `${window.location.origin}/api/payment-return`,
-          callHash: callHash, // 서버에서 받아온 해시 사용
+          callHash: callHash,
           lang: "en",
-          cardSelect: "09:18",
         });
 
-        setIsSubmitting(false);
+        // 🔥 [수정 포인트] 팝업창 닫힘 감시 타이머 추가
+        const checkPopup = setInterval(() => {
+          if (payPopup && payPopup.closed) {
+            clearInterval(checkPopup);
+            setIsSubmitting(false); // 창 닫히면 로더 해제
+            console.log("Payment window closed by user.");
+          }
+        }, 1000);
       }
     } catch (error: any) {
       console.error("Error:", error);
@@ -227,7 +235,9 @@ function BookingContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-24 relative">
+    <div
+      className={`min-h-screen bg-gray-50 pb-24 relative ${hangameFont.variable}`}
+    >
       {isSubmitting && <FullScreenLoader />}
 
       <div className="max-w-6xl mx-auto px-8 lg:px-12 pt-12">
@@ -255,8 +265,8 @@ function BookingContent() {
           </h1>
           {minPax > 1 && (
             <div className="mt-2 flex items-center gap-2 text-xs font-medium text-orange-600 bg-orange-50 w-fit px-3 py-1 rounded-full">
-              <AlertCircle className="w-3 h-3" />
-              Minimum {minPax} people required for this tour
+              <AlertCircle className="w-3 h-3" /> Minimum {minPax} people
+              required for this tour
             </div>
           )}
         </div>
@@ -265,7 +275,7 @@ function BookingContent() {
           onSubmit={handleSubmit}
           className="grid grid-cols-1 lg:grid-cols-3 gap-12"
         >
-          <div className={`lg:col-span-2`}>
+          <div className="lg:col-span-2">
             <div
               className={isSubmitting ? "opacity-50 pointer-events-none" : ""}
             >
@@ -287,7 +297,6 @@ function BookingContent() {
                 handleChange={handleChange}
                 setSubmissionType={setSubmissionType}
               />
-
               {isSubmitting && (
                 <div className="mt-4 p-3 bg-blue-50 text-blue-700 text-xs text-center rounded-lg animate-pulse font-medium">
                   Opening Secure Payment Window...

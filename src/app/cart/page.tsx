@@ -17,9 +17,8 @@ import BookingForm from "@/components/booking/BookingForm";
 import FullScreenLoader from "@/components/FullScreenLoader";
 import { useCartStore } from "@/store/cartStore";
 import { hangameFont } from "@/lib/fonts";
-import toast from "react-hot-toast"; // ✅ 알림을 위해 추가
+import toast from "react-hot-toast";
 
-// Store 아이템 타입 정의
 interface ExtendedCartItem {
   slug: string;
   title: string;
@@ -32,7 +31,7 @@ interface ExtendedCartItem {
   totalPrice: number;
   date?: string;
   tourId?: string;
-  minPax?: number; // ✅ 최소 인원 필드 추가
+  minPax?: number;
 }
 
 function CartContent() {
@@ -91,14 +90,6 @@ function CartContent() {
     };
   }, []);
 
-  async function generateHash(message: string) {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(message);
-    const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
-  }
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type } = e.target;
     if (type === "checkbox") {
@@ -111,18 +102,14 @@ function CartContent() {
     }
   };
 
-  // ✅ [수정됨] 수량 조절 핸들러 (최소 인원 체크 로직 추가)
   const handlePaxChange = (
     item: ExtendedCartItem,
     type: "adults" | "children",
     delta: number,
   ) => {
-    // 1. 현재 총 인원
     const currentTotal = item.adults + item.children;
-    // 2. 최소 인원 (데이터 없으면 1명)
     const limit = item.minPax || 1;
 
-    // 3. 줄이려고 할 때(-1), 현재 인원이 제한선에 걸려있으면 차단
     if (delta < 0 && currentTotal <= limit) {
       toast.error(`Minimum booking for this tour is ${limit} person(s).`);
       return;
@@ -130,8 +117,6 @@ function CartContent() {
 
     if (updateItemQuantity) {
       updateItemQuantity(item.slug, item.optionId, type, delta);
-    } else {
-      console.warn("Store update function missing");
     }
   };
 
@@ -139,21 +124,18 @@ function CartContent() {
     removeItem(item.slug, item.optionId);
   };
 
-  // ✅ [추가] 장바구니 전체 검증: 최소 인원 미달인 상품이 하나라도 있는지 확인
   const invalidItems = items.filter(
     (item) => item.adults + item.children < (item.minPax || 1),
   );
   const isCartInvalid = invalidItems.length > 0;
 
+  // 🔥 [핵심 수정] 결제 프로세스
   const processCheckout = async (type: "PAYMENT" | "RESERVATION") => {
     if (items.length === 0) return alert("Cart is empty.");
-
-    // ✅ 결제 시도 시 한 번 더 체크
     if (isCartInvalid) {
       toast.error("Some items do not meet the minimum passenger requirement.");
       return;
     }
-
     if (!formData.fullName || !formData.email || !formData.phone)
       return alert("Please fill in Traveler Information.");
     if (!formData.agreed) return alert("Please agree to the Terms.");
@@ -166,6 +148,13 @@ function CartContent() {
       items.length > 1
         ? `${firstItemTitle} and ${items.length - 1} others`
         : firstItemTitle;
+
+    const now = new Date();
+    const kstDate = new Date(now.getTime() + 9 * 60 * 60 * 1000);
+    const mxIssueDate = kstDate
+      .toISOString()
+      .replace(/[-T:\.Z]/g, "")
+      .slice(0, 14);
 
     try {
       const response = await fetch("/api/cart-checkout", {
@@ -205,10 +194,14 @@ function CartContent() {
           return;
         }
 
-        const mxId = "testcorp";
-        const passKey = "6aMoJujE34XnL9gvUqdKGMqs9GzYaNo6";
-        const hashString = mxId + orderNumber + totalAmount + passKey;
-        const callHash = await generateHash(hashString);
+        const hashResponse = await fetch("/api/payment-hash", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ orderNumber, amount: totalAmount }),
+        });
+
+        if (!hashResponse.ok) throw new Error("Failed to generate hash.");
+        const { hash: callHash } = await hashResponse.json();
 
         const pay = new (window as any).FirstPay({
           env: "develop",
@@ -216,24 +209,29 @@ function CartContent() {
           openType: "popup",
         });
 
-        pay.goPay({
-          mxId: mxId,
+        // ⭐ [포인트] 팝업창 객체를 변수에 할당
+        const payPopup = pay.goPay({
+          mxId: "testcorp",
           mxIssueNo: orderNumber,
-          mxIssueDate: new Date()
-            .toISOString()
-            .replace(/[-T:\.Z]/g, "")
-            .slice(0, 14),
+          mxIssueDate: mxIssueDate,
           amount: totalAmount,
           currency: "KRW",
           orderName: orderName,
           buyerName: formData.fullName,
           buyerEmail: formData.email,
+          buyerPhone: formData.phone.replace(/[^0-9]/g, ""),
           returnUrl: `${window.location.origin}/api/payment-return`,
           callHash: callHash,
           lang: "en",
-          cardSelect: "09:18",
         });
-        setIsSubmitting(false);
+
+        // ⭐ [포인트] 팝업창 닫힘 감시 (사용자 이탈 대응)
+        const checkPopup = setInterval(() => {
+          if (payPopup && payPopup.closed) {
+            clearInterval(checkPopup);
+            setIsSubmitting(false); // 로더 해제
+          }
+        }, 1000);
       }
     } catch (error: any) {
       console.error(error);
@@ -251,8 +249,7 @@ function CartContent() {
         <p className="text-xl text-gray-500 mb-4">Your cart is empty.</p>
         <button
           onClick={() => router.push("/package")}
-          style={{ backgroundColor: "#4A7C82" }}
-          className="text-white px-6 py-2 rounded-lg font-bold hover:brightness-110 transition-all"
+          className="bg-[#4A7C82] text-white px-6 py-2 rounded-lg font-bold hover:brightness-110 transition-all"
         >
           Go to Tours
         </button>
@@ -261,7 +258,9 @@ function CartContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-24 relative">
+    <div
+      className={`min-h-screen bg-gray-50 pb-24 relative ${hangameFont.variable} font-hangame`}
+    >
       {isSubmitting && <FullScreenLoader />}
 
       <div className="max-w-6xl mx-auto px-8 lg:px-12 pt-12">
@@ -270,7 +269,7 @@ function CartContent() {
         </h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-          {/* [왼쪽] 상품 목록 & 정보 입력 */}
+          {/* 왼쪽 컬럼: 장바구니 아이템 및 폼 */}
           <div className="lg:col-span-2 space-y-8">
             <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
               <h2 className="font-bold text-lg mb-4">Items ({items.length})</h2>
@@ -310,7 +309,6 @@ function CartContent() {
                           {item.optionName}
                         </span>
                       </p>
-                      {/* ✅ 최소 인원 정보 표시 */}
                       {(item.minPax || 1) > 1 && (
                         <p className="text-xs text-orange-600 font-medium">
                           * Minimum {item.minPax} people required
@@ -319,6 +317,7 @@ function CartContent() {
                     </div>
 
                     <div className="space-y-3 mt-2">
+                      {/* 성인 수량 조절 */}
                       <div className="flex items-center justify-between gap-4">
                         <div className="flex items-center gap-2 text-sm text-gray-700">
                           <span className="font-medium w-16">Adults</span>
@@ -329,7 +328,7 @@ function CartContent() {
                               }
                               className="w-6 h-6 rounded-[4px] border border-gray-300 flex items-center justify-center hover:bg-gray-50"
                             >
-                              <Minus className="w-3 h-3 text-gray-600" />
+                              <Minus className="w-3 h-3" />
                             </button>
                             <span className="w-6 text-center font-bold text-gray-900">
                               {item.adults}
@@ -338,24 +337,25 @@ function CartContent() {
                               onClick={() => handlePaxChange(item, "adults", 1)}
                               className="w-6 h-6 rounded-[4px] border border-gray-300 flex items-center justify-center hover:bg-gray-50"
                             >
-                              <Plus className="w-3 h-3 text-gray-600" />
+                              <Plus className="w-3 h-3" />
                             </button>
                           </div>
                         </div>
-                        <div className="text-xs text-gray-500 text-right">
-                          <span className="block font-medium text-gray-900 text-sm">
+                        <div className="text-right">
+                          <span className="block font-bold text-gray-900 text-sm">
                             ${" "}
                             {(
                               item.adults * item.pricePerPerson
                             ).toLocaleString()}
                           </span>
-                          <span className="text-gray-400">
+                          <span className="text-xs text-gray-400">
                             ({item.adults} x ${" "}
                             {item.pricePerPerson.toLocaleString()})
                           </span>
                         </div>
                       </div>
 
+                      {/* 소아 수량 조절 (있는 경우만) */}
                       {item.children > 0 && (
                         <div className="flex items-center justify-between gap-4">
                           <div className="flex items-center gap-2 text-sm text-gray-700">
@@ -367,7 +367,7 @@ function CartContent() {
                                 }
                                 className="w-6 h-6 rounded-[4px] border border-gray-300 flex items-center justify-center hover:bg-gray-50"
                               >
-                                <Minus className="w-3 h-3 text-gray-600" />
+                                <Minus className="w-3 h-3" />
                               </button>
                               <span className="w-6 text-center font-bold text-gray-900">
                                 {item.children}
@@ -378,18 +378,18 @@ function CartContent() {
                                 }
                                 className="w-6 h-6 rounded-[4px] border border-gray-300 flex items-center justify-center hover:bg-gray-50"
                               >
-                                <Plus className="w-3 h-3 text-gray-600" />
+                                <Plus className="w-3 h-3" />
                               </button>
                             </div>
                           </div>
-                          <div className="text-xs text-gray-500 text-right">
-                            <span className="block font-medium text-gray-900 text-sm">
+                          <div className="text-right">
+                            <span className="block font-bold text-gray-900 text-sm">
                               ${" "}
                               {(
                                 item.children * item.pricePerPerson
                               ).toLocaleString()}
                             </span>
-                            <span className="text-gray-400">
+                            <span className="text-xs text-gray-400">
                               ({item.children} x ${" "}
                               {item.pricePerPerson.toLocaleString()})
                             </span>
@@ -399,10 +399,10 @@ function CartContent() {
                     </div>
                   </div>
 
-                  <div className="text-right sm:pl-4 mt-4 sm:mt-0 flex flex-col justify-between items-end">
+                  <div className="text-right flex flex-col justify-between items-end">
                     <button
                       onClick={() => handleRemove(item)}
-                      className="text-gray-400 hover:text-red-500 transition-colors p-1 mb-2"
+                      className="text-gray-400 hover:text-red-500 p-1 mb-2"
                     >
                       <Trash2 className="w-5 h-5" />
                     </button>
@@ -430,25 +430,21 @@ function CartContent() {
                 name="agreed"
                 checked={formData.agreed}
                 onChange={handleChange}
-                className="w-5 h-5 text-orange-600 border-gray-300 rounded focus:ring-orange-500 cursor-pointer"
+                className="w-5 h-5 text-orange-600 border-gray-300 rounded cursor-pointer"
               />
               <label
                 htmlFor="agreed"
                 className="text-xs text-gray-600 cursor-pointer leading-tight"
               >
                 I have read and agree to the{" "}
-                <a
-                  href="/terms"
-                  target="_blank"
-                  className="underline hover:text-orange-600"
-                >
+                <a href="/terms" target="_blank" className="underline">
                   Terms
                 </a>{" "}
                 and{" "}
                 <a
                   href="/cancellation-policy"
                   target="_blank"
-                  className="underline hover:text-orange-600"
+                  className="underline"
                 >
                   Cancellation Policy
                 </a>
@@ -457,12 +453,12 @@ function CartContent() {
             </div>
           </div>
 
+          {/* 오른쪽 컬럼: 결제 요약 및 버튼 */}
           <div className="lg:col-span-1">
             <div className="bg-white p-6 rounded-lg shadow-lg border border-gray-200 sticky top-24">
               <h3 className="text-lg font-bold mb-4 border-b pb-2">
                 Total Summary
               </h3>
-
               <div className="flex justify-between items-center text-2xl font-bold mb-6 pt-2">
                 <span>Total</span>
                 <span className="text-red-600">
@@ -470,13 +466,12 @@ function CartContent() {
                 </span>
               </div>
 
-              {/* ✅ [추가] 결제 불가 안내 메시지 */}
               {isCartInvalid && (
                 <div className="mb-4 flex items-start gap-2 bg-red-50 p-3 rounded-[6px] text-xs font-medium text-red-600">
                   <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
                   <p>
                     One or more items do not meet the minimum passenger
-                    requirement. Please increase the quantity.
+                    requirement.
                   </p>
                 </div>
               )}
@@ -484,11 +479,10 @@ function CartContent() {
               <div className="flex flex-col gap-3">
                 <button
                   onClick={() => processCheckout("PAYMENT")}
-                  // ✅ 최소 인원 미달 시 버튼 비활성화
                   disabled={isSubmitting || isCartInvalid}
-                  className={`w-full font-bold py-4 rounded-lg transition shadow-md flex items-center justify-center gap-2 ${
+                  className={`w-full font-bold py-4 rounded-lg shadow-md flex items-center justify-center gap-2 ${
                     isSubmitting || isCartInvalid
-                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      ? "bg-gray-300 text-gray-500"
                       : "bg-orange-600 hover:bg-orange-700 text-white"
                   }`}
                 >
@@ -498,11 +492,10 @@ function CartContent() {
 
                 <button
                   onClick={() => processCheckout("RESERVATION")}
-                  // ✅ 최소 인원 미달 시 버튼 비활성화
                   disabled={isSubmitting || isCartInvalid}
-                  className={`w-full font-bold py-4 rounded-lg transition shadow-md flex items-center justify-center gap-2 ${
+                  className={`w-full font-bold py-4 rounded-lg shadow-md flex items-center justify-center gap-2 ${
                     isSubmitting || isCartInvalid
-                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      ? "bg-gray-300 text-gray-500"
                       : "bg-gray-800 hover:bg-gray-900 text-white"
                   }`}
                 >
@@ -510,7 +503,6 @@ function CartContent() {
                   {isSubmitting ? "Processing..." : "Make a Reservation"}
                 </button>
               </div>
-
               <p className="text-xs text-center text-gray-400 mt-4">
                 Secure SSL Encrypted Payment
               </p>
