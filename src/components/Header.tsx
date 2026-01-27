@@ -121,10 +121,6 @@ export default function Header() {
                 {label}
               </Link>
             ))}
-            <div className="mt-4 text-sm text-gray-400">
-              <p>Contact: +82 10-1234-5678</p>
-              <p>Email: help@seoulcitytour.com</p>
-            </div>
           </div>
         </div>
       )}

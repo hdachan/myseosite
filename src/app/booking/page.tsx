@@ -14,7 +14,7 @@ function BookingContent() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // KPN 스크립트 로드 (기존 유지)
+  // KPN 스크립트 로드
   useEffect(() => {
     const script = document.createElement("script");
     script.src = "https://dev.firstpay.co.kr/js/firstpay.js";
@@ -59,7 +59,6 @@ function BookingContent() {
 
   const currentTotalPrice =
     (formData.adults + formData.children) * tourBaseData.price;
-
   const [submissionType, setSubmissionType] = useState<
     "PAYMENT" | "RESERVATION"
   >("PAYMENT");
@@ -131,8 +130,6 @@ function BookingContent() {
     setIsSubmitting(true);
 
     const orderNumber = `ORD_${new Date().getTime()}`;
-
-    // 날짜 포맷 (KST 14자리)
     const now = new Date();
     const kstDate = new Date(now.getTime() + 9 * 60 * 60 * 1000);
     const mxIssueDate = kstDate
@@ -161,39 +158,30 @@ function BookingContent() {
       if (submissionType === "RESERVATION") {
         router.push(`/booking/success?orderId=${orderNumber}&type=RESERVATION`);
       } else {
-        // [결제 로직]
         if (typeof window === "undefined" || !(window as any).FirstPay) {
           alert("Payment system loading... Please try again.");
           setIsSubmitting(false);
           return;
         }
 
-        const mxId = "testcorp";
-
-        // 1. 해시 요청
         const hashResponse = await fetch("/api/payment-hash", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            orderNumber: orderNumber,
-            amount: currentTotalPrice,
-          }),
+          body: JSON.stringify({ orderNumber, amount: currentTotalPrice }),
         });
 
         if (!hashResponse.ok)
           throw new Error("Failed to generate secure payment hash.");
         const { hash: callHash } = await hashResponse.json();
 
-        // 2. 결제창 띄우기
         const pay = new (window as any).FirstPay({
           env: "develop",
           isMobile: /iPhone|iPad|iPod|Android/i.test(navigator.userAgent),
           openType: "popup",
         });
 
-        // 🔥 [수정 포인트] payPopup 객체 저장
         const payPopup = pay.goPay({
-          mxId: mxId,
+          mxId: "testcorp",
           mxIssueNo: orderNumber,
           mxIssueDate: mxIssueDate,
           amount: currentTotalPrice,
@@ -207,12 +195,10 @@ function BookingContent() {
           lang: "en",
         });
 
-        // 🔥 [수정 포인트] 팝업창 닫힘 감시 타이머 추가
         const checkPopup = setInterval(() => {
           if (payPopup && payPopup.closed) {
             clearInterval(checkPopup);
-            setIsSubmitting(false); // 창 닫히면 로더 해제
-            console.log("Payment window closed by user.");
+            setIsSubmitting(false);
           }
         }, 1000);
       }
@@ -235,23 +221,25 @@ function BookingContent() {
   }
 
   return (
+    // ✅ pt-24 (모바일 헤더 높이 확보) / lg:pt-36 (데스크탑 헤더 높이 확보)
     <div
-      className={`min-h-screen bg-gray-50 pb-24 relative ${hangameFont.variable}`}
+      className={`min-h-screen bg-gray-50 dark:bg-gray-950 pb-24 relative ${hangameFont.variable} pt-24 lg:pt-36`}
     >
       {isSubmitting && <FullScreenLoader />}
 
-      <div className="max-w-6xl mx-auto px-8 lg:px-12 pt-12">
+      <div className="max-w-6xl mx-auto px-6 md:px-8 lg:px-12">
+        {/* 뒤로가기 버튼: 상단 고정 헤더에 가려지지 않게 pt 확보 후 배치 */}
         <button
           onClick={() => router.back()}
-          className="group flex items-center text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors mb-8"
+          className="group flex items-center text-sm font-medium text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors mb-8"
         >
-          <div className="w-8 h-8 rounded-full bg-white border border-gray-200 group-hover:bg-gray-100 flex items-center justify-center mr-2 transition-colors">
+          <div className="w-8 h-8 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 group-hover:bg-gray-100 dark:group-hover:bg-gray-700 flex items-center justify-center mr-2 transition-colors shadow-sm">
             <ChevronLeft className="w-4 h-4" />
           </div>
           Back to Tour
         </button>
 
-        <div className="mb-10 border-b border-gray-200 pb-6">
+        <div className="mb-10 border-b border-gray-200 dark:border-gray-800 pb-6">
           <div className="flex items-center gap-2 mb-2">
             <Lock className="w-4 h-4 text-[#4A7C7E]" />
             <span className="text-[10px] md:text-[11px] uppercase tracking-wider font-bold text-[#4A7C7E]">
@@ -259,12 +247,12 @@ function BookingContent() {
             </span>
           </div>
           <h1
-            className={`${hangameFont.className} text-2xl md:text-4xl font-bold text-gray-900 leading-tight`}
+            className={`${hangameFont.className} text-2xl md:text-4xl font-bold text-gray-900 dark:text-white leading-tight`}
           >
             Confirm Your Booking
           </h1>
           {minPax > 1 && (
-            <div className="mt-2 flex items-center gap-2 text-xs font-medium text-orange-600 bg-orange-50 w-fit px-3 py-1 rounded-full">
+            <div className="mt-2 flex items-center gap-2 text-xs font-medium text-orange-600 bg-orange-50 dark:bg-orange-900/20 w-fit px-3 py-1 rounded-full">
               <AlertCircle className="w-3 h-3" /> Minimum {minPax} people
               required for this tour
             </div>
@@ -288,7 +276,9 @@ function BookingContent() {
           </div>
 
           <div className="lg:col-span-1">
-            <div className="sticky top-24">
+            <div className="sticky top-28 lg:top-36">
+              {" "}
+              {/* 사이드바도 헤더에 가려지지 않게 top 조정 */}
               <OrderSummary
                 tourBaseData={tourBaseData}
                 formData={formData}
@@ -298,7 +288,7 @@ function BookingContent() {
                 setSubmissionType={setSubmissionType}
               />
               {isSubmitting && (
-                <div className="mt-4 p-3 bg-blue-50 text-blue-700 text-xs text-center rounded-lg animate-pulse font-medium">
+                <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 text-xs text-center rounded-lg animate-pulse font-medium border border-blue-100 dark:border-blue-800">
                   Opening Secure Payment Window...
                 </div>
               )}
@@ -314,8 +304,8 @@ export default function BookingPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen flex items-center justify-center bg-gray-50">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+        <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 dark:border-white"></div>
         </div>
       }
     >
