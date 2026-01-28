@@ -16,10 +16,12 @@ import { useCartStore } from "@/store/cartStore";
 import PackageOptionsSection from "@/components/PackageDetails/PackageOptionsSection";
 import PackageDetailSidebar from "@/components/PackageDetails/PackageDetailSidebar";
 import TourOverviewSection from "@/components/PackageDetails/TourOverviewSection";
+// ✅ [추가] 방금 만든 리뷰 섹션 컴포넌트 import
+import TourReviewsSection from "@/components/PackageDetails/TourReviewsSection";
 import { hangameFont } from "@/lib/fonts";
 
 interface Props {
-  tour: any; // Sanity 데이터
+  tour: any;
 }
 
 export default function PackageDetailClient({ tour }: Props) {
@@ -41,9 +43,17 @@ export default function PackageDetailClient({ tour }: Props) {
     setCurrentImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
   };
 
+  // ✅ 평점 클릭 시 리뷰 섹션으로 스크롤 이동 함수
+  const scrollToReviews = () => {
+    const reviewSection = document.getElementById("reviews");
+    if (reviewSection) {
+      reviewSection.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white">
-      {/* 1. Breadcrumb Navigation - 모바일 최적화 수정 */}
+      {/* 1. Breadcrumb Navigation */}
       <nav
         aria-label="Breadcrumb"
         className="max-w-6xl mx-auto px-6 md:px-8 lg:px-12 pt-20 md:pt-28 pb-4 md:pb-6"
@@ -64,12 +74,11 @@ export default function PackageDetailClient({ tour }: Props) {
             </Link>
           </li>
           <li className="text-gray-300">/</li>
-          {/* 모바일에서 제목이 너무 길면 잘리도록 truncate 적용 */}
           <li className="text-gray-900 font-medium truncate">{tour.title}</li>
         </ol>
       </nav>
 
-      {/* 2. Image Gallery - 모바일 비율 최적화 */}
+      {/* 2. Image Gallery */}
       <section className="max-w-6xl mx-auto px-6 md:px-8 lg:px-12 pb-8">
         <div className="relative w-full h-64 md:h-[480px] rounded-xl overflow-hidden bg-gray-100 shadow-sm">
           {images[currentImageIndex] && (
@@ -143,12 +152,22 @@ export default function PackageDetailClient({ tour }: Props) {
               {tour.title}
             </h1>
 
-            <div className="flex items-center gap-3 text-sm text-gray-600">
+            {/* ✅ [수정] 평점 클릭 시 아래 리뷰 섹션으로 이동하도록 cursor-pointer 추가 */}
+            <div
+              className="flex items-center gap-3 text-sm text-gray-600 cursor-pointer hover:bg-gray-50 w-fit p-1 rounded transition-colors"
+              onClick={scrollToReviews}
+            >
               <div className="flex items-center gap-1">
                 <Star className="w-4 h-4 fill-orange-400 text-orange-400" />
-                <span className="font-bold text-gray-900">{tour.rating}</span>
-                <span className="text-gray-400 hidden sm:inline">
-                  ({tour.reviews?.toLocaleString()} reviews)
+                {/* DB에서 가져온 실제 평점 표시 (없으면 Sanity 기본값) */}
+                <span className="font-bold text-gray-900">
+                  {tour.totalReviews > 0
+                    ? tour.averageRating.toFixed(1)
+                    : tour.rating}
+                </span>
+                <span className="text-gray-400 hidden sm:inline underline decoration-dotted">
+                  ({(tour.totalReviews || tour.reviews)?.toLocaleString()}{" "}
+                  reviews)
                 </span>
               </div>
               <span className="w-px h-3 bg-gray-300"></span>
@@ -173,7 +192,7 @@ export default function PackageDetailClient({ tour }: Props) {
             </div>
           )}
 
-          {/* 4. Trust Badges - 모바일에서 세로 나열 방지 위해 간격 조정 */}
+          {/* 4. Trust Badges */}
           <section className="grid grid-cols-1 md:grid-cols-3 gap-4 border-y border-gray-100 py-6">
             {[
               {
@@ -244,6 +263,13 @@ export default function PackageDetailClient({ tour }: Props) {
           {/* 6. Tour Overview */}
           <TourOverviewSection
             description={tour.fullDescription || tour.description}
+          />
+
+          {/* ✅ 7. [신규 추가] Reviews Section (이미지 없음, 텍스트 전용) */}
+          <TourReviewsSection
+            reviews={tour.reviewsData}
+            averageRating={tour.averageRating}
+            totalReviews={tour.totalReviews}
           />
         </article>
       </main>

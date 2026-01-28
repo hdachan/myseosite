@@ -2,11 +2,9 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { client } from "@/sanity/lib/client";
 import { TOUR_DETAIL_QUERY, TOUR_SLUGS_QUERY } from "@/sanity/lib/queries";
+import { createClient } from "@supabase/supabase-js";
 import PackageDetailClient from "./PackageDetailClient";
 
-// ✅ 로컬 데이터 파일 import 삭제함! (순수 Sanity 모드)
-
-// ISR 60초
 export const revalidate = 60;
 
 interface PageProps {
@@ -28,7 +26,6 @@ export async function generateMetadata({
 
   return {
     title: `${tour.title} | Korea Tour Package`,
-    // Sanity 설명 사용
     description: tour.fullDescription
       ? tour.fullDescription.slice(0, 160)
       : tour.description,
@@ -38,32 +35,50 @@ export async function generateMetadata({
   };
 }
 
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+);
+
 export default async function PackageDetailPage({ params }: PageProps) {
   const { slug } = await params;
 
-  // 🚀 100% Sanity에서 모든 데이터 가져오기
+  // 1. Sanity에서 상품 정보 먼저 가져옴 (여기에 진짜 ID인 _id가 들어있음)
   const tourData = await client.fetch(TOUR_DETAIL_QUERY, { slug });
 
   if (!tourData) {
     return notFound();
   }
 
-  // 데이터 매핑 (Sanity -> Client 컴포넌트용)
+  // 🚀 [수정 완료] 이제 Slug가 아니라 '진짜 ID(_id)'로 리뷰를 찾습니다.
+  const { data: reviews } = await supabase
+    .from("reviews")
+    .select("id, author_name, rating, content, created_at")
+    .eq("tour_id", tourData._id) // ✅ 여기가 핵심 변경사항입니다!
+    .eq("is_approved", true)
+    .order("created_at", { ascending: false });
+
+  // 평균 평점 계산
+  const totalReviews = reviews?.length || 0;
+  const averageRating =
+    totalReviews > 0
+      ? reviews!.reduce((acc, curr) => acc + curr.rating, 0) / totalReviews
+      : 0;
+
+  // 데이터 병합
   const tour = {
     ...tourData,
     id: tourData._id,
-
-    // 갤러리 이미지가 있으면 쓰고, 없으면 메인 이미지 1장으로 대체
     images:
       tourData.images && tourData.images.length > 0
         ? tourData.images
         : [tourData.image],
-
-    // 옵션 배열
     packageOptions: tourData.packageOptions || [],
-
-    // 가격 안전 처리
     price: tourData.packageOptions?.[0]?.price || tourData.price || 0,
+
+    reviewsData: reviews || [],
+    averageRating: averageRating,
+    totalReviews: totalReviews,
   };
 
   return <PackageDetailClient tour={tour} />;
