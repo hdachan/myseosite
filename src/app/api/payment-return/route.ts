@@ -5,7 +5,7 @@ export async function POST(request: Request) {
   try {
     const formData = await request.formData();
 
-    // 들어온 데이터 정리 (디버깅용)
+    // 들어온 데이터 정리 (디버깅용 로그)
     const rawData: Record<string, string> = {};
     formData.forEach((value, key) => {
       rawData[key] = value.toString();
@@ -32,7 +32,7 @@ export async function POST(request: Request) {
     // 2. 필수 데이터 검증
     if (!replyCode || !mxIssueNo) {
       console.error("⚠️ 필수 데이터 누락");
-      // 실패 시 장바구니로 이동
+      // 데이터가 없으면 장바구니로 돌려보냄
       return NextResponse.redirect(
         new URL(`/cart?error=missing_data`, request.url),
         303,
@@ -84,18 +84,17 @@ export async function POST(request: Request) {
         .update({ status: "paid" })
         .eq("order_number", mxIssueNo);
 
-      // ✅ [중요] 성공 페이지 경로 확인!
-      // 아까 작성하신 성공 페이지 파일이 /api/success/page.tsx 에 있다면 주소를 맞추세요.
-      // 만약 /booking/success 로 옮기셨다면 그 주소로 적으셔야 합니다.
+      // ✅ [수정 완료] 통합 완료 페이지로 이동 (type=PAYMENT 추가)
+      // 디자인이 예쁜 /booking/success 페이지에서 초록색 테마로 보여줍니다.
       return NextResponse.redirect(
         new URL(
-          `/api/success?orderId=${mxIssueNo}&clearCart=true`,
+          `/booking/success?orderId=${mxIssueNo}&clearCart=true&type=PAYMENT`,
           request.url,
         ),
         303,
       );
     } else {
-      // ✅ [중요] 결제 실패 시: 메인(/)이 아닌 장바구니(/cart)로 리다이렉트
+      // ❌ 결제 실패 시: 장바구니(/cart)로 이동
       console.warn(`❌ 결제 실패 (코드: ${replyCode}, 메시지: ${message})`);
       return NextResponse.redirect(
         new URL(

@@ -1,112 +1,145 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { Suspense } from "react";
-import {
-  CheckCircle,
-  Home,
-  Receipt,
-  MapPin,
-  CalendarClock,
-} from "lucide-react";
+import { Suspense, useEffect, useState } from "react";
+import { CheckCircle, Home, CalendarClock } from "lucide-react";
 import Link from "next/link";
+import { useCartStore } from "@/store/cartStore";
 
 function SuccessContent() {
   const searchParams = useSearchParams();
-
   const orderId = searchParams.get("orderId");
-  // ✅ URL에서 type을 가져옴 (PAYMENT 또는 RESERVATION)
-  const type = searchParams.get("type");
 
-  // ✅ 예약인지 확인하는 변수
+  // ✅ 타입 확인 (PAYMENT vs RESERVATION)
+  const type = searchParams.get("type");
   const isReservation = type === "RESERVATION";
 
+  // 장바구니 비우기 로직
+  const shouldClearCart = searchParams.get("clearCart") === "true";
+  const clearCart = useCartStore((state: any) => state.clearCart);
+
+  const [isPopup, setIsPopup] = useState(false);
+
+  useEffect(() => {
+    // 1. 팝업으로 열렸을 경우 부모창 새로고침 후 닫기 (PG사 결제용)
+    if (
+      typeof window !== "undefined" &&
+      window.opener &&
+      !window.opener.closed
+    ) {
+      setIsPopup(true);
+      try {
+        window.opener.location.href = window.location.href;
+        setTimeout(() => {
+          window.close();
+        }, 500);
+      } catch (e) {
+        console.error("Parent control failed", e);
+      }
+      return;
+    }
+
+    // 2. 장바구니 비우기
+    if (shouldClearCart || orderId) {
+      clearCart();
+    }
+  }, [clearCart, orderId, shouldClearCart]);
+
+  if (isPopup) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-white">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-orange-600 mb-4"></div>
+        <p className="text-gray-600 font-bold text-lg">Confirming Payment...</p>
+      </div>
+    );
+  }
+
+  // ✅ 테마 색상 설정 (예약: 파랑 / 결제: 초록)
+  const bgLight = isReservation ? "bg-blue-50" : "bg-green-50";
+  const bgLighter = isReservation ? "bg-blue-100" : "bg-green-100";
+  const textColor = isReservation ? "text-blue-500" : "text-green-500";
+  const badgeText = isReservation ? "text-blue-700" : "text-green-700";
+  const badgeBg = isReservation ? "bg-blue-500" : "bg-green-500";
+
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6 pt-32">
-      <div className="max-w-md w-full bg-white rounded-3xl shadow-xl overflow-hidden animate-in fade-in zoom-in duration-500">
-        {/* 1. 상단 배경색 및 아이콘 분기 처리 */}
-        <div
-          className={`${isReservation ? "bg-blue-600" : "bg-green-600"} p-8 text-center transition-colors`}
-        >
-          <div className="mx-auto w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mb-4">
+    <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center pt-32 pb-12 px-4">
+      <div className="max-w-lg w-full bg-white rounded-[24px] shadow-sm border border-gray-100 p-8 md:p-12 text-center animate-in fade-in slide-in-from-bottom-4 duration-700">
+        {/* 아이콘 애니메이션 */}
+        <div className="relative mx-auto w-24 h-24 mb-8">
+          <div
+            className={`absolute inset-0 ${bgLighter} rounded-full animate-ping opacity-20`}
+          ></div>
+          <div
+            className={`relative ${bgLight} rounded-full w-full h-full flex items-center justify-center`}
+          >
             {isReservation ? (
-              <CalendarClock className="w-10 h-10 text-white" />
+              <CalendarClock className={`w-12 h-12 ${textColor}`} />
             ) : (
-              <CheckCircle className="w-10 h-10 text-white" />
+              <CheckCircle className={`w-12 h-12 ${textColor}`} />
             )}
           </div>
-
-          <h1 className="text-2xl font-bold text-white mb-2">
-            {isReservation ? "Reservation Confirmed!" : "Payment Successful!"}
-          </h1>
-
-          <p
-            className={`${isReservation ? "text-blue-100" : "text-green-100"} text-sm`}
-          >
-            {isReservation
-              ? "Your request has been successfully received."
-              : "Thank you for your booking."}
-          </p>
         </div>
 
-        {/* 하단 정보 */}
-        <div className="p-8">
-          <div className="bg-gray-50 rounded-xl p-5 border border-gray-100 mb-8">
-            <div className="flex items-start gap-3 mb-4 border-b border-gray-200 pb-4">
-              <Receipt className="w-5 h-5 text-gray-400 mt-0.5" />
-              <div>
-                <p className="text-xs text-gray-500 uppercase font-bold tracking-wider">
-                  Order Number
-                </p>
-                <p className="text-sm font-mono text-gray-900 font-bold break-all">
-                  {orderId || "Processing..."}
-                </p>
-              </div>
-            </div>
+        <h1 className="text-3xl font-bold text-gray-900 mb-3 tracking-tight">
+          {isReservation ? "Reservation Confirmed!" : "Great Choice!"}
+        </h1>
+        <p className="text-gray-500 mb-10 text-lg leading-relaxed">
+          {isReservation
+            ? "Your request has been received."
+            : "Your payment was successful."}
+          <br />
+          We&apos;ve sent the itinerary to your email.
+        </p>
 
-            <div className="flex items-center gap-3">
-              <div className="w-5 h-5 flex items-center justify-center">
-                <div
-                  className={`w-2.5 h-2.5 rounded-full animate-pulse ${
-                    isReservation ? "bg-blue-500" : "bg-green-500"
-                  }`}
-                ></div>
-              </div>
-              <div>
-                <p className="text-xs text-gray-500 uppercase font-bold tracking-wider">
-                  Status
-                </p>
-                {/* 2. 상태 텍스트 분기 처리 */}
-                <p
-                  className={`text-sm font-bold ${isReservation ? "text-blue-600" : "text-green-600"}`}
-                >
-                  {isReservation ? "Confirmed (Pay Later)" : "Paid & Confirmed"}
-                </p>
-              </div>
-            </div>
+        {/* 상세 영수증 정보 카드 */}
+        <div className="bg-gray-50 rounded-2xl p-6 mb-10 text-left space-y-4">
+          <div className="flex justify-between items-center pb-4 border-b border-gray-200/60">
+            <span className="text-sm font-medium text-gray-400 uppercase tracking-wider">
+              Order ID
+            </span>
+            <span className="text-sm font-mono font-bold text-gray-900 bg-white px-3 py-1 rounded-md border border-gray-200">
+              {orderId || "Processing..."}
+            </span>
           </div>
-
-          <p className="text-center text-gray-500 text-sm mb-8">
-            A confirmation email has been sent to your inbox.
-            <br />
-            (We look forward to seeing you!)
-          </p>
-
-          <div className="space-y-3">
-            <Link
-              href="/"
-              className="w-full bg-gray-900 hover:bg-black text-white font-bold py-4 rounded-xl transition flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+          <div className="flex justify-between items-center">
+            <span className="text-sm font-medium text-gray-400 uppercase tracking-wider">
+              Status
+            </span>
+            <span
+              className={`inline-flex items-center gap-1.5 py-1.5 px-3 rounded-full text-xs font-bold ${bgLighter} ${badgeText}`}
             >
-              <Home className="w-5 h-5" />
-              Return to Home
-            </Link>
+              <span
+                className={`w-1.5 h-1.5 rounded-full ${badgeBg} animate-pulse`}
+              ></span>
+              {isReservation ? "CONFIRMED (PAY LATER)" : "PAYMENT COMPLETED"}
+            </span>
           </div>
+        </div>
+
+        {/* 버튼 그룹 */}
+        <div className="grid grid-cols-1 gap-4">
+          <Link
+            href="/"
+            className="group flex items-center justify-center gap-2 bg-gray-900 hover:bg-black text-white font-bold py-4 rounded-xl transition-all active:scale-95 shadow-md"
+          >
+            <Home className="w-4 h-4" />
+            <span>Home</span>
+          </Link>
         </div>
       </div>
 
-      <p className="mt-8 text-xs text-gray-400">
-        Need help? help@seoulcitytour.com
-      </p>
+      <div className="mt-12 text-center">
+        <p className="text-sm text-gray-400">
+          Having trouble?{" "}
+          {/* ✅ [수정 완료] /contact 페이지로 이동하도록 Link 컴포넌트 사용 */}
+          <Link
+            href="/contact"
+            className="text-gray-600 underline font-medium hover:text-gray-900 transition-colors"
+          >
+            Contact Support
+          </Link>
+        </p>
+      </div>
     </div>
   );
 }
@@ -115,8 +148,8 @@ export default function SuccessPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen flex items-center justify-center bg-gray-50">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-300"></div>
+        <div className="min-h-screen flex items-center justify-center bg-gray-50 text-gray-400 font-medium">
+          Loading...
         </div>
       }
     >

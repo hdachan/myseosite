@@ -7,7 +7,6 @@ import BookingForm from "@/components/booking/BookingForm";
 import OrderSummary from "@/components/booking/OrderSummary";
 import FullScreenLoader from "@/components/FullScreenLoader";
 import { hangameFont } from "@/lib/fonts";
-import toast from "react-hot-toast";
 
 function BookingContent() {
   const searchParams = useSearchParams();
@@ -221,25 +220,25 @@ function BookingContent() {
   }
 
   return (
-    // ✅ pt-24 (모바일 헤더 높이 확보) / lg:pt-36 (데스크탑 헤더 높이 확보)
+    // ✅ [수정] pt-24 lg:pt-36 -> pt-24 lg:pt-32 (너무 넓은 상단 여백 축소)
     <div
-      className={`min-h-screen bg-gray-50 dark:bg-gray-950 pb-24 relative ${hangameFont.variable} pt-24 lg:pt-36`}
+      className={`min-h-screen bg-[#F8FAFC] pb-24 relative ${hangameFont.variable} pt-24 lg:pt-32`}
     >
       {isSubmitting && <FullScreenLoader />}
 
       <div className="max-w-6xl mx-auto px-6 md:px-8 lg:px-12">
-        {/* 뒤로가기 버튼: 상단 고정 헤더에 가려지지 않게 pt 확보 후 배치 */}
+        {/* 뒤로가기 버튼 */}
         <button
           onClick={() => router.back()}
-          className="group flex items-center text-sm font-medium text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors mb-8"
+          className="group flex items-center text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors mb-8"
         >
-          <div className="w-8 h-8 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 group-hover:bg-gray-100 dark:group-hover:bg-gray-700 flex items-center justify-center mr-2 transition-colors shadow-sm">
+          <div className="w-8 h-8 rounded-full bg-white border border-gray-200 group-hover:bg-gray-100 flex items-center justify-center mr-2 transition-colors shadow-sm">
             <ChevronLeft className="w-4 h-4" />
           </div>
           Back to Tour
         </button>
 
-        <div className="mb-10 border-b border-gray-200 dark:border-gray-800 pb-6">
+        <div className="mb-10 border-b border-gray-200 pb-6">
           <div className="flex items-center gap-2 mb-2">
             <Lock className="w-4 h-4 text-[#4A7C7E]" />
             <span className="text-[10px] md:text-[11px] uppercase tracking-wider font-bold text-[#4A7C7E]">
@@ -247,21 +246,21 @@ function BookingContent() {
             </span>
           </div>
           <h1
-            className={`${hangameFont.className} text-2xl md:text-4xl font-bold text-gray-900 dark:text-white leading-tight`}
+            className={`${hangameFont.className} text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 leading-tight`}
           >
             Confirm Your Booking
           </h1>
           {minPax > 1 && (
-            <div className="mt-2 flex items-center gap-2 text-xs font-medium text-orange-600 bg-orange-50 dark:bg-orange-900/20 w-fit px-3 py-1 rounded-full">
-              <AlertCircle className="w-3 h-3" /> Minimum {minPax} people
-              required for this tour
+            <div className="mt-3 flex items-center gap-2 text-xs font-medium text-orange-600 bg-orange-50 w-fit px-3 py-1.5 rounded-lg border border-orange-100">
+              <AlertCircle className="w-3.5 h-3.5" /> Minimum {minPax} people
+              required
             </div>
           )}
         </div>
 
         <form
           onSubmit={handleSubmit}
-          className="grid grid-cols-1 lg:grid-cols-3 gap-12"
+          className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12"
         >
           <div className="lg:col-span-2">
             <div
@@ -276,9 +275,8 @@ function BookingContent() {
           </div>
 
           <div className="lg:col-span-1">
-            <div className="sticky top-28 lg:top-36">
-              {" "}
-              {/* 사이드바도 헤더에 가려지지 않게 top 조정 */}
+            {/* ✅ [수정] sticky top 위치를 padding 변화에 맞춰 조정 */}
+            <div className="sticky top-28 lg:top-32">
               <OrderSummary
                 tourBaseData={tourBaseData}
                 formData={formData}
@@ -288,7 +286,7 @@ function BookingContent() {
                 setSubmissionType={setSubmissionType}
               />
               {isSubmitting && (
-                <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 text-xs text-center rounded-lg animate-pulse font-medium border border-blue-100 dark:border-blue-800">
+                <div className="mt-4 p-3 bg-blue-50 text-blue-700 text-xs text-center rounded-lg animate-pulse font-medium border border-blue-100">
                   Opening Secure Payment Window...
                 </div>
               )}
@@ -304,8 +302,8 @@ export default function BookingPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 dark:border-white"></div>
+        <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC]">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
         </div>
       }
     >
