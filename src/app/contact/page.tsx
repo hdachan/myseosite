@@ -64,12 +64,11 @@ export default function ContactPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
-
-      {/* ===== Hero Section ===== */}
       <PageHero
         title="Contact Us"
         description="We are here to help you plan your perfect trip to Korea."
-        imageSrc="/images/background_korea_pt2.png"
+        imageSrc="/images/seoul-palace-stone-wall-background.png"
+        alt="Traditional Korean palace stone wall and nature scenery"
       />
 
       <section className="max-w-6xl mx-auto px-8 lg:px-12 mt-10 pb-20">

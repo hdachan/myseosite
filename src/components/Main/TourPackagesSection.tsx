@@ -1,13 +1,16 @@
 import Link from "next/link";
 import TourCard from "@/components/TourCard";
-import { client } from "@/sanity/lib/client"; // ✅ Sanity Client 가져오기
-import { groq } from "next-sanity"; // ✅ 쿼리 작성을 위해 필요
+import { client } from "@/sanity/lib/client";
+import { groq } from "next-sanity";
 import { hangameFont } from "@/lib/fonts";
 
-// ✅ 서버 컴포넌트로 변경 (async 추가)
+// ✅ [추가] 만들어두신 로딩 컴포넌트 불러오기
+// (파일 위치가 components 폴더 안이라고 가정했습니다)
+import FullScreenLoader from "@/components/FullScreenLoader";
+
+// ✅ 서버 컴포넌트
 export default async function TourPackagesSection() {
-  // 1️⃣ Sanity에서 "Top 4" 투어 가져오기
-  // (평점이 높은 순, 혹은 최신순으로 4개만 가져옵니다)
+  // 1️⃣ Sanity 데이터 가져오기
   const query = groq`
     *[_type == "tour"] | order(rating desc)[0...4] {
       _id,
@@ -25,19 +28,24 @@ export default async function TourPackagesSection() {
     }
   `;
 
-  const sanityTours = await client.fetch(query);
+  let favoriteTours = [];
 
-  // 2️⃣ 데이터 매핑 (Sanity 데이터 -> TourCard용)
-  const favoriteTours = sanityTours.map((tour: any) => ({
-    ...tour,
-    id: tour._id, // TourCard는 id를 쓰므로 _id를 id로 매핑
-    image: tour.image || "",
-    price: tour.price || 0,
-    rating: tour.rating || 5.0,
-    reviews: tour.reviews || 0,
-    bookings: tour.bookings || "0+ booked",
-    tags: tour.tags || [],
-  }));
+  try {
+    const sanityTours = await client.fetch(query);
+
+    favoriteTours = sanityTours.map((tour: any) => ({
+      ...tour,
+      id: tour._id,
+      image: tour.image || "",
+      price: tour.price || 0,
+      rating: tour.rating || 5.0,
+      reviews: tour.reviews || 0,
+      bookings: tour.bookings || "0+ booked",
+      tags: tour.tags || [],
+    }));
+  } catch (error) {
+    console.error("Sanity fetch error:", error);
+  }
 
   return (
     <section className="w-full py-12 lg:py-24 bg-white">
@@ -50,7 +58,6 @@ export default async function TourPackagesSection() {
             Top Picks by Seoul City Tour
           </h2>
 
-          {/* PC용 See all 링크 */}
           <Link
             href="/package"
             className={`${hangameFont.className} hidden sm:flex items-center gap-1 text-sm font-semibold text-gray-500 hover:text-[#ad3928] transition-colors pb-1`}
@@ -71,8 +78,8 @@ export default async function TourPackagesSection() {
           </Link>
         </div>
 
-        {/* 그리드 레이아웃 (Sanity 데이터 렌더링) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-y-4 sm:gap-x-6 sm:gap-y-10">
+        {/* 그리드 레이아웃 */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-y-4 sm:gap-x-6 sm:gap-y-10 min-h-[300px]">
           {favoriteTours.length > 0 ? (
             favoriteTours.map((tour: any) => (
               <div key={tour.id}>
@@ -80,14 +87,17 @@ export default async function TourPackagesSection() {
               </div>
             ))
           ) : (
-            // 데이터가 없을 때 표시할 내용 (선택사항)
-            <div className="col-span-4 text-center text-gray-500 py-10">
-              Loading tours...
+            <div className="col-span-1 sm:col-span-2 lg:col-span-4">
+              <FullScreenLoader
+                variant="section"
+                message="Preparing the best tours for you..."
+                subMessage="Please check back in a moment."
+              />
             </div>
           )}
         </div>
 
-        {/* 모바일용 View all tours 버튼 */}
+        {/* 모바일용 버튼 */}
         <div className="mt-8 sm:hidden text-center">
           <Link
             href="/package"

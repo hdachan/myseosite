@@ -211,7 +211,8 @@ export default function PrivateTourPage() {
       <PageHero
         title="Private Tour"
         description="Customize your perfect Korean adventure with our VIP service"
-        imageSrc="/images/background_korea_pt2.png"
+        imageSrc="/images/seoul-palace-stone-wall-background.png"
+        alt="Traditional Korean palace stone wall and nature scenery"
       />
 
       <div className="max-w-6xl mx-auto px-6 lg:px-12 mt-12 pb-24 space-y-20 md:space-y-24">

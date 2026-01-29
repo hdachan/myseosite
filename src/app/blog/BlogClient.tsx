@@ -47,11 +47,11 @@ export default function BlogClient({ posts, categories }: BlogClientProps) {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* PageHero */}
       <PageHero
         title="Korea Travel Blog"
         description="Discover authentic Korean experiences, hidden gems, and insider travel tips."
-        imageSrc="/images/background_korea_pt2.png"
+        imageSrc="/images/seoul-palace-stone-wall-background.png"
+        alt="Traditional Korean palace stone wall and nature scenery"
       />
 
       <section className="max-w-6xl mx-auto px-5 lg:px-12 py-12 lg:py-24">

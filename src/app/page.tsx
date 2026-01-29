@@ -1,8 +1,8 @@
-import FeaturedAccommodations from "@/components/FeaturedAccommodations";
-import HeroCarousel from "@/components/HeroCarousel";
-import WhyChooseUs from "@/components/WhyChooseUs";
-import PartnerSection from "@/components/PartnerSection";
-import TourPackagesSection from "@/components/TourPackagesSection";
+import FeaturedTours from "@/components/Main/FeaturedTours";
+import HeroCarousel from "@/components/Main/HeroCarousel";
+import WhyChooseUs from "@/components/Main/WhyChooseUs";
+import PartnerSection from "@/components/Main/PartnerSection";
+import TourPackagesSection from "@/components/Main/TourPackagesSection";
 
 export default function Home() {
   return (
@@ -12,16 +12,10 @@ export default function Home() {
 
       <WhyChooseUs />
 
-      {/* 4. Main tour packages */}
       <TourPackagesSection />
 
-      {/* 3. Featured accommodations / partners */}
-      <FeaturedAccommodations />
+      <FeaturedTours />
 
-      {/* 5. Global customer reviews */}
-      {/* <GlobalReviewsSection /> */}
-
-      {/* 2. Partner Section (Global Network) */}
       <PartnerSection />
     </>
   );

@@ -33,7 +33,8 @@ export default function TourLayout({
       <PageHero
         title={heroTitle}
         description={heroSubtitle}
-        imageSrc="/images/background_korea_pt2.png"
+        imageSrc="/images/seoul-palace-stone-wall-background.png"
+        alt="Traditional Korean palace stone wall and nature scenery"
       />
 
       <div className="max-w-6xl mx-auto px-8 lg:px-12 mt-12 pb-20">

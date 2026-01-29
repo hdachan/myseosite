@@ -5,48 +5,34 @@ import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-// ✅ 1. 로컬 데이터 import 삭제
-// import { basicPackages as packageTours } from "@/app/package/packageData";
-
-// ✅ 2. Sanity Client 및 쿼리 도구 추가
 import { client } from "@/sanity/lib/client";
 import { groq } from "next-sanity";
 
 import TourCard from "@/components/TourCard";
 import { hangameFont } from "@/lib/fonts";
+// ✅ [추가] 아까 만든 로딩 컴포넌트 불러오기
+import FullScreenLoader from "@/components/FullScreenLoader";
 
-export default function FeaturedAccommodations() {
-  // ✅ 3. Sanity 데이터를 담을 State 생성
+export default function FeaturedTours() {
   const [accommodations, setAccommodations] = useState<any[]>([]);
+
+  // ... (State 및 useEffect 로직은 그대로 유지) ...
+  // ... (updateItemsPerView 및 슬라이드 로직 그대로 유지) ...
 
   const [currentPage, setCurrentPage] = useState(0);
   const [itemsPerView, setItemsPerView] = useState(1);
-  const MAX_ITEMS = 6; // Sanity에서 가져올 최대 개수
+  const MAX_ITEMS = 6;
 
-  // ✅ 4. 컴포넌트가 켜질 때(Mount) Sanity 데이터 가져오기
   useEffect(() => {
     const fetchTours = async () => {
       try {
-        // 평점 높은 순으로 6개 가져오기
         const query = groq`
           *[_type == "tour"] | order(rating desc)[0...${MAX_ITEMS}] {
-            _id,
-            title,
-            "slug": slug.current,
-            "image": mainImage.asset->url,
-            category,
-            price,
-            originalPrice,
-            discount,
-            rating,
-            reviews,
-            bookings,
-            tags
+            _id, title, "slug": slug.current, "image": mainImage.asset->url,
+            category, price, originalPrice, discount, rating, reviews, bookings, tags
           }
         `;
         const data = await client.fetch(query);
-
-        // TourCard 형식에 맞게 데이터 매핑
         const mappedData = data.map((tour: any) => ({
           ...tour,
           id: tour._id,
@@ -57,28 +43,20 @@ export default function FeaturedAccommodations() {
           bookings: tour.bookings || "0+ booked",
           tags: tour.tags || [],
         }));
-
         setAccommodations(mappedData);
       } catch (error) {
         console.error("Failed to fetch featured tours:", error);
       }
     };
-
     fetchTours();
-  }, []); // 빈 배열 [] : 한 번만 실행
+  }, []);
 
-  // ✅ 5. 화면 크기에 따른 아이템 개수 조정 (기존 로직 유지)
   useEffect(() => {
     const updateItemsPerView = () => {
-      if (window.innerWidth >= 1024) {
-        setItemsPerView(3);
-      } else if (window.innerWidth >= 768) {
-        setItemsPerView(2);
-      } else {
-        setItemsPerView(1);
-      }
+      if (window.innerWidth >= 1024) setItemsPerView(3);
+      else if (window.innerWidth >= 768) setItemsPerView(2);
+      else setItemsPerView(1);
     };
-
     updateItemsPerView();
     window.addEventListener("resize", updateItemsPerView);
     return () => window.removeEventListener("resize", updateItemsPerView);
@@ -89,13 +67,10 @@ export default function FeaturedAccommodations() {
   const canNext = currentPage < totalPages - 1;
 
   const nextSlide = () => {
-    if (!canNext) return;
-    setCurrentPage((prev) => prev + 1);
+    if (canNext) setCurrentPage((prev) => prev + 1);
   };
-
   const prevSlide = () => {
-    if (!canPrev) return;
-    setCurrentPage((prev) => prev - 1);
+    if (canPrev) setCurrentPage((prev) => prev - 1);
   };
 
   const startIndex = currentPage * itemsPerView;
@@ -104,7 +79,7 @@ export default function FeaturedAccommodations() {
 
   return (
     <section className="relative pt-12 pb-32 lg:pt-24 lg:pb-44 bg-gradient-to-br from-[#F8F1E7] via-white to-[#F8F1E7]">
-      {/* 배경 이미지 영역 */}
+      {/* 배경 이미지 영역 (그대로 유지) */}
       <div className="absolute inset-0 z-0 overflow-hidden">
         <Image
           src="/images/company/typeB_01.png"
@@ -128,7 +103,7 @@ export default function FeaturedAccommodations() {
               <p className="text-[10px] md:text-[11px] uppercase tracking-widest text-[#4A7C7E] font-bold mb-2 md:mb-3">
                 OFFICIAL PARTNER
               </p>
-
+              {/* ✅ SEO 핵심: H2 태그 확인됨 (South Korea Tour Packages) */}
               <h2
                 className={`${hangameFont.className} text-xl md:text-2xl font-bold text-gray-900 mb-4 md:mb-6 leading-tight`}
               >
@@ -141,6 +116,8 @@ export default function FeaturedAccommodations() {
                   <button
                     onClick={prevSlide}
                     disabled={!canPrev}
+                    // ✅ [SEO 추가] 버튼에 이름표 달기 (aria-label)
+                    aria-label="Previous Slide"
                     className="group bg-white p-3 rounded-lg shadow-md hover:shadow-lg hover:bg-[#F8F1E7] transition-all duration-300 border border-[#4A7C7E]/30 disabled:opacity-30"
                   >
                     <ChevronLeft className="w-5 h-5 text-[#4A7C7E]" />
@@ -148,6 +125,8 @@ export default function FeaturedAccommodations() {
                   <button
                     onClick={nextSlide}
                     disabled={!canNext}
+                    // ✅ [SEO 추가] 버튼에 이름표 달기
+                    aria-label="Next Slide"
                     className="group bg-[#4A7C7E] p-3 rounded-lg shadow-md hover:shadow-lg hover:bg-[#3D6566] transition-all duration-300 disabled:opacity-30"
                   >
                     <ChevronRight className="w-5 h-5 text-white" />
@@ -155,7 +134,7 @@ export default function FeaturedAccommodations() {
                 </div>
               )}
 
-              {/* 페이지 카운터 */}
+              {/* 페이지 카운터 (그대로 유지) */}
               {totalPages > 1 && (
                 <div className="mt-4 md:mt-5 text-sm text-gray-600 tracking-wide">
                   <span className="font-bold text-[#4A7C7E]">
@@ -187,7 +166,6 @@ export default function FeaturedAccommodations() {
                 }`}
               >
                 <AnimatePresence mode="wait">
-                  {/* 데이터가 있을 때만 렌더링 */}
                   {visibleItems.length > 0 ? (
                     visibleItems.map((item) => (
                       <motion.div
@@ -204,9 +182,12 @@ export default function FeaturedAccommodations() {
                       </motion.div>
                     ))
                   ) : (
-                    // 로딩 중일 때 표시 (선택사항)
-                    <div className="col-span-full h-60 flex items-center justify-center text-gray-400">
-                      Loading tours...
+                    // ✅ [수정 완료] 로딩 컴포넌트 적용!
+                    <div className="col-span-full h-80">
+                      <FullScreenLoader
+                        variant="section"
+                        message="Loading recommended tours..."
+                      />
                     </div>
                   )}
                 </AnimatePresence>
