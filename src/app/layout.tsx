@@ -6,39 +6,48 @@ import Footer from "@/components/Footer";
 import FloatingChatButton from "@/components/FloatingChatButton";
 import ScrollToTop from "@/components/ScrollToTop";
 
+const BASE_URL = "https://myseosite.vercel.app";
+
 export const metadata: Metadata = {
-  // ⭐ [정답] Vercel 임시 주소를 넣으시면 됩니다!
-  // 이제 이미지는 https://myseosite.vercel.app/images/background_v3.png 경로로 제공됩니다.
-  metadataBase: new URL("https://myseosite.vercel.app"),
+  metadataBase: new URL(BASE_URL),
 
   title: {
-    default: "Korea DMZ Tours & Seoul Travel | Seoul City Tour",
+    default: "Korea's No.1 DMZ Tour & Expert Guides | Seoul City Tour",
     template: "%s | Seoul City Tour",
   },
-  description:
-    "Seoul departure DMZ tour specialist. One-day course including the 3rd Tunnel, Dora Observatory, and Dorasan Station. Daily departure with lunch and English-speaking guide.",
 
-  // 테스트 중이니 로봇 수집 차단 유지
+  description:
+    "Korea's No.1 DMZ Tour with expert Korean guides. Visit 3rd Tunnel & Dora Observatory. Beyond scenery, we promise a warmth that stays forever. Daily departures.",
+
+  // ⚠️ [중요] 실제 배포(오픈) 시에는 아래 false 2개를 true로 꼭 바꿔주세요!
   robots: {
     index: false,
     follow: false,
+    googleBot: {
+      index: false,
+      follow: false,
+    },
   },
 
   icons: { icon: "/favicon.ico" },
 
-  alternates: {
-    canonical: "/",
+  // ✅ 구글 서치 콘솔 인증 코드는 나중에 받으면 넣으세요.
+  verification: {
+    // google: "aBcDeFgHiJkLmNoP...",
   },
 
   openGraph: {
-    title: "DMZ Tour from Seoul – Full Day Experience",
-    description: "The most complete DMZ tour departing from Seoul.",
+    // ✅ [카톡 공유 제목] "한국 1등 DMZ 투어 & 전문 가이드"
+    title: "Korea's No.1 DMZ Tour | Seoul City Tour",
+
+    description:
+      "Beyond scenery, we promise a warmth that stays forever. Join Korea's No.1 DMZ Tour with expert guides.",
+
     siteName: "Seoul City Tour",
-    url: "/",
+    url: BASE_URL,
     images: [
       {
-        // 실제 작동 경로: https://myseosite.vercel.app/images/background_v3.png
-        url: "/images/background_v4_test.png",
+        url: "/images/main-hero-korea-tour.jpg",
         width: 1200,
         height: 630,
         alt: "Seoul City Tour Preview",
@@ -50,9 +59,10 @@ export const metadata: Metadata = {
 
   twitter: {
     card: "summary_large_image",
-    title: "DMZ Tour from Seoul",
-    description: "Explore the Korean Demilitarized Zone.",
-    images: ["/images/background_v4_test.png"],
+    title: "Korea's No.1 DMZ Tour | Seoul City Tour",
+    description:
+      "Beyond scenery, we promise a warmth that stays forever. Join Korea's No.1 DMZ Tour with expert guides.",
+    images: ["/images/main-hero-korea-tour.jpg"],
   },
 };
 
@@ -64,6 +74,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
+        {/* 구조화 데이터 (JSON-LD) */}
         <Script
           id="jsonld-travelagency"
           type="application/ld+json"
@@ -73,10 +84,9 @@ export default function RootLayout({
               "@context": "https://schema.org",
               "@type": "TravelAgency",
               name: "Seoul City Tour",
-              // 구조화 데이터도 임시 주소 기반으로 변경
-              image: "https://myseosite.vercel.app/images/background_v3.png",
-              url: "https://myseosite.vercel.app",
-              logo: "https://myseosite.vercel.app/images/logo.png",
+              image: `${BASE_URL}/images/main-hero-korea-tour.jpg`,
+              url: BASE_URL,
+              logo: `${BASE_URL}/images/logo.png`,
               description: "DMZ tour specialist departing from Seoul.",
               telephone: "+82-2-774-3345",
               address: {
@@ -84,19 +94,12 @@ export default function RootLayout({
                 streetAddress:
                   "507, Hanaro Building, 194-4 Insadong, Jongno-gu",
                 addressLocality: "Seoul",
-                postalCode: "03163",
+                postalCode: "03162", // 우편번호 03162 확인 완료
                 addressCountry: "KR",
-              },
-              aggregateRating: {
-                "@type": "AggregateRating",
-                ratingValue: "4.9",
-                reviewCount: "21044",
-                bestRating: "5",
               },
               sameAs: [
                 "https://www.instagram.com/seoulcitytour.official",
                 "https://www.youtube.com/@HelloKOREA",
-                "https://facebook.com",
               ],
             }),
           }}
@@ -104,9 +107,7 @@ export default function RootLayout({
 
         <Header />
         <main className="min-h-screen">{children}</main>
-
         <Footer />
-
         <FloatingChatButton />
         <ScrollToTop />
       </body>

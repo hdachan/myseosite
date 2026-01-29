@@ -27,7 +27,7 @@ function highlight(text: string, keyword: string) {
   );
 }
 
-export default function HeroCarousel1() {
+export default function HeroCarousel() {
   const router = useRouter();
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -115,7 +115,7 @@ export default function HeroCarousel1() {
       <div className="relative w-full h-[550px] sm:h-[650px] md:h-[750px]">
         {/* 1. 배경 이미지 */}
         <Image
-          src="/images/background_v3.png"
+          src="/images/main-hero-korea-tour.jpg"
           alt="Korea travel background"
           fill
           priority

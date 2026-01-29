@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Instagram, Youtube, Facebook } from "lucide-react";
+import { Instagram, Youtube } from "lucide-react"; // ❌ Facebook 삭제
 
 export default function Footer() {
   return (
@@ -12,9 +12,9 @@ export default function Footer() {
             <p className="leading-relaxed">
               Seoul City Tour Co., Ltd.
               <br />
-              {/* \n 대신 <br /> 태그를 사용하세요 */}
+              {/* ✅ [수정 1] 우편번호 03162 추가 (SEO 일치) */}
               Rm 507, Hanaro Bldg, 194-4 Insa-dong, <br />
-              Jongno-gu, Seoul, South Korea
+              Jongno-gu, Seoul, 03162, South Korea
             </p>
             <p className="mt-3">
               <a
@@ -24,7 +24,6 @@ export default function Footer() {
                 mail@seoulcitytour.net
               </a>
               <br />
-              {/* ✅ 팩스 번호 추가 */}
               Tel. +82-2-774-3345 / Fax. +82-2-774-8223
             </p>
           </div>
@@ -123,7 +122,7 @@ export default function Footer() {
 
           <div className="flex gap-4">
             <a
-              href="https://www.instagram.com/seoulcitytour.official?igsh"
+              href="https://www.instagram.com/seoulcitytour.official"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Instagram"
@@ -139,15 +138,6 @@ export default function Footer() {
               className="hover:text-[#4A7C7E] transition"
             >
               <Youtube className="w-5 h-5" />
-            </a>
-            <a
-              href="https://facebook.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Facebook"
-              className="hover:text-[#4A7C7E] transition"
-            >
-              <Facebook className="w-5 h-5" />
             </a>
           </div>
         </div>
