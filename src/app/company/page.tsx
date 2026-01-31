@@ -146,7 +146,7 @@ export default function CompanyPage() {
             <div className="md:col-span-5 relative">
               <div className="w-full h-full min-h-[350px] rounded-[6px] overflow-hidden shadow-lg bg-white/50 border-white border-4 relative backdrop-blur-sm">
                 <Image
-                  src="/images/company/park-do-young-ceo.png"
+                  src="/images/company/park-do-young-ceo.jpg"
                   alt="Do-Young Park, CEO of Seoul City Tour"
                   fill
                   className="object-cover object-top"
