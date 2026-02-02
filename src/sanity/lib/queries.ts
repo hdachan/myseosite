@@ -49,11 +49,9 @@ export const ALL_TOURS_QUERY = groq`
     originalPrice,
     discount,
     location,
-    rating,
-    reviews,
     tags,
     description,
-    "minPax": coalesce(minPax, 1) // ✅ [추가됨] 리스트에도 정보 있으면 좋음
+    "minPax": coalesce(minPax, 1)
   }
 `;
 
@@ -69,15 +67,14 @@ export const TOURS_BY_CATEGORY_QUERY = groq`
     originalPrice,
     discount,
     location,
-    rating,
-    reviews,
+    // ❌ rating, reviews 제거됨
     tags,
     description,
-    "minPax": coalesce(minPax, 1) // ✅ [추가됨]
+    "minPax": coalesce(minPax, 1)
   }
 `;
 
-// ✅ [3] 투어 상세 페이지용 쿼리 (가장 중요!)
+// ✅ [3] 투어 상세 페이지용 쿼리 (구조 변경 반영)
 export const TOUR_DETAIL_QUERY = groq`
   *[_type == "tour" && slug.current == $slug][0] {
     _id,
@@ -87,15 +84,17 @@ export const TOUR_DETAIL_QUERY = groq`
     "images": gallery[].asset->url,
     category,
     tags,
-    rating,
-    reviews,
+    // ❌ rating, reviews 제거됨
     description,        
     fullDescription,    
-    meetingPoint,
+    meetingPoint {
+      description,
+      "images": images[].asset->url
+    },
+
     includes,
 
-    // 🔥🔥🔥 [핵심 추가] 최소 인원 가져오기 🔥🔥🔥
-    // 값이 없으면 1로 설정 (coalesce 함수 사용)
+    // 최소 인원
     "minPax": coalesce(minPax, 1),
     
     // 옵션 데이터
@@ -104,16 +103,14 @@ export const TOUR_DETAIL_QUERY = groq`
       name,
       price,
       badge,
-      excluded,
       details, 
       
-      // 일정표 데이터
       itinerary[] {
         time,
         title,
         description,
         iconType,
-        "image": image.asset->url 
+        "images": images[].asset->url // image -> images 로 변경됨
       }
     }
   }

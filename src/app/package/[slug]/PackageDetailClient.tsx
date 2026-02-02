@@ -1,23 +1,20 @@
 "use client";
 
 import React, { useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import {
   Star,
   CheckCircle2,
   Shield,
   RefreshCw,
-  ChevronLeft,
-  ChevronRight,
   AlertTriangle,
 } from "lucide-react";
 import { useCartStore } from "@/store/cartStore";
 import PackageOptionsSection from "@/components/PackageDetails/PackageOptionsSection";
 import PackageDetailSidebar from "@/components/PackageDetails/PackageDetailSidebar";
 import TourOverviewSection from "@/components/PackageDetails/TourOverviewSection";
-// ✅ [추가] 방금 만든 리뷰 섹션 컴포넌트 import
 import TourReviewsSection from "@/components/PackageDetails/TourReviewsSection";
+import TourImageGallery from "@/components/PackageDetails/TourImageGallery";
 import { hangameFont } from "@/lib/fonts";
 
 interface Props {
@@ -26,24 +23,17 @@ interface Props {
 
 export default function PackageDetailClient({ tour }: Props) {
   const addItem = useCartStore((state) => state.addItem);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [selectedPackage, setSelectedPackage] = useState<any | null>(null);
+
+  // 이미지 데이터 정리 (Main + Gallery)
+  const allImages = Array.from(
+    new Set([tour.image, ...(tour.images || [])]),
+  ).filter(Boolean);
 
   const isSuspended =
     tour.bookings === "Suspended" || tour.tags?.includes("Suspended");
 
-  const images =
-    tour.images && tour.images.length > 0 ? tour.images : [tour.image];
-
-  const nextImage = () => {
-    setCurrentImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
-  };
-
-  const prevImage = () => {
-    setCurrentImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
-  };
-
-  // ✅ 평점 클릭 시 리뷰 섹션으로 스크롤 이동 함수
+  // 평점 클릭 시 리뷰 섹션으로 이동
   const scrollToReviews = () => {
     const reviewSection = document.getElementById("reviews");
     if (reviewSection) {
@@ -78,58 +68,16 @@ export default function PackageDetailClient({ tour }: Props) {
         </ol>
       </nav>
 
-      {/* 2. Image Gallery */}
-      <section className="max-w-6xl mx-auto px-6 md:px-8 lg:px-12 pb-8">
-        <div className="relative w-full h-64 md:h-[480px] rounded-xl overflow-hidden bg-gray-100 shadow-sm">
-          {images[currentImageIndex] && (
-            <Image
-              src={images[currentImageIndex]}
-              alt={`${tour.title} - Image ${currentImageIndex + 1}`}
-              fill
-              priority
-              sizes="(max-width: 768px) 100vw, 1200px"
-              className={`object-cover transition-all duration-500 ${
-                isSuspended ? "grayscale opacity-50" : ""
-              }`}
-            />
-          )}
-
-          {isSuspended && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/60 z-10 p-4 text-center">
-              <div className="bg-red-600 text-white px-4 py-2 md:px-6 md:py-3 rounded-lg font-bold text-sm md:text-xl flex items-center gap-2">
-                <AlertTriangle className="w-5 h-5 md:w-6 md:h-6" />
-                TEMPORARILY SUSPENDED
-              </div>
-            </div>
-          )}
-
-          {images.length > 1 && (
-            <>
-              <button
-                onClick={prevImage}
-                className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 w-8 h-8 md:w-10 md:h-10 bg-white/80 hover:bg-white rounded-full flex items-center justify-center transition shadow-md z-20"
-              >
-                <ChevronLeft className="w-5 h-5 md:w-6 md:h-6 text-gray-800" />
-              </button>
-              <button
-                onClick={nextImage}
-                className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 w-8 h-8 md:w-10 md:h-10 bg-white/80 hover:bg-white rounded-full flex items-center justify-center transition shadow-md z-20"
-              >
-                <ChevronRight className="w-5 h-5 md:w-6 md:h-6 text-gray-800" />
-              </button>
-            </>
-          )}
-
-          <div className="absolute bottom-4 right-4 bg-black/60 text-white px-2 py-1 rounded-md text-[10px] md:text-xs font-medium z-20 backdrop-blur-sm">
-            {currentImageIndex + 1} / {images.length}
-          </div>
-        </div>
-      </section>
+      {/* 2. ✨ New Image Gallery Component */}
+      <TourImageGallery
+        images={allImages}
+        title={tour.title}
+        isSuspended={isSuspended}
+      />
 
       {/* Main Content Area */}
       <main className="max-w-6xl mx-auto px-6 md:px-8 lg:px-12 pb-24">
         <article className="space-y-8 md:space-y-10">
-          {/* 3. Header Info */}
           <header>
             <div className="flex flex-wrap gap-2 mb-3">
               {tour.tags?.map((tag: string, i: number) => (
@@ -152,22 +100,19 @@ export default function PackageDetailClient({ tour }: Props) {
               {tour.title}
             </h1>
 
-            {/* ✅ [수정] 평점 클릭 시 아래 리뷰 섹션으로 이동하도록 cursor-pointer 추가 */}
             <div
               className="flex items-center gap-3 text-sm text-gray-600 cursor-pointer hover:bg-gray-50 w-fit p-1 rounded transition-colors"
               onClick={scrollToReviews}
             >
               <div className="flex items-center gap-1">
                 <Star className="w-4 h-4 fill-orange-400 text-orange-400" />
-                {/* DB에서 가져온 실제 평점 표시 (없으면 Sanity 기본값) */}
                 <span className="font-bold text-gray-900">
                   {tour.totalReviews > 0
                     ? tour.averageRating.toFixed(1)
-                    : tour.rating}
+                    : "0.0"}
                 </span>
                 <span className="text-gray-400 hidden sm:inline underline decoration-dotted">
-                  ({(tour.totalReviews || tour.reviews)?.toLocaleString()}{" "}
-                  reviews)
+                  ({(tour.totalReviews || 0).toLocaleString()} reviews)
                 </span>
               </div>
               <span className="w-px h-3 bg-gray-300"></span>
@@ -242,7 +187,7 @@ export default function PackageDetailClient({ tour }: Props) {
                 onAddToCart={addItem}
                 tourSlug={tour.slug}
                 tourTitle={tour.title}
-                tourImage={images[0]}
+                tourImage={allImages[0]}
                 tourId={tour._id}
                 minPax={tour.minPax || 1}
               />
@@ -265,7 +210,7 @@ export default function PackageDetailClient({ tour }: Props) {
             description={tour.fullDescription || tour.description}
           />
 
-          {/* ✅ 7. [신규 추가] Reviews Section (이미지 없음, 텍스트 전용) */}
+          {/* 7. Reviews Section */}
           <TourReviewsSection
             reviews={tour.reviewsData}
             averageRating={tour.averageRating}

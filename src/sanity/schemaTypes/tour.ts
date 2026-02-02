@@ -64,7 +64,7 @@ export default defineType({
       type: "number",
       description: "카드에 표시될 '최저가'입니다.",
     }),
-    // ✅ [추가됨] 최소 출발 인원 설정
+    // ✅ 최소 출발 인원 설정
     defineField({
       name: "minPax",
       title: "Minimum Travelers (최소 출발 인원)",
@@ -79,27 +79,15 @@ export default defineType({
       type: "number",
       description: "할인 전 가격 (할인 표시가 필요할 때만 입력)",
     }),
-    // ❌ [삭제됨] bookings 필드는 삭제했습니다.
+
+    // ❌ [삭제됨] rating, reviews 필드 제거 완료
+
     defineField({
       name: "tags",
       title: "Marketing Tags",
       type: "array",
       of: [{ type: "string" }],
       description: "카드 위에 붙을 태그 (예: Best Seller, Muslim Friendly)",
-    }),
-    defineField({
-      name: "rating",
-      title: "Rating Score",
-      type: "number",
-      initialValue: 5.0,
-      description: "평점 (0.0 ~ 5.0)",
-    }),
-    defineField({
-      name: "reviews",
-      title: "Review Count",
-      type: "number",
-      initialValue: 0,
-      description: "리뷰 개수",
     }),
     defineField({
       name: "description",
@@ -132,12 +120,27 @@ export default defineType({
       of: [{ type: "string" }],
       description: "구글 검색(SEO) 및 구조화된 데이터를 위한 포함 내역입니다.",
     }),
+
+    // ✅ [수정됨] Meeting Point: 텍스트 + 사진 여러 장
     defineField({
       name: "meetingPoint",
       title: "Meeting Point Info",
-      type: "text",
-      description:
-        "Meeting Point- 사이드바 하단에 표시될 미팅 포인트 안내 문구입니다.",
+      type: "object", // 텍스트에서 객체로 변경
+      fields: [
+        {
+          name: "description",
+          title: "Description / Address",
+          type: "text",
+          description: "미팅 포인트 상세 주소 및 설명",
+        },
+        {
+          name: "images",
+          title: "Meeting Point Images",
+          type: "array",
+          of: [{ type: "image", options: { hotspot: true } }],
+          description: "약도나 미팅 포인트 전경 사진 (여러 장 가능)",
+        },
+      ],
     }),
 
     // =================================================
@@ -225,18 +228,21 @@ export default defineType({
                       },
                       initialValue: "location",
                     },
+                    // ✅ [수정됨] 일정 사진: 한 장 -> 여러 장 (Array)
                     {
-                      name: "image",
-                      title: "Activity Image",
-                      type: "image",
-                      options: { hotspot: true },
+                      name: "images",
+                      title: "Activity Images",
+                      type: "array",
+                      of: [{ type: "image", options: { hotspot: true } }],
+                      description: "해당 일정에 보여줄 사진들 (여러 장 가능)",
                     },
                   ],
                   preview: {
                     select: {
                       title: "title",
                       subtitle: "time",
-                      media: "image",
+                      // 배열의 첫 번째 이미지를 썸네일로 사용
+                      media: "images.0",
                     },
                     prepare({ title, subtitle, media }) {
                       return {
@@ -249,13 +255,7 @@ export default defineType({
                 },
               ],
             }),
-            {
-              name: "excluded",
-              title: "Excluded Items",
-              type: "array",
-              of: [{ type: "string" }],
-              description: "불포함 사항",
-            },
+            // ❌ [삭제됨] excluded (불포함 사항) 필드 제거 완료
           ],
           preview: {
             select: { title: "name", subtitle: "price" },

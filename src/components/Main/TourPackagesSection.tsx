@@ -3,14 +3,11 @@ import TourCard from "@/components/TourCard";
 import { client } from "@/sanity/lib/client";
 import { groq } from "next-sanity";
 import { hangameFont } from "@/lib/fonts";
-
-// ✅ [추가] 만들어두신 로딩 컴포넌트 불러오기
-// (파일 위치가 components 폴더 안이라고 가정했습니다)
+import { mergeReviews } from "@/lib/review"; // ✅ 공통 리뷰 병합 함수 임포트
 import FullScreenLoader from "@/components/FullScreenLoader";
 
-// ✅ 서버 컴포넌트
 export default async function TourPackagesSection() {
-  // 1️⃣ Sanity 데이터 가져오기
+  // 1️⃣ Sanity 데이터 가져오기 쿼리
   const query = groq`
     *[_type == "tour"] | order(rating desc)[0...4] {
       _id,
@@ -21,9 +18,6 @@ export default async function TourPackagesSection() {
       price,
       originalPrice,
       discount,
-      rating,
-      reviews,
-      bookings,
       tags
     }
   `;
@@ -31,20 +25,23 @@ export default async function TourPackagesSection() {
   let favoriteTours = [];
 
   try {
+    // 1. Sanity에서 투어 목록 가져오기
     const sanityTours = await client.fetch(query);
 
-    favoriteTours = sanityTours.map((tour: any) => ({
+    // 2. 🚀 공통 함수를 사용하여 Supabase 리뷰 데이터 병합
+    const mergedTours = await mergeReviews(sanityTours);
+
+    // 3. 최종 데이터 매핑
+    favoriteTours = mergedTours.map((tour: any) => ({
       ...tour,
       id: tour._id,
       image: tour.image || "",
       price: tour.price || 0,
-      rating: tour.rating || 5.0,
-      reviews: tour.reviews || 0,
       bookings: tour.bookings || "0+ booked",
       tags: tour.tags || [],
     }));
   } catch (error) {
-    console.error("Sanity fetch error:", error);
+    console.error("Home TourPackages fetch error:", error);
   }
 
   return (
@@ -91,7 +88,6 @@ export default async function TourPackagesSection() {
               <FullScreenLoader
                 variant="section"
                 message="Preparing the best tours for you..."
-                subMessage="Please check back in a moment."
               />
             </div>
           )}

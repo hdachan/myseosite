@@ -1,9 +1,11 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
 import { Star } from "lucide-react";
 import { hangameFont } from "@/lib/fonts";
 
-// Sanity 데이터 인터페이스
+// Sanity + Supabase 데이터 통합 인터페이스
 interface TourData {
   id: string | number;
   slug: string;
@@ -12,8 +14,8 @@ interface TourData {
   location?: string;
   description?: string;
   tags?: string[];
-  rating: number;
-  reviews: number;
+  averageRating?: number;
+  totalReviews?: number;
   price: number;
   originalPrice?: number;
   discount?: number;
@@ -32,14 +34,12 @@ export default function TourCard({ tour, priority = false }: TourCardProps) {
         ? tour.description.split(",").map((tag) => tag.trim())
         : [];
 
+  const ratingValue = tour.averageRating || 0;
+  const reviewCount = tour.totalReviews || 0;
+
   return (
     <div className="group cursor-pointer flex flex-col h-full">
-      <Link
-        href={`/package/${tour.slug}`}
-        className="block h-full"
-        target="_blank" // 새 탭 열기 (선택사항)
-        rel="noopener noreferrer"
-      >
+      <Link href={`/package/${tour.slug}`} className="block h-full">
         <div className="h-full flex flex-col bg-white rounded-[6px] overflow-hidden border border-gray-200 shadow-sm shadow-[inset_0_0_14px_rgba(0,0,0,0.04)] hover:shadow-md transition-all duration-300">
           {/* 1. 이미지 영역 */}
           <div className="relative h-[150px] md:h-[200px] w-full overflow-hidden bg-gray-50 border-b border-gray-100">
@@ -89,12 +89,21 @@ export default function TourCard({ tour, priority = false }: TourCardProps) {
             <div className="mt-auto pt-3 border-t border-dashed border-gray-100">
               <div className="flex items-center gap-1 mb-1.5">
                 <Star className="w-3 h-3 md:w-3.5 md:h-3.5 fill-[#37848c] text-[#37848c]" />
-                <span className="text-[#37848c] text-[11px] md:text-xs font-bold">
-                  {tour.rating}
-                </span>
-                <span className="text-gray-400 text-[10px] md:text-[11px]">
-                  ({tour.reviews})
-                </span>
+                {/* reviewCount가 0보다 클 때만 평점 표시 */}
+                {reviewCount > 0 ? (
+                  <>
+                    <span className="text-[#37848c] text-[11px] md:text-xs font-bold">
+                      {ratingValue.toFixed(1)}
+                    </span>
+                    <span className="text-gray-400 text-[10px] md:text-[11px]">
+                      ({reviewCount.toLocaleString()})
+                    </span>
+                  </>
+                ) : (
+                  <span className="text-gray-400 text-[10px] md:text-[11px] font-medium">
+                    New Activity
+                  </span>
+                )}
               </div>
 
               {/* 가격 줄 */}
