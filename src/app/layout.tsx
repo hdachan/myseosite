@@ -76,7 +76,7 @@ export default function RootLayout({
               name: "Seoul City Tour",
               image: `${BASE_URL}/images/main-hero-korea-tour.jpg`,
               url: BASE_URL,
-              logo: `${BASE_URL}/images/icon_logo.jpg`,
+              logo: `${BASE_URL}/images/logo.png`,
               description: "DMZ tour specialist departing from Seoul.",
               telephone: "+82-2-774-3345",
               address: {
