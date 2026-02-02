@@ -22,12 +22,14 @@ interface Booking {
   adults: number;
   children: number;
   total_price: number;
+  usd_amount?: number; // ✅ 추가: 달러 결제 금액
+  currency?: string; // ✅ 추가: 결제 통화 (USD/KRW)
   status: string;
   submission_type: string;
   order_number: string;
   review_token: string;
   is_reviewed: boolean;
-  last_emailed_at?: string; // ✅ 추가: 마지막 이메일 발송 시간
+  last_emailed_at?: string;
 }
 
 interface Review {
@@ -49,6 +51,7 @@ interface GroupedOrder {
   createdAt: string;
   status: string;
   totalOrderPrice: number;
+  totalUSDPrice: number; // ✅ 추가: 주문 그룹별 달러 합계
   items: Booking[];
 }
 
@@ -120,7 +123,6 @@ export default function AdminPage() {
   // ----------------------
   // 4. 기능 핸들러 (Handlers)
   // ----------------------
-
   const handleStatusChange = async (orderNumber: string, newStatus: string) => {
     const statusLabels: Record<string, string> = {
       pending: "대기/확인중",
@@ -153,14 +155,12 @@ export default function AdminPage() {
     else fetchData();
   };
 
-  // ✅ [수정] 리뷰 요청 이메일 발송 + DB 업데이트 로직
   const handleSendEmail = async (booking: Booking) => {
     if (!confirm(`${booking.customer_name}님께 리뷰 요청 메일을 보낼까요?`))
       return;
 
     setSendingEmailId(booking.id);
     try {
-      // 1. 이메일 발송 API 호출
       const res = await fetch("/api/email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -174,7 +174,6 @@ export default function AdminPage() {
 
       if (!res.ok) throw new Error("이메일 전송 실패");
 
-      // 2. ✅ DB 업데이트: last_emailed_at 컬럼에 현재 시간 기록
       const { error: updateError } = await supabase
         .from("bookings")
         .update({ last_emailed_at: new Date().toISOString() })
@@ -183,7 +182,7 @@ export default function AdminPage() {
       if (updateError) throw updateError;
 
       alert("📧 이메일이 성공적으로 발송되었습니다!");
-      fetchData(); // 화면 새로고침하여 '재요청' 상태 반영
+      fetchData();
     } catch (error: any) {
       console.error(error);
       alert("오류 발생: " + error.message);
@@ -225,11 +224,16 @@ export default function AdminPage() {
           createdAt: booking.created_at,
           status: booking.status,
           totalOrderPrice: 0,
+          totalUSDPrice: 0, // ✅ 달러 합계 초기화
           items: [],
         };
       }
       groups[key].items.push(booking);
       groups[key].totalOrderPrice += booking.total_price;
+      // ✅ 달러 금액이 있을 경우 합산
+      if (booking.usd_amount) {
+        groups[key].totalUSDPrice += booking.usd_amount;
+      }
     });
     return Object.values(groups);
   };

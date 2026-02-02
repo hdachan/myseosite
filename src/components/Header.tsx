@@ -2,14 +2,18 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Menu, ShoppingCart, X } from "lucide-react";
+import { Menu, ShoppingCart, X, Globe } from "lucide-react"; // Globe 아이콘 추가
 import { useCartStore } from "@/store/cartStore";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { hangameFont } from "@/lib/fonts";
+// ✅ 환율 컨텍스트 연결
+import { useCurrency } from "@/app/context/CurrencyContext";
 
 export default function Header() {
   const pathname = usePathname();
+  // ✅ 통화 상태 및 변경 함수 가져오기
+  const { currency, setCurrency } = useCurrency();
 
   if (
     pathname?.startsWith("/studio") ||
@@ -31,14 +35,10 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
-    // ✅ [수정됨] getTotalItems() 대신 items.length를 사용하여 "상품 개수"만 카운트
     const unsubscribe = useCartStore.subscribe((state) => {
       setCartItemsCount(state.items.length);
     });
-
-    // 초기값 설정도 items.length로 변경
     setCartItemsCount(useCartStore.getState().items.length);
-
     return () => unsubscribe();
   }, []);
 
@@ -77,7 +77,31 @@ export default function Header() {
         </div>
 
         {/* Right Controls */}
-        <div className="flex items-center gap-3 sm:gap-5">
+        <div className="flex items-center gap-2 sm:gap-4">
+          {/* ✅ 통화 전환 스위치 추가 */}
+          <div className="flex items-center bg-gray-100 rounded-full p-0.5 border border-gray-200">
+            <button
+              onClick={() => setCurrency("KRW")}
+              className={`text-[10px] sm:text-[11px] font-bold px-2 py-1 rounded-full transition-all ${
+                currency === "KRW"
+                  ? "bg-white text-gray-900 shadow-sm"
+                  : "text-gray-400 hover:text-gray-600"
+              }`}
+            >
+              KRW
+            </button>
+            <button
+              onClick={() => setCurrency("USD")}
+              className={`text-[10px] sm:text-[11px] font-bold px-2 py-1 rounded-full transition-all ${
+                currency === "USD"
+                  ? "bg-white text-gray-900 shadow-sm"
+                  : "text-gray-400 hover:text-gray-600"
+              }`}
+            >
+              USD
+            </button>
+          </div>
+
           {/* Cart */}
           <Link
             href="/cart"
@@ -110,6 +134,30 @@ export default function Header() {
       {/* Mobile Menu Overlay */}
       {isMenuOpen && (
         <div className="fixed inset-0 top-0 bg-white z-40 lg:hidden flex flex-col pt-24 px-6 animate-in slide-in-from-right-10 duration-200">
+          {/* 모바일 통화 스위치 (상단 배치) */}
+          <div className="flex justify-end mb-8">
+            <div className="flex items-center bg-gray-100 rounded-full p-1 border border-gray-200">
+              <button
+                onClick={() => {
+                  setCurrency("KRW");
+                  closeMenu();
+                }}
+                className={`px-4 py-2 rounded-full text-sm font-bold ${currency === "KRW" ? "bg-white shadow-md text-gray-900" : "text-gray-400"}`}
+              >
+                KRW
+              </button>
+              <button
+                onClick={() => {
+                  setCurrency("USD");
+                  closeMenu();
+                }}
+                className={`px-4 py-2 rounded-full text-sm font-bold ${currency === "USD" ? "bg-white shadow-md text-gray-900" : "text-gray-400"}`}
+              >
+                USD
+              </button>
+            </div>
+          </div>
+
           <div className="flex flex-col gap-6">
             {menuItems.map(({ href, label }) => (
               <Link

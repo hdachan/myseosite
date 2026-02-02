@@ -3,34 +3,24 @@ import crypto from "crypto";
 
 export async function POST(request: Request) {
   try {
-    // 1. 클라이언트(프론트)에서 보낸 데이터 받기
     const body = await request.json();
-    const { orderNumber, amount } = body;
+    // 프론트에서 보낸 정수형 금액(commonAmount)을 정확히 받아야 함
+    const { orderNumber, amount, mxIssueDate } = body;
 
-    // 2. 상점 설정
     const mxId = "testcorp";
-    const passKey = process.env.FIRSTPAY_PASS_KEY; // .env에서 비밀키 가져오기
+    const passKey = process.env.FIRSTPAY_PASS_KEY;
 
-    // 3. 안전장치: 키가 없으면 서버 에러 반환 (로그로 확인 가능)
     if (!passKey) {
-      console.error(
-        "🚨 [Server Error] FIRSTPAY_PASS_KEY is missing in .env file.",
-      );
-      return NextResponse.json(
-        { error: "Server Configuration Error: Key missing" },
-        { status: 500 },
-      );
+      return NextResponse.json({ error: "Key missing" }, { status: 500 });
     }
 
-    // 4. 해시 생성 (순서: ID + 주문번호 + 금액 + 키)
-    // 숫자가 들어와도 문자로 자동 변환되어 합쳐집니다.
+    // ✅ 가이드 v1.8 MCP 규격에 근거한 해시 생성 (순서가 매우 중요)
+    // 이전에 잘 되었던 방식: mxId + orderNumber + amount + passKey
     const textToHash = mxId + orderNumber + amount + passKey;
     const hash = crypto.createHash("sha256").update(textToHash).digest("hex");
 
-    // 5. 성공 시 해시값 반환
     return NextResponse.json({ hash });
   } catch (error) {
-    console.error("Payment Hash Generation Error:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 },

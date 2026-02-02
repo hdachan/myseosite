@@ -2,7 +2,7 @@
 
 import React from "react";
 
-// ✅ 인터페이스에 last_emailed_at 추가 (DB 컬럼 대응)
+// ✅ 1. 인터페이스 보강: currency와 usd_amount 추가 (DB 컬럼 대응)
 interface Booking {
   id: string;
   created_at: string;
@@ -15,13 +15,15 @@ interface Booking {
   hotel_info: string;
   adults: number;
   children: number;
-  total_price: number;
+  total_price: number; // 원화 기준 금액
+  usd_amount?: number; // ✅ 추가: 달러 결제 금액
+  currency?: string; // ✅ 추가: 결제 통화 (USD/KRW)
   status: string;
   submission_type: string;
   order_number: string;
   review_token: string;
   is_reviewed: boolean;
-  last_emailed_at?: string; // ✅ 추가: 마지막 이메일 발송 시간
+  last_emailed_at?: string;
 }
 
 interface GroupedOrder {
@@ -33,6 +35,7 @@ interface GroupedOrder {
   createdAt: string;
   status: string;
   totalOrderPrice: number;
+  totalUSDPrice: number; // ✅ 추가: 주문 그룹별 달러 합계
   items: Booking[];
 }
 
@@ -82,14 +85,17 @@ export default function AdminBookingTable({
               <th className="p-4 border-b w-32">접수일 / 번호</th>
               <th className="p-4 border-b w-48">고객 정보</th>
               <th className="p-4 border-b">주문 내역 / 리뷰 요청</th>
-              <th className="p-4 border-b w-32">결제금액</th>
+              <th className="p-4 border-b w-40">결제 금액(정산)</th>
               <th className="p-4 border-b w-44 text-center">상태 변경</th>
               <th className="p-4 border-b w-16 text-center">삭제</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
             {groupedBookings.map((group) => {
-              const subType = group.items[0]?.submission_type || "PAYMENT";
+              const firstItem = group.items[0];
+              const subType = firstItem?.submission_type || "PAYMENT";
+              // ✅ 해당 주문 그룹의 통화 정보 확인 (첫 번째 아이템 기준)
+              const orderCurrency = firstItem?.currency || "KRW";
 
               return (
                 <tr
@@ -136,12 +142,14 @@ export default function AdminBookingTable({
                             <div className="text-xs text-gray-500">
                               📅 {item.tour_date} | {item.option_name}
                             </div>
-                            <div className="text-[9px] mt-1 font-bold text-gray-400 uppercase tracking-tighter">
-                              Type: {item.submission_type}
+                            {/* ✅ 개별 아이템 가격 표시 (달러/원화 구분) */}
+                            <div className="text-[10px] text-gray-400 mt-1 font-medium">
+                              {item.currency === "USD"
+                                ? `$ ${item.usd_amount?.toFixed(2)}`
+                                : `₩ ${item.total_price.toLocaleString()}`}
                             </div>
                           </div>
 
-                          {/* ✅ 리뷰 요청 섹션: 버튼 문구 및 날짜 표시 로직 추가 */}
                           <div className="min-w-[100px] flex flex-col items-end gap-1">
                             {item.is_reviewed ? (
                               <span className="text-[10px] bg-green-100 text-green-700 px-2.5 py-1 rounded-full font-bold border border-green-200">
@@ -156,18 +164,16 @@ export default function AdminBookingTable({
                                     sendingEmailId === item.id
                                       ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
                                       : item.last_emailed_at
-                                        ? "bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100" // ✅ 보낸 적 있으면 파란색
+                                        ? "bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100"
                                         : "bg-white text-gray-700 border-gray-300 hover:bg-[#F8F1E7] hover:border-[#4A7C7E] active:scale-95"
                                   }`}
                                 >
                                   {sendingEmailId === item.id
                                     ? "발송중..."
                                     : item.last_emailed_at
-                                      ? "🔄 재요청" // ✅ 보낸 적 있으면 문구 변경
+                                      ? "🔄 재요청"
                                       : "✉️ 리뷰요청"}
                                 </button>
-
-                                {/* ✅ 마지막 발송 날짜 힌트 표시 */}
                                 {item.last_emailed_at && (
                                   <span className="text-[9px] text-blue-400 font-medium">
                                     최근:{" "}
@@ -187,8 +193,22 @@ export default function AdminBookingTable({
                     </div>
                   </td>
 
-                  <td className="p-4 font-bold text-red-600 text-lg">
-                    ₩{group.totalOrderPrice.toLocaleString()}
+                  <td className="p-4">
+                    {/* ✅ 합계 금액 표시: 달러 결제 건이면 달러를 파란색으로 강조 */}
+                    {orderCurrency === "USD" ? (
+                      <div className="flex flex-col">
+                        <span className="font-bold text-blue-600 text-lg">
+                          $ {group.totalUSDPrice.toFixed(2)}
+                        </span>
+                        <span className="text-[10px] text-gray-400 font-medium">
+                          (₩ {group.totalOrderPrice.toLocaleString()})
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="font-bold text-red-600 text-lg">
+                        ₩ {group.totalOrderPrice.toLocaleString()}
+                      </span>
+                    )}
                   </td>
 
                   <td className="p-4 text-center">

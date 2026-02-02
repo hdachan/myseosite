@@ -18,6 +18,8 @@ import FullScreenLoader from "@/components/FullScreenLoader";
 import { useCartStore } from "@/store/cartStore";
 import { hangameFont } from "@/lib/fonts";
 import toast from "react-hot-toast";
+// ✅ 1. 환율 컨텍스트 임포트
+import { useCurrency } from "@/app/context/CurrencyContext";
 
 interface ExtendedCartItem {
   slug: string;
@@ -27,8 +29,8 @@ interface ExtendedCartItem {
   optionName: string;
   adults: number;
   children: number;
-  pricePerPerson: number;
-  totalPrice: number;
+  pricePerPerson: number; // 원화 단가
+  totalPrice: number; // 원화 합계
   date?: string;
   tourId?: string;
   minPax?: number;
@@ -38,7 +40,10 @@ function CartContent() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Zustand Selector
+  // ✅ 2. 환율 및 통화 정보 가져오기
+  const { currency: currentCurrency, exchangeRate: currentExchangeRate } =
+    useCurrency();
+
   const items = useCartStore((state: any) => state.items as ExtendedCartItem[]);
   const removeItem = useCartStore((state: any) => state.removeItem);
   const getTotalPrice = useCartStore((state: any) => state.getTotalPrice);
@@ -56,9 +61,20 @@ function CartContent() {
     agreed: false,
   });
 
-  const totalAmount = getTotalPrice();
+  const totalAmountKRW = getTotalPrice();
 
-  // 한국 시간(KST) 오늘 날짜 계산
+  // ✅ 3. 결제용 달러 금액 계산 (KPN 규격용)
+  const totalPriceUSDString = (totalAmountKRW / currentExchangeRate).toFixed(2);
+  const totalPriceUSDNum = Number(totalPriceUSDString);
+
+  // ✅ 4. 통화별 가격 포맷팅 함수 (리스트 아이템용)
+  const formatItemPrice = (krwPrice: number) => {
+    if (currentCurrency === "USD") {
+      return `$ ${(krwPrice / currentExchangeRate).toFixed(2)}`;
+    }
+    return `₩ ${krwPrice.toLocaleString()}`;
+  };
+
   const minDate = useMemo(() => {
     const now = new Date();
     const utc = now.getTime() + now.getTimezoneOffset() * 60000;
@@ -109,12 +125,10 @@ function CartContent() {
   ) => {
     const currentTotal = item.adults + item.children;
     const limit = item.minPax || 1;
-
     if (delta < 0 && currentTotal <= limit) {
       toast.error(`Minimum booking for this tour is ${limit} person(s).`);
       return;
     }
-
     if (updateItemQuantity) {
       updateItemQuantity(item.slug, item.optionId, type, delta);
     }
@@ -129,7 +143,6 @@ function CartContent() {
   );
   const isCartInvalid = invalidItems.length > 0;
 
-  // 🔥 [핵심 수정] 결제 프로세스
   const processCheckout = async (type: "PAYMENT" | "RESERVATION") => {
     if (items.length === 0) return alert("Cart is empty.");
     if (isCartInvalid) {
@@ -171,7 +184,9 @@ function CartContent() {
             totalPrice: item.totalPrice,
           })),
           order_number: orderNumber,
-          total_price: totalAmount,
+          total_price: totalAmountKRW,
+          usd_amount: totalPriceUSDNum,
+          currency: currentCurrency,
           customer_info: formData,
           submissionType: type,
         }),
@@ -194,10 +209,19 @@ function CartContent() {
           return;
         }
 
+        const commonAmount =
+          currentCurrency === "USD"
+            ? Math.max(1, Math.floor(totalPriceUSDNum))
+            : totalAmountKRW;
+
         const hashResponse = await fetch("/api/payment-hash", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ orderNumber, amount: totalAmount }),
+          body: JSON.stringify({
+            orderNumber,
+            amount: commonAmount,
+            currency: currentCurrency,
+          }),
         });
 
         if (!hashResponse.ok) throw new Error("Failed to generate hash.");
@@ -209,13 +233,12 @@ function CartContent() {
           openType: "popup",
         });
 
-        // ⭐ [포인트] 팝업창 객체를 변수에 할당
-        const payPopup = pay.goPay({
+        const payParams: any = {
           mxId: "testcorp",
           mxIssueNo: orderNumber,
           mxIssueDate: mxIssueDate,
-          amount: totalAmount,
-          currency: "KRW",
+          amount: commonAmount,
+          currency: currentCurrency,
           orderName: orderName,
           buyerName: formData.fullName,
           buyerEmail: formData.email,
@@ -223,13 +246,20 @@ function CartContent() {
           returnUrl: `${window.location.origin}/api/payment-return`,
           callHash: callHash,
           lang: "en",
-        });
+        };
 
-        // ⭐ [포인트] 팝업창 닫힘 감시 (사용자 이탈 대응)
+        if (currentCurrency === "USD") {
+          payParams.FXFlag = "M";
+          payParams.FXCurrency = "USD";
+          payParams.FXAmount = totalPriceUSDString;
+        }
+
+        const payPopup = pay.goPay(payParams);
+
         const checkPopup = setInterval(() => {
           if (payPopup && payPopup.closed) {
             clearInterval(checkPopup);
-            setIsSubmitting(false); // 로더 해제
+            setIsSubmitting(false);
           }
         }, 1000);
       }
@@ -240,22 +270,7 @@ function CartContent() {
     }
   };
 
-  if (items.length === 0) {
-    return (
-      <div
-        className={`${hangameFont.variable} font-hangame min-h-screen flex flex-col items-center justify-center bg-white`}
-      >
-        <ShoppingBag className="w-16 h-16 text-gray-300 mb-4" />
-        <p className="text-xl text-gray-700 mb-4">Your cart is empty.</p>
-        <button
-          onClick={() => router.push("/package")}
-          className="bg-[#4A7C82] text-white px-6 py-2 rounded-lg font-bold hover:brightness-110 transition-all"
-        >
-          Go to Tours
-        </button>
-      </div>
-    );
-  }
+  if (items.length === 0) return null;
 
   return (
     <div
@@ -263,64 +278,49 @@ function CartContent() {
     >
       {isSubmitting && <FullScreenLoader />}
 
-      {/* 모바일 헤더 여백 추가 */}
       <div className="max-w-6xl mx-auto px-4 sm:px-8 lg:px-12 pt-20 sm:pt-24 lg:pt-12">
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 sm:mb-8 flex items-center gap-2">
           <ShoppingBag /> Your Cart
         </h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-12">
-          {/* 왼쪽 컬럼: 장바구니 아이템 및 폼 */}
           <div className="lg:col-span-2 space-y-6 sm:space-y-8">
             <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200">
               <h2 className="font-bold text-base sm:text-lg text-gray-900 mb-4">
                 Items ({items.length})
               </h2>
-
               {items.map((item, idx) => (
                 <div
                   key={`${item.slug}-${item.optionId}-${idx}`}
                   className="flex flex-col sm:flex-row gap-4 sm:gap-6 border-b border-gray-100 py-4 sm:py-6 last:border-0"
                 >
                   <div className="relative w-full sm:w-24 h-32 sm:h-24 rounded-[6px] overflow-hidden flex-shrink-0 bg-gray-100">
-                    {item.image ? (
+                    {item.image && (
                       <Image
                         src={item.image}
                         alt={item.title}
                         fill
                         className="object-cover"
                       />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-xs text-gray-400">
-                        No Image
-                      </div>
                     )}
                   </div>
-
                   <div className="flex-1 flex flex-col justify-between">
                     <div>
                       <h3 className="font-bold text-gray-800 text-base sm:text-lg mb-1 leading-snug">
                         {item.title}
                       </h3>
                       <div className="flex items-center text-sm text-orange-600 font-medium mb-1">
-                        <Calendar className="w-4 h-4 mr-1" />
+                        <Calendar className="w-4 h-4 mr-1" />{" "}
                         {formData.tourDate || item.date}
                       </div>
-                      <p className="text-xs text-gray-500 mb-2">
+                      <p className="text-xs text-gray-500">
                         Option:{" "}
                         <span className="text-gray-700 font-medium">
                           {item.optionName}
                         </span>
                       </p>
-                      {(item.minPax || 1) > 1 && (
-                        <p className="text-xs text-orange-600 font-medium">
-                          * Minimum {item.minPax} people required
-                        </p>
-                      )}
                     </div>
-
                     <div className="space-y-3 mt-2">
-                      {/* 성인 수량 조절 */}
                       <div className="flex items-center justify-between gap-4">
                         <div className="flex items-center gap-2 text-sm text-gray-700">
                           <span className="font-medium w-14 sm:w-16">
@@ -333,7 +333,7 @@ function CartContent() {
                               }
                               className="w-6 h-6 rounded-[4px] border border-gray-300 flex items-center justify-center hover:bg-gray-50 bg-white"
                             >
-                              <Minus className="w-3 h-3 text-gray-700" />
+                              <Minus className="w-3" />
                             </button>
                             <span className="w-6 text-center font-bold text-gray-900">
                               {item.adults}
@@ -342,81 +342,31 @@ function CartContent() {
                               onClick={() => handlePaxChange(item, "adults", 1)}
                               className="w-6 h-6 rounded-[4px] border border-gray-300 flex items-center justify-center hover:bg-gray-50 bg-white"
                             >
-                              <Plus className="w-3 h-3 text-gray-700" />
+                              <Plus className="w-3" />
                             </button>
                           </div>
                         </div>
+                        {/* ✅ 개별 항목의 성인 합계 금액 환율 반영 */}
                         <div className="text-right">
                           <span className="block font-bold text-gray-900 text-sm">
-                            ${" "}
-                            {(
-                              item.adults * item.pricePerPerson
-                            ).toLocaleString()}
-                          </span>
-                          <span className="text-xs text-gray-400">
-                            ({item.adults} x ${" "}
-                            {item.pricePerPerson.toLocaleString()})
+                            {formatItemPrice(item.adults * item.pricePerPerson)}
                           </span>
                         </div>
                       </div>
-
-                      {/* 소아 수량 조절 (있는 경우만) */}
-                      {item.children > 0 && (
-                        <div className="flex items-center justify-between gap-4">
-                          <div className="flex items-center gap-2 text-sm text-gray-700">
-                            <span className="font-medium w-14 sm:w-16">
-                              Children
-                            </span>
-                            <div className="flex items-center gap-1">
-                              <button
-                                onClick={() =>
-                                  handlePaxChange(item, "children", -1)
-                                }
-                                className="w-6 h-6 rounded-[4px] border border-gray-300 flex items-center justify-center hover:bg-gray-50 bg-white"
-                              >
-                                <Minus className="w-3 h-3 text-gray-700" />
-                              </button>
-                              <span className="w-6 text-center font-bold text-gray-900">
-                                {item.children}
-                              </span>
-                              <button
-                                onClick={() =>
-                                  handlePaxChange(item, "children", 1)
-                                }
-                                className="w-6 h-6 rounded-[4px] border border-gray-300 flex items-center justify-center hover:bg-gray-50 bg-white"
-                              >
-                                <Plus className="w-3 h-3 text-gray-700" />
-                              </button>
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <span className="block font-bold text-gray-900 text-sm">
-                              ${" "}
-                              {(
-                                item.children * item.pricePerPerson
-                              ).toLocaleString()}
-                            </span>
-                            <span className="text-xs text-gray-400">
-                              ({item.children} x ${" "}
-                              {item.pricePerPerson.toLocaleString()})
-                            </span>
-                          </div>
-                        </div>
-                      )}
                     </div>
                   </div>
-
-                  <div className="text-right flex flex-row sm:flex-col justify-between sm:justify-between items-center sm:items-end">
+                  <div className="text-right flex flex-row sm:flex-col justify-between items-center sm:items-end">
                     <button
                       onClick={() => handleRemove(item)}
-                      className="text-gray-400 hover:text-red-500 p-1 mb-0 sm:mb-2"
+                      className="text-gray-400 hover:text-red-500 p-1"
                     >
-                      <Trash2 className="w-5 h-5" />
+                      <Trash2 className="w-5" />
                     </button>
                     <div>
                       <p className="text-xs text-gray-400 mb-1">Subtotal</p>
+                      {/* ✅ 개별 항목 전체 합계 금액 환율 반영 */}
                       <p className="font-bold text-gray-900 text-lg sm:text-xl">
-                        $ {item.totalPrice.toLocaleString()}
+                        {formatItemPrice(item.totalPrice)}
                       </p>
                     </div>
                   </div>
@@ -464,7 +414,6 @@ function CartContent() {
             </div>
           </div>
 
-          {/* 오른쪽 컬럼: 결제 요약 및 버튼 */}
           <div className="lg:col-span-1">
             <div className="bg-white p-4 sm:p-6 rounded-lg shadow-lg border border-gray-200 lg:sticky lg:top-24">
               <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4 border-b pb-2">
@@ -473,44 +422,27 @@ function CartContent() {
               <div className="flex justify-between items-center text-xl sm:text-2xl font-bold mb-6 pt-2">
                 <span className="text-gray-900">Total</span>
                 <span className="text-red-600">
-                  $ {totalAmount.toLocaleString()}
+                  {currentCurrency === "USD"
+                    ? `$ ${totalPriceUSDString}`
+                    : `₩ ${totalAmountKRW.toLocaleString()}`}
                 </span>
               </div>
-
-              {isCartInvalid && (
-                <div className="mb-4 flex items-start gap-2 bg-red-50 p-3 rounded-[6px] text-xs font-medium text-red-600">
-                  <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                  <p>
-                    One or more items do not meet the minimum passenger
-                    requirement.
-                  </p>
-                </div>
-              )}
 
               <div className="flex flex-col gap-3">
                 <button
                   onClick={() => processCheckout("PAYMENT")}
                   disabled={isSubmitting || isCartInvalid}
-                  className={`w-full font-bold py-3 sm:py-4 rounded-lg shadow-md flex items-center justify-center gap-2 text-sm sm:text-base ${
-                    isSubmitting || isCartInvalid
-                      ? "bg-gray-300 text-gray-500"
-                      : "bg-orange-600 hover:bg-orange-700 text-white"
-                  }`}
+                  className={`w-full font-bold py-3 sm:py-4 rounded-lg shadow-md flex items-center justify-center gap-2 text-sm sm:text-base ${isSubmitting || isCartInvalid ? "bg-gray-300 text-gray-500" : "bg-orange-600 hover:bg-orange-700 text-white"}`}
                 >
-                  <CreditCard className="w-5 h-5" />
+                  <CreditCard className="w-5 h-5" />{" "}
                   {isSubmitting ? "Processing..." : "Pay Now"}
                 </button>
-
                 <button
                   onClick={() => processCheckout("RESERVATION")}
                   disabled={isSubmitting || isCartInvalid}
-                  className={`w-full font-bold py-3 sm:py-4 rounded-lg shadow-md flex items-center justify-center gap-2 text-sm sm:text-base ${
-                    isSubmitting || isCartInvalid
-                      ? "bg-gray-300 text-gray-500"
-                      : "bg-gray-800 hover:bg-gray-900 text-white"
-                  }`}
+                  className={`w-full font-bold py-3 sm:py-4 rounded-lg shadow-md flex items-center justify-center gap-2 text-sm sm:text-base ${isSubmitting || isCartInvalid ? "bg-gray-300 text-gray-500" : "bg-gray-800 hover:bg-gray-900 text-white"}`}
                 >
-                  <CalendarCheck className="w-5 h-5" />
+                  <CalendarCheck className="w-5 h-5" />{" "}
                   {isSubmitting ? "Processing..." : "Make a Reservation"}
                 </button>
               </div>

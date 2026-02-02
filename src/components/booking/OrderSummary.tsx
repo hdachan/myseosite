@@ -3,20 +3,22 @@
 import React from "react";
 import Image from "next/image";
 import { Minus, Plus, CreditCard, CalendarCheck } from "lucide-react";
+// ✅ 1. 환율 컨텍스트 임포트
+import { useCurrency } from "@/app/context/CurrencyContext";
 
 interface OrderSummaryProps {
   tourBaseData: {
     title: string;
     image: string;
     optionName: string;
-    price: number;
+    price: number; // 원화 기준 단가
   };
   formData: {
     adults: number;
     children: number;
     agreed: boolean;
   };
-  currentTotalPrice: number;
+  currentTotalPrice: number; // 원화 기준 합계
   handlePaxChange: (type: "adults" | "children", delta: number) => void;
   handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   setSubmissionType: (type: "PAYMENT" | "RESERVATION") => void;
@@ -30,13 +32,16 @@ export default function OrderSummary({
   handleChange,
   setSubmissionType,
 }: OrderSummaryProps) {
+  // ✅ 2. formatPrice 함수 가져오기
+  const { formatPrice } = useCurrency();
+
   return (
     <div className="bg-white p-6 rounded-[6px] shadow-lg border border-gray-200 sticky top-24">
       <h3 className="text-lg font-bold text-gray-900 mb-4 border-b pb-2">
         Order Summary
       </h3>
 
-      {/* 상품 썸네일 */}
+      {/* 상품 썸네일 (기존 유지) */}
       <div className="flex gap-4 mb-6">
         <div className="relative w-20 h-20 rounded-[6px] overflow-hidden flex-shrink-0 bg-gray-100">
           {tourBaseData.image ? (
@@ -71,7 +76,8 @@ export default function OrderSummary({
               Adults <span className="text-red-500">*</span>
             </span>
             <span className="text-xs text-gray-400">
-              ${tourBaseData.price} / person
+              {/* ✅ 인당 단가 formatPrice 적용 */}
+              {formatPrice(tourBaseData.price)} / person
             </span>
           </div>
           <div className="flex items-center gap-2">
@@ -100,7 +106,8 @@ export default function OrderSummary({
           <div className="text-sm text-gray-700">
             <span className="block font-medium">Children</span>
             <span className="text-xs text-gray-400">
-              ${tourBaseData.price} / person
+              {/* ✅ 인당 단가 formatPrice 적용 */}
+              {formatPrice(tourBaseData.price)} / person
             </span>
           </div>
           <div className="flex items-center gap-2">
@@ -129,15 +136,17 @@ export default function OrderSummary({
       <div className="space-y-2 text-sm text-gray-600 mb-4">
         <div className="flex justify-between">
           <span>Subtotal (Adults)</span>
+          {/* ✅ 성인 소계 formatPrice 적용 */}
           <span className="font-medium">
-            $ {tourBaseData.price * formData.adults}
+            {formatPrice(tourBaseData.price * formData.adults)}
           </span>
         </div>
         {formData.children > 0 && (
           <div className="flex justify-between">
             <span>Subtotal (Children)</span>
+            {/* ✅ 소인 소계 formatPrice 적용 */}
             <span className="font-medium">
-              $ {tourBaseData.price * formData.children}
+              {formatPrice(tourBaseData.price * formData.children)}
             </span>
           </div>
         )}
@@ -146,12 +155,13 @@ export default function OrderSummary({
       {/* 총 가격 */}
       <div className="flex justify-between items-center border-t border-gray-200 pt-4 mb-6">
         <span className="text-lg font-bold text-gray-900">Total</span>
+        {/* ✅ 최종 합계 formatPrice 적용 */}
         <span className="text-2xl font-bold text-red-600">
-          $ {currentTotalPrice.toFixed(2)}
+          {formatPrice(currentTotalPrice)}
         </span>
       </div>
 
-      {/* 약관 동의 */}
+      {/* 약관 동의 (기존 유지) */}
       <div className="flex items-start gap-3 mb-6 p-3 bg-gray-50 rounded-[6px]">
         <input
           type="checkbox"
@@ -177,7 +187,7 @@ export default function OrderSummary({
         </label>
       </div>
 
-      {/* 버튼 그룹 */}
+      {/* 버튼 그룹 (기존 유지) */}
       <div className="flex flex-col gap-3">
         <button
           type="submit"

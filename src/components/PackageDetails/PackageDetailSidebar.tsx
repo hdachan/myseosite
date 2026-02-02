@@ -15,6 +15,8 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { hangameFont } from "@/lib/fonts";
+// ✅ 환율 컨텍스트 추가 (일관된 통화 관리용)
+import { useCurrency } from "@/app/context/CurrencyContext";
 
 interface ScheduleItem {
   time?: string;
@@ -43,12 +45,14 @@ export default function PackageDetailSidebar({
   selectedPackage,
   meetingPoint,
 }: PackageDetailSidebarProps) {
-  // 📸 [팝업 상태 관리]
+  // ✅ 환율 관련 정보 가져오기 (필요 시 확장 가능)
+  const { currency } = useCurrency();
+
+  // 📸 [팝업 상태 관리] - 기존 로직 100% 유지
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [lightboxImages, setLightboxImages] = useState<string[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // 팝업 열기
   const openLightbox = (images: string[] | undefined, index: number = 0) => {
     if (!images || images.length === 0) return;
     setLightboxImages(images);
@@ -57,14 +61,12 @@ export default function PackageDetailSidebar({
     document.body.style.overflow = "hidden";
   };
 
-  // 팝업 닫기
   const closeLightbox = () => {
     setIsLightboxOpen(false);
     setLightboxImages([]);
     document.body.style.overflow = "auto";
   };
 
-  // 다음 사진
   const nextImage = (e: React.MouseEvent) => {
     e.stopPropagation();
     setCurrentIndex((prev) =>
@@ -72,7 +74,6 @@ export default function PackageDetailSidebar({
     );
   };
 
-  // 이전 사진
   const prevImage = (e: React.MouseEvent) => {
     e.stopPropagation();
     setCurrentIndex((prev) =>
@@ -80,7 +81,6 @@ export default function PackageDetailSidebar({
     );
   };
 
-  // ESC 키 닫기
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") closeLightbox();
@@ -91,7 +91,7 @@ export default function PackageDetailSidebar({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isLightboxOpen]);
 
-  // 아이콘 헬퍼
+  // 아이콘 헬퍼 - 기존 로직 유지
   const getIcon = (type: string) => {
     switch (type) {
       case "transport":
@@ -155,25 +155,20 @@ export default function PackageDetailSidebar({
                       >
                         {getIcon(item.iconType || "location")}
                       </div>
-
                       <div className="flex flex-col gap-1">
                         {item.time && (
                           <span className="text-xs font-bold text-gray-900 bg-gray-100 px-1.5 py-0.5 rounded w-fit mb-0.5">
                             {item.time}
                           </span>
                         )}
-
                         <h4 className="text-sm font-bold text-gray-800 leading-tight">
                           {item.title}
                         </h4>
-
                         {item.description && (
                           <p className="text-xs text-gray-500 leading-snug mt-1 whitespace-pre-line">
                             {item.description}
                           </p>
                         )}
-
-                        {/* 일정 사진 (썸네일) */}
                         {item.images && item.images.length > 0 && (
                           <div
                             className="relative w-full h-24 mt-2 rounded-md overflow-hidden border border-gray-100 shadow-sm group cursor-pointer"
@@ -206,21 +201,18 @@ export default function PackageDetailSidebar({
             </div>
           </section>
 
-          {/* 2. 미팅 포인트 (UI 정렬 수정됨 ✨) */}
+          {/* 2. 미팅 포인트 - 기존 UI 그리드 정렬 유지 */}
           {meetingPoint && (
             <div className="bg-blue-50 p-5 rounded-[6px] border border-blue-100 text-sm text-blue-900">
               <p className="font-bold flex items-center gap-2 mb-3 text-blue-800">
                 <MapPin className="w-4 h-4 text-blue-600" />
                 Meeting Point
               </p>
-
               {typeof meetingPoint === "object" ? (
                 <>
                   <p className="leading-relaxed text-blue-800 mb-4 whitespace-pre-line text-sm">
                     {(meetingPoint as MeetingPoint).description}
                   </p>
-
-                  {/* ✅ [수정] 가로 스크롤 대신 '그리드'로 변경하여 깔끔하게 정렬 */}
                   {(meetingPoint as MeetingPoint).images &&
                     (meetingPoint as MeetingPoint).images!.length > 0 && (
                       <div className="grid grid-cols-3 gap-2">
@@ -256,7 +248,7 @@ export default function PackageDetailSidebar({
         </div>
       </aside>
 
-      {/* 🚀 이미지 팝업 (Lightbox) */}
+      {/* 🚀 이미지 팝업 (Lightbox) - 기존 로직 유지 */}
       {isLightboxOpen && (
         <div
           className="fixed inset-0 z-[9999] bg-black/90 flex items-center justify-center backdrop-blur-sm p-4 animate-in fade-in duration-200"
@@ -268,7 +260,6 @@ export default function PackageDetailSidebar({
           >
             <X className="w-8 h-8" />
           </button>
-
           <div
             className="relative w-full max-w-5xl h-full max-h-[80vh] flex items-center justify-center"
             onClick={(e) => e.stopPropagation()}
@@ -282,7 +273,6 @@ export default function PackageDetailSidebar({
                 priority
               />
             )}
-
             {lightboxImages.length > 1 && (
               <>
                 <button
@@ -299,7 +289,6 @@ export default function PackageDetailSidebar({
                 </button>
               </>
             )}
-
             <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 text-white/80 text-sm font-medium">
               {currentIndex + 1} / {lightboxImages.length}
             </div>

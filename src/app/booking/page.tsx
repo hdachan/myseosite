@@ -7,13 +7,18 @@ import BookingForm from "@/components/booking/BookingForm";
 import OrderSummary from "@/components/booking/OrderSummary";
 import FullScreenLoader from "@/components/FullScreenLoader";
 import { hangameFont } from "@/lib/fonts";
+import { useCurrency } from "@/app/context/CurrencyContext";
 
 function BookingContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // KPN 스크립트 로드
+  // 환율 정보 가져오기
+  const { currency: currentCurrency, exchangeRate: currentExchangeRate } =
+    useCurrency();
+
+  // KPN 스크립트 로드 (기존 유지)
   useEffect(() => {
     const script = document.createElement("script");
     script.src = "https://dev.firstpay.co.kr/js/firstpay.js";
@@ -56,8 +61,14 @@ function BookingContent() {
     agreed: false,
   });
 
-  const currentTotalPrice =
+  // 원화 기준 합계
+  const totalPriceKRW =
     (formData.adults + formData.children) * tourBaseData.price;
+
+  // 달러 결제 금액 계산 (정의서 p.7 규격: 소수점 2자리 문자열)
+  const totalPriceUSDString = (totalPriceKRW / currentExchangeRate).toFixed(2);
+  const totalPriceUSDNum = Number(totalPriceUSDString);
+
   const [submissionType, setSubmissionType] = useState<
     "PAYMENT" | "RESERVATION"
   >("PAYMENT");
@@ -67,11 +78,12 @@ function BookingContent() {
   ) => {
     const { name, value, type } = e.target;
     if (type === "checkbox") {
-      const checked = (e.target as HTMLInputElement).checked;
-      setFormData((prev) => ({ ...prev, [name]: checked }));
+      setFormData((prev) => ({
+        ...prev,
+        [name]: (e.target as HTMLInputElement).checked,
+      }));
     } else if (type === "number") {
-      const numValue = Math.max(0, Number(value));
-      setFormData((prev) => ({ ...prev, [name]: numValue }));
+      setFormData((prev) => ({ ...prev, [name]: Math.max(0, Number(value)) }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
@@ -84,10 +96,7 @@ function BookingContent() {
         alert(`Minimum booking for this tour is ${minPax} person(s).`);
         return prev;
       }
-      return {
-        ...prev,
-        [type]: Math.max(0, prev[type] + delta),
-      };
+      return { ...prev, [type]: Math.max(0, prev[type] + delta) };
     });
   };
 
@@ -122,9 +131,8 @@ function BookingContent() {
       scrollToTop();
       return alert("At least 1 adult is required.");
     }
-    if (!formData.agreed) {
+    if (!formData.agreed)
       return alert("Please agree to the Terms and Conditions.");
-    }
 
     setIsSubmitting(true);
 
@@ -136,23 +144,23 @@ function BookingContent() {
       .replace(/[-T:\.Z]/g, "")
       .slice(0, 14);
 
-    const submitData = {
-      ...tourBaseData,
-      ...formData,
-      totalPrice: currentTotalPrice,
-      type: submissionType,
-      order_number: orderNumber,
-    };
-
     try {
       const response = await fetch("/api/bookings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(submitData),
+        body: JSON.stringify({
+          ...tourBaseData,
+          ...formData,
+          totalPrice: totalPriceKRW,
+          currency: currentCurrency,
+          exchangeRate: currentExchangeRate,
+          usdAmount: totalPriceUSDNum,
+          type: submissionType,
+          order_number: orderNumber,
+        }),
       });
 
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.error || "Booking failed");
+      if (!response.ok) throw new Error("Booking failed");
 
       if (submissionType === "RESERVATION") {
         router.push(`/booking/success?orderId=${orderNumber}&type=RESERVATION`);
@@ -163,14 +171,20 @@ function BookingContent() {
           return;
         }
 
+        // ✅ KPN 규격: amount 필드는 정수(Integer)만 허용 [cite: 251]
+        // 소수점 9009 에러를 피하기 위해 Math.floor 사용
+        const commonAmount =
+          currentCurrency === "USD"
+            ? Math.max(1, Math.floor(totalPriceUSDNum))
+            : totalPriceKRW;
+
+        // 해시 생성 (정수 금액 기준)
         const hashResponse = await fetch("/api/payment-hash", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ orderNumber, amount: currentTotalPrice }),
+          body: JSON.stringify({ orderNumber, amount: commonAmount }),
         });
 
-        if (!hashResponse.ok)
-          throw new Error("Failed to generate secure payment hash.");
         const { hash: callHash } = await hashResponse.json();
 
         const pay = new (window as any).FirstPay({
@@ -179,12 +193,13 @@ function BookingContent() {
           openType: "popup",
         });
 
-        const payPopup = pay.goPay({
+        // ✅ KPN 정의서 p.7 외화결제(MCP) 파라미터 적용
+        const payParams: any = {
           mxId: "testcorp",
           mxIssueNo: orderNumber,
           mxIssueDate: mxIssueDate,
-          amount: currentTotalPrice,
-          currency: "KRW",
+          amount: commonAmount, // 정수 전송
+          currency: currentCurrency, // 통화 설정 ("USD")
           orderName: tourBaseData.title,
           buyerName: formData.fullName,
           buyerEmail: formData.email,
@@ -192,42 +207,38 @@ function BookingContent() {
           returnUrl: `${window.location.origin}/api/payment-return`,
           callHash: callHash,
           lang: "en",
-        });
+        };
+
+        // ✅ USD 결제 시 MCP 전용 필드 추가
+        if (currentCurrency === "USD") {
+          payParams.FXFlag = "M"; // 외화거래구분
+          payParams.FXCurrency = "USD"; // 통화코드
+          payParams.FXAmount = totalPriceUSDString; // 실제 소수점 금액 ("2.63")
+        }
+
+        pay.goPay(payParams);
 
         const checkPopup = setInterval(() => {
-          if (payPopup && payPopup.closed) {
+          if (window.closed) {
             clearInterval(checkPopup);
             setIsSubmitting(false);
           }
         }, 1000);
       }
     } catch (error: any) {
-      console.error("Error:", error);
       alert("Error processing request: " + error.message);
       setIsSubmitting(false);
     }
   };
 
-  if (!tourBaseData.slug) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p>Invalid booking request.</p>
-        <button onClick={() => router.back()} className="ml-4 underline">
-          Go Back
-        </button>
-      </div>
-    );
-  }
+  if (!tourBaseData.slug) return null;
 
   return (
-    // ✅ [수정] pt-24 lg:pt-36 -> pt-24 lg:pt-32 (너무 넓은 상단 여백 축소)
     <div
       className={`min-h-screen bg-[#F8FAFC] pb-24 relative ${hangameFont.variable} pt-24 lg:pt-32`}
     >
       {isSubmitting && <FullScreenLoader />}
-
       <div className="max-w-6xl mx-auto px-6 md:px-8 lg:px-12">
-        {/* 뒤로가기 버튼 */}
         <button
           onClick={() => router.back()}
           className="group flex items-center text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors mb-8"
@@ -241,7 +252,7 @@ function BookingContent() {
         <div className="mb-10 border-b border-gray-200 pb-6">
           <div className="flex items-center gap-2 mb-2">
             <Lock className="w-4 h-4 text-[#4A7C7E]" />
-            <span className="text-[10px] md:text-[11px] uppercase tracking-wider font-bold text-[#4A7C7E]">
+            <span className="text-[10px] uppercase tracking-wider font-bold text-[#4A7C7E]">
               SECURE CHECKOUT
             </span>
           </div>
@@ -250,12 +261,6 @@ function BookingContent() {
           >
             Confirm Your Booking
           </h1>
-          {minPax > 1 && (
-            <div className="mt-3 flex items-center gap-2 text-xs font-medium text-orange-600 bg-orange-50 w-fit px-3 py-1.5 rounded-lg border border-orange-100">
-              <AlertCircle className="w-3.5 h-3.5" /> Minimum {minPax} people
-              required
-            </div>
-          )}
         </div>
 
         <form
@@ -273,24 +278,15 @@ function BookingContent() {
               />
             </div>
           </div>
-
           <div className="lg:col-span-1">
-            {/* ✅ [수정] sticky top 위치를 padding 변화에 맞춰 조정 */}
-            <div className="sticky top-28 lg:top-32">
-              <OrderSummary
-                tourBaseData={tourBaseData}
-                formData={formData}
-                currentTotalPrice={currentTotalPrice}
-                handlePaxChange={handlePaxChange}
-                handleChange={handleChange}
-                setSubmissionType={setSubmissionType}
-              />
-              {isSubmitting && (
-                <div className="mt-4 p-3 bg-blue-50 text-blue-700 text-xs text-center rounded-lg animate-pulse font-medium border border-blue-100">
-                  Opening Secure Payment Window...
-                </div>
-              )}
-            </div>
+            <OrderSummary
+              tourBaseData={tourBaseData}
+              formData={formData}
+              currentTotalPrice={totalPriceKRW}
+              handlePaxChange={handlePaxChange}
+              handleChange={handleChange}
+              setSubmissionType={setSubmissionType}
+            />
           </div>
         </form>
       </div>

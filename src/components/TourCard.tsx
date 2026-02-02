@@ -4,8 +4,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { Star } from "lucide-react";
 import { hangameFont } from "@/lib/fonts";
+import { useCurrency } from "@/app/context/CurrencyContext";
 
-// Sanity + Supabase 데이터 통합 인터페이스
+// Sanity + Supabase 데이터 통합 인터페이스 (기존 유지)
 interface TourData {
   id: string | number;
   slug: string;
@@ -27,6 +28,9 @@ interface TourCardProps {
 }
 
 export default function TourCard({ tour, priority = false }: TourCardProps) {
+  // ✅ 2. formatPrice 함수 가져오기
+  const { formatPrice } = useCurrency();
+
   const displayTags =
     tour.tags && tour.tags.length > 0
       ? tour.tags
@@ -41,7 +45,7 @@ export default function TourCard({ tour, priority = false }: TourCardProps) {
     <div className="group cursor-pointer flex flex-col h-full">
       <Link href={`/package/${tour.slug}`} className="block h-full">
         <div className="h-full flex flex-col bg-white rounded-[6px] overflow-hidden border border-gray-200 shadow-sm shadow-[inset_0_0_14px_rgba(0,0,0,0.04)] hover:shadow-md transition-all duration-300">
-          {/* 1. 이미지 영역 */}
+          {/* 1. 이미지 영역 (기존 유지) */}
           <div className="relative h-[150px] md:h-[200px] w-full overflow-hidden bg-gray-50 border-b border-gray-100">
             {tour.image ? (
               <Image
@@ -59,21 +63,18 @@ export default function TourCard({ tour, priority = false }: TourCardProps) {
             )}
           </div>
 
-          {/* 2. 텍스트 내용 영역 */}
+          {/* 2. 텍스트 내용 영역 (기존 유지) */}
           <div className="p-3 md:p-4 flex flex-col flex-1">
-            {/* Location */}
             <div className="text-[10px] md:text-[11px] text-gray-400 mb-1 truncate font-medium uppercase tracking-wide">
               {tour.location || "Korea"}
             </div>
 
-            {/* Title */}
             <h3
               className={`${hangameFont.className} h-[40px] md:h-[44px] text-[14px] md:text-[15px] font-bold text-gray-900 leading-snug mb-2 line-clamp-2 group-hover:text-[#ad3928] transition-colors tracking-tight`}
             >
               {tour.title}
             </h3>
 
-            {/* Tags */}
             <div className="h-[24px] md:h-[26px] mb-3 overflow-hidden flex flex-wrap gap-1">
               {displayTags.slice(0, 3).map((tag, index) => (
                 <span
@@ -89,7 +90,6 @@ export default function TourCard({ tour, priority = false }: TourCardProps) {
             <div className="mt-auto pt-3 border-t border-dashed border-gray-100">
               <div className="flex items-center gap-1 mb-1.5">
                 <Star className="w-3 h-3 md:w-3.5 md:h-3.5 fill-[#37848c] text-[#37848c]" />
-                {/* reviewCount가 0보다 클 때만 평점 표시 */}
                 {reviewCount > 0 ? (
                   <>
                     <span className="text-[#37848c] text-[11px] md:text-xs font-bold">
@@ -106,24 +106,25 @@ export default function TourCard({ tour, priority = false }: TourCardProps) {
                 )}
               </div>
 
-              {/* 가격 줄 */}
+              {/* ✅ 3. 가격 줄: formatPrice 적용 */}
               <div className="flex items-end gap-1.5">
                 {tour.discount ? (
                   <div className="flex items-baseline gap-1.5">
                     <span
                       className={`${hangameFont.className} text-[15px] md:text-[17px] font-bold text-[#ad3928]`}
                     >
-                      ₩{tour.price?.toLocaleString()}
+                      {/* ✅ 원화(₩) 기호까지 formatPrice 내부에서 처리됨 */}
+                      {formatPrice(tour.price)}
                     </span>
                     <span className="text-[10px] md:text-[11px] text-gray-300 line-through decoration-gray-300">
-                      ₩{tour.originalPrice?.toLocaleString()}
+                      {formatPrice(tour.originalPrice || 0)}
                     </span>
                   </div>
                 ) : (
                   <span
                     className={`${hangameFont.className} text-[15px] md:text-[17px] font-bold text-gray-900`}
                   >
-                    ₩{tour.price?.toLocaleString()}
+                    {formatPrice(tour.price || 0)}
                   </span>
                 )}
               </div>

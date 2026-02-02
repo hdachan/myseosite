@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Minus, Plus, Calendar, AlertCircle } from "lucide-react";
 import toast from "react-hot-toast";
 import { hangameFont } from "@/lib/fonts";
+import { useCurrency } from "@/app/context/CurrencyContext";
 
 interface PackageOption {
   id: string;
@@ -23,7 +24,7 @@ interface PackageOptionsSectionProps {
   tourTitle: string;
   tourImage: string;
   tourId: string;
-  minPax?: number; // 최소 인원 (기본값 1)
+  minPax?: number;
 }
 
 export default function PackageOptionsSection({
@@ -38,13 +39,12 @@ export default function PackageOptionsSection({
   minPax = 1,
 }: PackageOptionsSectionProps) {
   const router = useRouter();
+  const { currency, exchangeRate, formatPrice } = useCurrency();
+
   const [selectedOption, setSelectedOption] = useState("");
   const [tourDate, setTourDate] = useState("");
-
-  // 초기 인원: 성인을 최소 인원만큼 세팅 (최소 1명 보장)
   const [adults, setAdults] = useState(Math.max(1, minPax));
   const [children, setChildren] = useState(0);
-
   const [minDate, setMinDate] = useState("");
 
   const getKoreaDate = () => {
@@ -59,7 +59,6 @@ export default function PackageOptionsSection({
     setMinDate(getKoreaDate());
   }, []);
 
-  // 옵션이나 minPax가 바뀌면 인원수 재조정
   useEffect(() => {
     if (minPax > 1 && adults < minPax) {
       setAdults(minPax);
@@ -69,7 +68,6 @@ export default function PackageOptionsSection({
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.value;
     const today = getKoreaDate();
-
     if (selected < today) {
       toast.error("You cannot select a past date.");
       setTourDate("");
@@ -82,14 +80,17 @@ export default function PackageOptionsSection({
     (opt) => opt.id === selectedOption,
   );
 
-  const totalPrice = selectedPackage
+  // ✅ 1. 원화 합계 (DB 저장용 & KRW 결제용)
+  const totalPriceKRW = selectedPackage
     ? selectedPackage.price * (adults + children)
     : 0;
+
+  // ✅ 2. 달러 합계 (USD 결제용 - 소수점 2자리 반올림)
+  const totalPriceUSD = Number((totalPriceKRW / exchangeRate).toFixed(2));
 
   const totalPeople = adults + children;
   const isDateSelected = tourDate !== "";
   const isPaxMet = totalPeople >= minPax;
-
   const isButtonDisabled = !isDateSelected || !isPaxMet;
 
   const handleReset = () => {
@@ -108,24 +109,18 @@ export default function PackageOptionsSection({
 
   const handleDecrease = (type: "adults" | "children") => {
     const currentTotal = adults + children;
-
     if (currentTotal <= minPax) {
       toast.error(`Minimum booking is ${minPax} person(s).`);
       return;
     }
-
-    if (type === "adults") {
-      setAdults(Math.max(0, adults - 1));
-    } else {
-      setChildren(Math.max(0, children - 1));
-    }
+    if (type === "adults") setAdults(Math.max(0, adults - 1));
+    else setChildren(Math.max(0, children - 1));
   };
 
   const handleAddToCart = () => {
     if (isButtonDisabled) return;
-
     onAddToCart({
-      tourId: tourId,
+      tourId,
       slug: tourSlug,
       title: tourTitle,
       image: tourImage,
@@ -134,9 +129,12 @@ export default function PackageOptionsSection({
       adults,
       children,
       pricePerPerson: selectedPackage?.price,
-      totalPrice,
+      totalPrice: totalPriceKRW, // ✅ 항상 원화 기준 합계 전송
+      usdAmount: totalPriceUSD, // ✅ 달러 합계 별도 전송
+      currency,
+      exchangeRate,
       date: tourDate,
-      minPax: minPax,
+      minPax,
     });
     toast.success(`Added to cart!`);
   };
@@ -144,20 +142,23 @@ export default function PackageOptionsSection({
   const handleBookNow = () => {
     if (isButtonDisabled) return;
 
+    // ✅ URL 파라미터 구성 시 "원화 합계"와 "선택한 통화"를 확실히 구분해서 보냄
     const query = new URLSearchParams({
-      tourId: tourId,
+      tourId,
       slug: tourSlug,
       title: tourTitle,
       image: tourImage,
       optionId: selectedPackage!.id,
       optionName: selectedPackage!.name,
-      price: selectedPackage!.price.toString(),
+      price: selectedPackage!.price.toString(), // 원화 단가
       adults: adults.toString(),
       children: children.toString(),
-      totalPrice: totalPrice.toString(),
+      totalPrice: totalPriceKRW.toString(), // ✅ 항상 원화 합계
+      usdAmount: totalPriceUSD.toString(), // ✅ 달러 합계 별도 포함
       date: tourDate,
-      // ✅ [이 부분이 핵심!] URL로 넘어갈 때 minPax 정보도 같이 보냄
       minPax: minPax.toString(),
+      currency: currency, // ✅ 현재 선택된 통화 (USD/KRW)
+      exchangeRate: exchangeRate.toString(), // ✅ 현재 환율
     }).toString();
 
     router.push(`/booking?${query}`);
@@ -224,7 +225,7 @@ export default function PackageOptionsSection({
                     </div>
                     <div className="mt-2 text-right">
                       <span className="text-lg font-bold text-gray-900">
-                        $ {opt.price}
+                        {formatPrice(opt.price)}
                       </span>
                     </div>
                   </div>
@@ -243,6 +244,7 @@ export default function PackageOptionsSection({
 
       {selectedOption && !isSuspended && (
         <>
+          {/* 날짜/인원 선택부 (기존 로직 유지) */}
           <div className="space-y-6 mb-6 pt-6 border-t border-gray-200">
             <div>
               <p className="text-sm font-bold text-gray-900 uppercase tracking-wide mb-3">
@@ -259,7 +261,6 @@ export default function PackageOptionsSection({
                 />
               </div>
             </div>
-
             <div>
               <div className="flex justify-between items-end mb-3">
                 <p className="text-sm font-bold text-gray-900 uppercase tracking-wide">
@@ -273,13 +274,12 @@ export default function PackageOptionsSection({
                   </span>
                 )}
               </div>
-
               <div className="flex items-center justify-between p-4 bg-white rounded-[6px] border border-gray-200 shadow-sm mb-3">
                 <span className="font-medium text-gray-900 text-sm">Adult</span>
                 <div className="flex items-center gap-4">
                   <button
                     onClick={() => handleDecrease("adults")}
-                    className="w-9 h-9 rounded-[6px] border border-gray-300 flex items-center justify-center hover:bg-gray-50 hover:border-gray-400 transition"
+                    className="w-9 h-9 rounded-[6px] border border-gray-300 flex items-center justify-center hover:bg-gray-50 transition"
                   >
                     <Minus className="w-4 h-4 text-gray-600" />
                   </button>
@@ -288,13 +288,12 @@ export default function PackageOptionsSection({
                   </span>
                   <button
                     onClick={() => setAdults(adults + 1)}
-                    className="w-9 h-9 rounded-[6px] border border-gray-300 flex items-center justify-center hover:bg-gray-50 hover:border-gray-400 transition"
+                    className="w-9 h-9 rounded-[6px] border border-gray-300 flex items-center justify-center hover:bg-gray-50 transition"
                   >
                     <Plus className="w-4 h-4 text-gray-600" />
                   </button>
                 </div>
               </div>
-
               <div className="flex items-center justify-between p-4 bg-white rounded-[6px] border border-gray-200 shadow-sm">
                 <span className="font-medium text-gray-900 text-sm">
                   Child (Ages 3-9)
@@ -302,7 +301,7 @@ export default function PackageOptionsSection({
                 <div className="flex items-center gap-4">
                   <button
                     onClick={() => handleDecrease("children")}
-                    className="w-9 h-9 rounded-[6px] border border-gray-300 flex items-center justify-center hover:bg-gray-50 hover:border-gray-400 transition"
+                    className="w-9 h-9 rounded-[6px] border border-gray-300 flex items-center justify-center hover:bg-gray-50 transition"
                   >
                     <Minus className="w-4 h-4 text-gray-600" />
                   </button>
@@ -311,7 +310,7 @@ export default function PackageOptionsSection({
                   </span>
                   <button
                     onClick={() => setChildren(children + 1)}
-                    className="w-9 h-9 rounded-[6px] border border-gray-300 flex items-center justify-center hover:bg-gray-50 hover:border-gray-400 transition"
+                    className="w-9 h-9 rounded-[6px] border border-gray-300 flex items-center justify-center hover:bg-gray-50 transition"
                   >
                     <Plus className="w-4 h-4 text-gray-600" />
                   </button>
@@ -323,7 +322,7 @@ export default function PackageOptionsSection({
           <div className="flex items-baseline justify-between mb-6 pb-4 border-b border-gray-200">
             <div>
               <span className="text-3xl font-bold text-gray-900">
-                $ {totalPrice.toFixed(2)}
+                {formatPrice(totalPriceKRW)}
               </span>
               <p className="text-xs text-gray-500 mt-1">
                 Total price for {adults + children} person(s)
@@ -344,22 +343,14 @@ export default function PackageOptionsSection({
             <button
               onClick={handleAddToCart}
               disabled={isButtonDisabled}
-              className={`flex-1 font-bold py-4 rounded-[6px] transition shadow-md text-sm ${
-                isButtonDisabled
-                  ? "bg-gray-300 text-gray-500 cursor-not-allowed shadow-none"
-                  : "bg-gray-800 hover:bg-gray-900 text-white"
-              }`}
+              className={`flex-1 font-bold py-4 rounded-[6px] transition shadow-md text-sm ${isButtonDisabled ? "bg-gray-300 text-gray-500 cursor-not-allowed shadow-none" : "bg-gray-800 hover:bg-gray-900 text-white"}`}
             >
               Add to Cart
             </button>
             <button
               onClick={handleBookNow}
               disabled={isButtonDisabled}
-              className={`flex-1 font-bold py-4 rounded-[6px] transition shadow-md text-sm ${
-                isButtonDisabled
-                  ? "bg-gray-300 text-gray-500 cursor-not-allowed shadow-none"
-                  : "bg-orange-600 hover:bg-orange-700 text-white"
-              }`}
+              className={`flex-1 font-bold py-4 rounded-[6px] transition shadow-md text-sm ${isButtonDisabled ? "bg-gray-300 text-gray-500 cursor-not-allowed shadow-none" : "bg-orange-600 hover:bg-orange-700 text-white"}`}
             >
               Book Now
             </button>
