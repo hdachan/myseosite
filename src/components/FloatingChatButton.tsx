@@ -1,15 +1,21 @@
 "use client";
 
 import { useState } from "react";
+import { usePathname } from "next/navigation"; // ✅ 경로 확인을 위해 추가
 import { MessageCircle, X, MessageSquare } from "lucide-react";
 
 export default function FloatingChatButton() {
   const [isOpen, setIsOpen] = useState(false);
+  const pathname = usePathname(); // ✅ 현재 경로 가져오기
+
+  // ✅ admin 또는 studio 페이지에서는 아무것도 표시하지 않음
+  if (pathname.startsWith("/admin") || pathname.startsWith("/studio")) {
+    return null;
+  }
 
   const toggleMenu = () => setIsOpen(!isOpen);
 
   return (
-    // ✅ 위치 통일: bottom-20 (스크롤 버튼 위), right-5 (오른쪽 라인 맞춤)
     <div className="fixed bottom-20 right-5 z-50 flex flex-col items-end gap-3">
       {/* 1. 카카오톡 */}
       <div
@@ -66,7 +72,6 @@ export default function FloatingChatButton() {
         onClick={toggleMenu}
         aria-label="Open chat menu"
         className={`
-          /* ✅ 크기 통일: w-11 h-11 (스크롤 버튼과 동일) */
           w-11 h-11 md:w-12 md:h-12 rounded-full 
           flex items-center justify-center
           shadow-xl hover:shadow-2xl
