@@ -8,11 +8,11 @@ interface BookingFormProps {
     fullName: string;
     email: string;
     phone: string;
-    tourDate: string;
+    tourDate?: string; // ✅ 선택적으로 변경 (장바구니에서는 없음)
     hotelInfo: string;
   };
   handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  minDate?: string;
+  minDate?: string; // ✅ 선택적으로 변경
 }
 
 export default function BookingForm({
@@ -20,7 +20,6 @@ export default function BookingForm({
   handleChange,
   minDate,
 }: BookingFormProps) {
-  // 공통 입력창 스타일 (다크모드 대응 포함)
   const inputStyle = `
     w-full border p-3 rounded-[6px] outline-none transition-all
     bg-white text-gray-900 border-gray-300 
@@ -29,17 +28,15 @@ export default function BookingForm({
     dark:focus:ring-orange-400 dark:placeholder-gray-500
   `;
 
-  // 공통 라벨 스타일
   const labelStyle =
     "block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5";
 
-  // 섹션 컨테이너 스타일
   const sectionStyle =
     "bg-white dark:bg-gray-900 p-5 md:p-6 rounded-[8px] shadow-sm border border-gray-200 dark:border-gray-800";
 
   return (
     <div className="space-y-6">
-      {/* 1. 여행자 정보 */}
+      {/* 1. Traveler Information */}
       <div className={sectionStyle}>
         <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-5 border-b dark:border-gray-800 pb-3 flex items-center gap-2">
           <User className="w-5 h-5 text-orange-500" />
@@ -48,10 +45,11 @@ export default function BookingForm({
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <div className="md:col-span-2">
-            <label className={labelStyle}>
+            <label htmlFor="fullName" className={labelStyle}>
               Full Name <span className="text-red-500">*</span>
             </label>
             <input
+              id="fullName"
               required
               name="fullName"
               value={formData.fullName}
@@ -62,12 +60,13 @@ export default function BookingForm({
           </div>
 
           <div>
-            <label className={labelStyle}>
+            <label htmlFor="email" className={labelStyle}>
               Email Address <span className="text-red-500">*</span>
             </label>
             <div className="relative">
               <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
               <input
+                id="email"
                 required
                 type="email"
                 name="email"
@@ -80,12 +79,13 @@ export default function BookingForm({
           </div>
 
           <div>
-            <label className={labelStyle}>
+            <label htmlFor="phone" className={labelStyle}>
               Phone Number <span className="text-red-500">*</span>
             </label>
             <div className="relative">
               <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
               <input
+                id="phone"
                 required
                 type="tel"
                 name="phone"
@@ -99,33 +99,40 @@ export default function BookingForm({
         </div>
       </div>
 
-      {/* 2. 투어 상세 (날짜 및 픽업) */}
+      {/* 2. Tour Details & Pickup (장바구니일 때는 날짜만 숨김) */}
       <div className={sectionStyle}>
         <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-5 border-b dark:border-gray-800 pb-3 flex items-center gap-2">
-          <Calendar className="w-5 h-5 text-orange-500" />
-          2. Tour Details & Pickup
+          <MapPin className="w-5 h-5 text-orange-500" />
+          2.{" "}
+          {formData.tourDate !== undefined
+            ? "Tour Details & Pickup"
+            : "Pickup Location"}
         </h2>
 
         <div className="space-y-5">
-          <div>
-            <label className={labelStyle}>
-              Tour Date <span className="text-red-500">*</span>
-            </label>
-            <div className="relative">
-              <input
-                required
-                type="date"
-                name="tourDate"
-                min={minDate}
-                value={formData.tourDate}
-                onChange={handleChange}
-                className={`${inputStyle} cursor-pointer appearance-none`}
-              />
+          {/* ✅ tourDate가 데이터에 있을 때만 날짜 입력창 렌더링 */}
+          {formData.tourDate !== undefined && (
+            <div>
+              <label htmlFor="tourDate" className={labelStyle}>
+                Tour Date <span className="text-red-500">*</span>
+              </label>
+              <div className="relative">
+                <input
+                  id="tourDate"
+                  required
+                  type="date"
+                  name="tourDate"
+                  min={minDate}
+                  value={formData.tourDate}
+                  onChange={handleChange}
+                  className={`${inputStyle} cursor-pointer appearance-none`}
+                />
+              </div>
             </div>
-          </div>
+          )}
 
           <div>
-            <label className={labelStyle}>
+            <label htmlFor="hotelInfo" className={labelStyle}>
               Hotel Information (Name & Address){" "}
               <span className="text-gray-400 dark:text-gray-500 font-normal ml-1 text-xs uppercase tracking-wide">
                 (Optional)
@@ -134,6 +141,7 @@ export default function BookingForm({
             <div className="relative">
               <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
               <input
+                id="hotelInfo"
                 name="hotelInfo"
                 value={formData.hotelInfo}
                 onChange={handleChange}

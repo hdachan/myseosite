@@ -2,8 +2,8 @@
 
 import React from "react";
 import Image from "next/image";
+import Link from "next/link"; // ✅ Link 컴포넌트 추가
 import { Minus, Plus, CreditCard, CalendarCheck } from "lucide-react";
-// ✅ 1. 환율 컨텍스트 임포트
 import { useCurrency } from "@/app/context/CurrencyContext";
 
 interface OrderSummaryProps {
@@ -32,7 +32,7 @@ export default function OrderSummary({
   handleChange,
   setSubmissionType,
 }: OrderSummaryProps) {
-  // ✅ 2. formatPrice 함수 가져오기
+  // formatPrice 함수 가져오기
   const { formatPrice } = useCurrency();
 
   return (
@@ -41,13 +41,13 @@ export default function OrderSummary({
         Order Summary
       </h3>
 
-      {/* 상품 썸네일 (기존 유지) */}
+      {/* 상품 썸네일 */}
       <div className="flex gap-4 mb-6">
         <div className="relative w-20 h-20 rounded-[6px] overflow-hidden flex-shrink-0 bg-gray-100">
           {tourBaseData.image ? (
             <Image
               src={tourBaseData.image}
-              alt="Thumbnail"
+              alt={tourBaseData.title} // ✅ [1법칙: SEO] 실제 상품명으로 alt 속성 변경
               fill
               className="object-cover"
             />
@@ -76,7 +76,6 @@ export default function OrderSummary({
               Adults <span className="text-red-500">*</span>
             </span>
             <span className="text-xs text-gray-400">
-              {/* ✅ 인당 단가 formatPrice 적용 */}
               {formatPrice(tourBaseData.price)} / person
             </span>
           </div>
@@ -106,7 +105,6 @@ export default function OrderSummary({
           <div className="text-sm text-gray-700">
             <span className="block font-medium">Children</span>
             <span className="text-xs text-gray-400">
-              {/* ✅ 인당 단가 formatPrice 적용 */}
               {formatPrice(tourBaseData.price)} / person
             </span>
           </div>
@@ -136,7 +134,6 @@ export default function OrderSummary({
       <div className="space-y-2 text-sm text-gray-600 mb-4">
         <div className="flex justify-between">
           <span>Subtotal (Adults)</span>
-          {/* ✅ 성인 소계 formatPrice 적용 */}
           <span className="font-medium">
             {formatPrice(tourBaseData.price * formData.adults)}
           </span>
@@ -144,7 +141,6 @@ export default function OrderSummary({
         {formData.children > 0 && (
           <div className="flex justify-between">
             <span>Subtotal (Children)</span>
-            {/* ✅ 소인 소계 formatPrice 적용 */}
             <span className="font-medium">
               {formatPrice(tourBaseData.price * formData.children)}
             </span>
@@ -155,13 +151,12 @@ export default function OrderSummary({
       {/* 총 가격 */}
       <div className="flex justify-between items-center border-t border-gray-200 pt-4 mb-6">
         <span className="text-lg font-bold text-gray-900">Total</span>
-        {/* ✅ 최종 합계 formatPrice 적용 */}
         <span className="text-2xl font-bold text-red-600">
           {formatPrice(currentTotalPrice)}
         </span>
       </div>
 
-      {/* 약관 동의 (기존 유지) */}
+      {/* 약관 동의 */}
       <div className="flex items-start gap-3 mb-6 p-3 bg-gray-50 rounded-[6px]">
         <input
           type="checkbox"
@@ -176,18 +171,27 @@ export default function OrderSummary({
           className="text-xs text-gray-600 cursor-pointer leading-relaxed"
         >
           I have read and agree to the{" "}
-          <a href="#" className="underline hover:text-orange-600">
+          {/* ✅ [2법칙: 법적 안전성] 실제 약관 페이지로 링크 연결 */}
+          <Link
+            href="/terms"
+            className="underline hover:text-orange-600"
+            target="_blank"
+          >
             Terms
-          </a>{" "}
+          </Link>{" "}
           and{" "}
-          <a href="#" className="underline hover:text-orange-600">
+          <Link
+            href="/cancellation-policy"
+            className="underline hover:text-orange-600"
+            target="_blank"
+          >
             Cancellation Policy
-          </a>
+          </Link>
           .
         </label>
       </div>
 
-      {/* 버튼 그룹 (기존 유지) */}
+      {/* 버튼 그룹 */}
       <div className="flex flex-col gap-3">
         <button
           type="submit"

@@ -21,6 +21,13 @@ function SuccessContent() {
   const [isPopup, setIsPopup] = useState(false);
 
   useEffect(() => {
+    // ✅ [1법칙: SEO] 검색 엔진 수집 차단 (noindex)
+    // 결제 완료 페이지가 검색 결과에 노출되는 것을 방지합니다.
+    const meta = document.createElement("meta");
+    meta.name = "robots";
+    meta.content = "noindex, nofollow";
+    document.head.appendChild(meta);
+
     // 1. 팝업으로 열렸을 경우 부모창 새로고침 후 닫기 (PG사 결제용)
     if (
       typeof window !== "undefined" &&
@@ -43,6 +50,13 @@ function SuccessContent() {
     if (shouldClearCart || orderId) {
       clearCart();
     }
+
+    // Cleanup: 컴포넌트 언마운트 시 메타 태그 정리
+    return () => {
+      if (document.head.contains(meta)) {
+        document.head.removeChild(meta);
+      }
+    };
   }, [clearCart, orderId, shouldClearCart]);
 
   if (isPopup) {
@@ -131,7 +145,6 @@ function SuccessContent() {
       <div className="mt-12 text-center">
         <p className="text-sm text-gray-400">
           Having trouble?{" "}
-          {/* ✅ [수정 완료] /contact 페이지로 이동하도록 Link 컴포넌트 사용 */}
           <Link
             href="/contact"
             className="text-gray-600 underline font-medium hover:text-gray-900 transition-colors"

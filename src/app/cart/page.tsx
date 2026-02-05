@@ -11,16 +11,16 @@ import {
   CalendarCheck,
   Minus,
   Plus,
-  AlertCircle,
+  ArrowRight, // 🚀 아이콘 추가
 } from "lucide-react";
 import BookingForm from "@/components/booking/BookingForm";
 import FullScreenLoader from "@/components/FullScreenLoader";
 import { useCartStore } from "@/store/cartStore";
 import { hangameFont } from "@/lib/fonts";
 import toast from "react-hot-toast";
-// ✅ 1. 환율 컨텍스트 임포트
 import { useCurrency } from "@/app/context/CurrencyContext";
 
+// ✅ Type 정의
 interface ExtendedCartItem {
   slug: string;
   title: string;
@@ -29,9 +29,9 @@ interface ExtendedCartItem {
   optionName: string;
   adults: number;
   children: number;
-  pricePerPerson: number; // 원화 단가
-  totalPrice: number; // 원화 합계
-  date?: string;
+  pricePerPerson: number;
+  totalPrice: number;
+  date: string; // ✅ 각 아이템이 날짜를 가지고 있음
   tourId?: string;
   minPax?: number;
 }
@@ -39,8 +39,6 @@ interface ExtendedCartItem {
 function CartContent() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // ✅ 2. 환율 및 통화 정보 가져오기
   const { currency: currentCurrency, exchangeRate: currentExchangeRate } =
     useCurrency();
 
@@ -52,49 +50,25 @@ function CartContent() {
     (state: any) => state.updateItemQuantity,
   );
 
+  // ✅ formData에서 tourDate 삭제됨 (개별 상품 날짜 사용)
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
     phone: "",
-    tourDate: "",
     hotelInfo: "",
     agreed: false,
   });
 
   const totalAmountKRW = getTotalPrice();
-
-  // ✅ 3. 결제용 달러 금액 계산 (KPN 규격용)
   const totalPriceUSDString = (totalAmountKRW / currentExchangeRate).toFixed(2);
   const totalPriceUSDNum = Number(totalPriceUSDString);
 
-  // ✅ 4. 통화별 가격 포맷팅 함수 (리스트 아이템용)
   const formatItemPrice = (krwPrice: number) => {
     if (currentCurrency === "USD") {
       return `$ ${(krwPrice / currentExchangeRate).toFixed(2)}`;
     }
     return `₩ ${krwPrice.toLocaleString()}`;
   };
-
-  const minDate = useMemo(() => {
-    const now = new Date();
-    const utc = now.getTime() + now.getTimezoneOffset() * 60000;
-    const kstGap = 9 * 60 * 60000;
-    const kstDate = new Date(utc + kstGap);
-    return kstDate.toISOString().split("T")[0];
-  }, []);
-
-  useEffect(() => {
-    let targetDate = minDate;
-    if (items.length > 0 && items[0].date) {
-      targetDate = items[0].date;
-    }
-    setFormData((prev) => {
-      if (prev.tourDate !== targetDate) {
-        return { ...prev, tourDate: targetDate };
-      }
-      return prev;
-    });
-  }, [items, minDate]);
 
   useEffect(() => {
     const script = document.createElement("script");
@@ -130,12 +104,12 @@ function CartContent() {
       return;
     }
     if (updateItemQuantity) {
-      updateItemQuantity(item.slug, item.optionId, type, delta);
+      updateItemQuantity(item.slug, item.optionId, item.date, type, delta);
     }
   };
 
   const handleRemove = (item: ExtendedCartItem) => {
-    removeItem(item.slug, item.optionId);
+    removeItem(item.slug, item.optionId, item.date);
   };
 
   const invalidItems = items.filter(
@@ -174,10 +148,11 @@ function CartContent() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          // ✅ item.date(각 상품 날짜)를 보냄
           cartItems: items.map((item) => ({
             tourId: item.tourId || item.slug,
             title: item.title,
-            date: formData.tourDate,
+            date: item.date,
             optionName: item.optionName,
             adults: item.adults,
             children: item.children,
@@ -270,8 +245,33 @@ function CartContent() {
     }
   };
 
-  if (items.length === 0) return null;
+  // 🚀 [수정 완료] 장바구니가 비었을 때 '빈 화면(null)'이 아니라 '안내 화면'을 보여줌
+  if (items.length === 0) {
+    return (
+      <div
+        className={`min-h-screen bg-white flex flex-col items-center justify-center px-4 ${hangameFont.variable} font-hangame`}
+      >
+        <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-6">
+          <ShoppingBag className="w-10 h-10 text-gray-400" />
+        </div>
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">
+          Your cart is empty
+        </h2>
+        <p className="text-gray-500 mb-8 text-center max-w-md">
+          Looks like you haven&apos;t added any tours yet. Explore our best
+          tours and create unforgettable memories!
+        </p>
+        <button
+          onClick={() => router.push("/package")}
+          className="flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-8 rounded-full transition shadow-md hover:shadow-lg"
+        >
+          Browse Tours <ArrowRight className="w-5 h-5" />
+        </button>
+      </div>
+    );
+  }
 
+  // 장바구니에 아이템이 있을 때의 화면 (기존과 동일)
   return (
     <div
       className={`min-h-screen bg-white pb-24 relative ${hangameFont.variable} font-hangame`}
@@ -291,7 +291,7 @@ function CartContent() {
               </h2>
               {items.map((item, idx) => (
                 <div
-                  key={`${item.slug}-${item.optionId}-${idx}`}
+                  key={`${item.slug}-${item.optionId}-${item.date}-${idx}`}
                   className="flex flex-col sm:flex-row gap-4 sm:gap-6 border-b border-gray-100 py-4 sm:py-6 last:border-0"
                 >
                   <div className="relative w-full sm:w-24 h-32 sm:h-24 rounded-[6px] overflow-hidden flex-shrink-0 bg-gray-100">
@@ -311,7 +311,8 @@ function CartContent() {
                       </h3>
                       <div className="flex items-center text-sm text-orange-600 font-medium mb-1">
                         <Calendar className="w-4 h-4 mr-1" />{" "}
-                        {formData.tourDate || item.date}
+                        {/* ✅ 개별 날짜 표시 */}
+                        {item.date}
                       </div>
                       <p className="text-xs text-gray-500">
                         Option:{" "}
@@ -346,7 +347,6 @@ function CartContent() {
                             </button>
                           </div>
                         </div>
-                        {/* ✅ 개별 항목의 성인 합계 금액 환율 반영 */}
                         <div className="text-right">
                           <span className="block font-bold text-gray-900 text-sm">
                             {formatItemPrice(item.adults * item.pricePerPerson)}
@@ -364,7 +364,6 @@ function CartContent() {
                     </button>
                     <div>
                       <p className="text-xs text-gray-400 mb-1">Subtotal</p>
-                      {/* ✅ 개별 항목 전체 합계 금액 환율 반영 */}
                       <p className="font-bold text-gray-900 text-lg sm:text-xl">
                         {formatItemPrice(item.totalPrice)}
                       </p>
@@ -374,11 +373,7 @@ function CartContent() {
               ))}
             </div>
 
-            <BookingForm
-              formData={formData}
-              handleChange={handleChange}
-              minDate={minDate}
-            />
+            <BookingForm formData={formData} handleChange={handleChange} />
 
             <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-[6px] border border-gray-200">
               <input

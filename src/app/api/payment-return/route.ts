@@ -17,12 +17,7 @@ export async function POST(request: Request) {
       rawData["mxIssueNo"] || rawData["MxIssueNO"] || rawData["order_no"];
     const message = rawData["message"] || rawData["ReplyMessage"] || "";
     const paidAmount = Number(rawData["amount"] || rawData["Amount"] || 0);
-    // ✅ 결제된 통화 확인 (USD 또는 KRW)
     const paidCurrency = rawData["currency"] || rawData["Currency"] || "KRW";
-
-    console.log(
-      `✅ 해석 결과: Code=${replyCode}, Order=${mxIssueNo}, Paid=${paidAmount} ${paidCurrency}`,
-    );
 
     if (!replyCode || !mxIssueNo) {
       return NextResponse.redirect(
@@ -37,7 +32,7 @@ export async function POST(request: Request) {
     );
 
     if (replyCode === "0000") {
-      // ✅ DB에서 주문 정보와 함께 저장된 통화/금액 정보 가져오기
+      // ✅ 사장님 DB 컬럼(total_price, usd_amount) 그대로 호출
       const { data: order, error: fetchError } = await supabase
         .from("bookings")
         .select("total_price, usd_amount, currency, status")
@@ -51,23 +46,21 @@ export async function POST(request: Request) {
         );
       }
 
-      // ✅ [금액 위변조 체크 로직 고도화]
+      // ✅ [금액 위변조 체크] 사장님 DB의 usd_amount가 문자열일 수 있으므로 Number() 처리
       let isAmountValid = false;
       if (paidCurrency === "USD") {
-        // 달러 결제라면 DB의 달러 금액과 비교 (오차 감안하여 소수점 2자리까지)
-        isAmountValid = Math.abs(order.usd_amount - paidAmount) < 0.01;
+        isAmountValid = Math.abs(Number(order.usd_amount) - paidAmount) < 0.01;
       } else {
-        // 원화 결제라면 기존처럼 원화 합계와 비교
-        isAmountValid = order.total_price === paidAmount;
+        isAmountValid = Number(order.total_price) === paidAmount;
       }
 
       if (!isAmountValid) {
         console.error(
-          `🚨 [해킹의심] 금액 불일치! DB(${paidCurrency}): ${paidCurrency === "USD" ? order.usd_amount : order.total_price}, 실결제: ${paidAmount}`,
+          `🚨 [위변조의심] DB:${order.usd_amount}, 실결제:${paidAmount}`,
         );
         await supabase
           .from("bookings")
-          .update({ status: "fraud_suspected" })
+          .update({ status: "fraud_suspected" }) // 관리자가 어드민에서 확인 가능하도록 상태값 변경
           .eq("order_number", mxIssueNo);
         return NextResponse.redirect(
           new URL(`/cart?error=amount_mismatch`, request.url),
@@ -75,7 +68,7 @@ export async function POST(request: Request) {
         );
       }
 
-      // 진짜 결제 완료 처리
+      // ✅ 결제 성공 처리
       await supabase
         .from("bookings")
         .update({ status: "paid" })
@@ -89,6 +82,7 @@ export async function POST(request: Request) {
         303,
       );
     } else {
+      // 결제 실패 시 상태 유지 혹은 실패 기록
       return NextResponse.redirect(
         new URL(
           `/cart?error=${encodeURIComponent(message || "payment_failed")}`,

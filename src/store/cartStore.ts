@@ -18,11 +18,13 @@ export interface CartItem {
 interface CartState {
   items: CartItem[];
   addItem: (item: CartItem) => void;
-  removeItem: (slug: string, optionId: string) => void;
-  // ✅ [수정됨] CartPage에서 사용하는 함수명과 로직으로 변경
+  // 🚀 [수정 1] 삭제 시 날짜(date)도 받도록 변경
+  removeItem: (slug: string, optionId: string, date: string) => void;
+  // 🚀 [수정 2] 수량 변경 시 날짜(date)도 받도록 변경
   updateItemQuantity: (
     slug: string,
     optionId: string,
+    date: string, // ✅ 추가됨
     type: "adults" | "children",
     delta: number,
   ) => void;
@@ -67,19 +69,29 @@ export const useCartStore = create<CartState>()(
           return { items: [...state.items, item] };
         }),
 
-      removeItem: (slug, optionId) =>
+      // 🚀 [로직 수정] slug + optionId + date 3가지가 다 맞아야 삭제
+      removeItem: (slug, optionId, date) =>
         set((state) => ({
           items: state.items.filter(
-            (i) => !(i.slug === slug && i.optionId === optionId),
+            (i) =>
+              !(
+                i.slug === slug &&
+                i.optionId === optionId &&
+                i.date === date // ✅ 날짜 조건 추가 (이제 다른 날짜 예약은 안 지워짐)
+              ),
           ),
         })),
 
-      // ✅ [핵심 수정] +1, -1 버튼 기능 구현
-      updateItemQuantity: (slug, optionId, type, delta) =>
+      // 🚀 [로직 수정] slug + optionId + date 3가지가 다 맞는 녀석만 수량 변경
+      updateItemQuantity: (slug, optionId, date, type, delta) =>
         set((state) => ({
           items: state.items.map((item) => {
-            // 해당 아이템 찾기
-            if (item.slug === slug && item.optionId === optionId) {
+            // ✅ 날짜까지 확인 (다른 날짜 예약 건은 건드리지 않음)
+            if (
+              item.slug === slug &&
+              item.optionId === optionId &&
+              item.date === date
+            ) {
               const currentQty = item[type];
               const newQty = currentQty + delta;
 

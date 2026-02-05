@@ -2,12 +2,15 @@
 
 import React, { useState, Suspense, useEffect, useMemo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { ChevronLeft, Lock, AlertCircle } from "lucide-react";
+import { ChevronLeft, Lock } from "lucide-react";
 import BookingForm from "@/components/booking/BookingForm";
 import OrderSummary from "@/components/booking/OrderSummary";
 import FullScreenLoader from "@/components/FullScreenLoader";
 import { hangameFont } from "@/lib/fonts";
 import { useCurrency } from "@/app/context/CurrencyContext";
+
+// ✅ [추가] 결제 페이지는 정적 캐싱되면 안 되므로 동적 렌더링 강제
+export const dynamic = "force-dynamic";
 
 function BookingContent() {
   const searchParams = useSearchParams();
@@ -18,16 +21,23 @@ function BookingContent() {
   const { currency: currentCurrency, exchangeRate: currentExchangeRate } =
     useCurrency();
 
-  // KPN 스크립트 로드 (기존 유지)
+  // ✅ [1법칙: SEO] 검색 엔진 수집 차단 (noindex) & 결제 스크립트 로드
   useEffect(() => {
+    // 1. KPN 스크립트
     const script = document.createElement("script");
     script.src = "https://dev.firstpay.co.kr/js/firstpay.js";
     script.async = true;
     document.body.appendChild(script);
+
+    // 2. 검색 차단 태그 삽입
+    const meta = document.createElement("meta");
+    meta.name = "robots";
+    meta.content = "noindex, nofollow";
+    document.head.appendChild(meta);
+
     return () => {
-      if (document.body.contains(script)) {
-        document.body.removeChild(script);
-      }
+      if (document.body.contains(script)) document.body.removeChild(script);
+      if (document.head.contains(meta)) document.head.removeChild(meta);
     };
   }, []);
 
@@ -171,14 +181,12 @@ function BookingContent() {
           return;
         }
 
-        // ✅ KPN 규격: amount 필드는 정수(Integer)만 허용 [cite: 251]
-        // 소수점 9009 에러를 피하기 위해 Math.floor 사용
+        // ✅ KPN 규격: amount 필드는 정수(Integer)만 허용
         const commonAmount =
           currentCurrency === "USD"
             ? Math.max(1, Math.floor(totalPriceUSDNum))
             : totalPriceKRW;
 
-        // 해시 생성 (정수 금액 기준)
         const hashResponse = await fetch("/api/payment-hash", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -193,13 +201,12 @@ function BookingContent() {
           openType: "popup",
         });
 
-        // ✅ KPN 정의서 p.7 외화결제(MCP) 파라미터 적용
         const payParams: any = {
           mxId: "testcorp",
           mxIssueNo: orderNumber,
           mxIssueDate: mxIssueDate,
-          amount: commonAmount, // 정수 전송
-          currency: currentCurrency, // 통화 설정 ("USD")
+          amount: commonAmount,
+          currency: currentCurrency,
           orderName: tourBaseData.title,
           buyerName: formData.fullName,
           buyerEmail: formData.email,
@@ -209,11 +216,10 @@ function BookingContent() {
           lang: "en",
         };
 
-        // ✅ USD 결제 시 MCP 전용 필드 추가
         if (currentCurrency === "USD") {
-          payParams.FXFlag = "M"; // 외화거래구분
-          payParams.FXCurrency = "USD"; // 통화코드
-          payParams.FXAmount = totalPriceUSDString; // 실제 소수점 금액 ("2.63")
+          payParams.FXFlag = "M";
+          payParams.FXCurrency = "USD";
+          payParams.FXAmount = totalPriceUSDString;
         }
 
         pay.goPay(payParams);
