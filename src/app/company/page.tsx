@@ -81,7 +81,7 @@ export default function CompanyPage() {
       <PageHero
         title="About Us"
         description="A Trusted Seoul Tour Operator Since 2004"
-        imageSrc="/images/seoul-palace-stone-wall-background.png"
+        imageSrc="/images/seoul-palace-stone-wall-background.jpg"
         alt="Traditional Korean palace stone wall and nature scenery"
       />
 

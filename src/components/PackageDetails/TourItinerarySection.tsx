@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import Image from "next/image";
 import {
@@ -26,7 +28,6 @@ interface Props {
 export default function TourItinerarySection({ itinerary }: Props) {
   if (!itinerary || itinerary.length === 0) return null;
 
-  // 아이콘 매핑 함수
   const getIcon = (type: string) => {
     switch (type) {
       case "transport":
@@ -55,7 +56,7 @@ export default function TourItinerarySection({ itinerary }: Props) {
       case "shopping":
         return "bg-pink-500";
       default:
-        return "bg-[#4A7C7E]"; // 기본값 (Spot)
+        return "bg-[#4A7C7E]";
     }
   };
 
@@ -70,7 +71,11 @@ export default function TourItinerarySection({ itinerary }: Props) {
 
       <div className="relative border-l-2 border-gray-200 ml-4 md:ml-6 space-y-10 pb-4">
         {itinerary.map((item, index) => (
-          <div key={index} className="relative pl-8 md:pl-10">
+          // 🚀 [최적화 1] key 값을 유니크하게 설정 (렌더링 성능 향상)
+          <div
+            key={`${item.title}-${index}`}
+            className="relative pl-8 md:pl-10"
+          >
             {/* 타임라인 아이콘 */}
             <div
               className={`absolute -left-[11px] top-0 w-6 h-6 rounded-full border-2 border-white shadow-sm flex items-center justify-center ${getIconColor(item.iconType || "location")}`}
@@ -110,6 +115,8 @@ export default function TourItinerarySection({ itinerary }: Props) {
                       src={item.image}
                       alt={item.title}
                       fill
+                      // 🚀 [최적화 2] 이미지 사이즈 최적화 (모바일 데이터 절약 + 속도 향상)
+                      sizes="(max-width: 768px) 100vw, 600px"
                       className="object-cover hover:scale-105 transition-transform duration-500"
                     />
                   </div>

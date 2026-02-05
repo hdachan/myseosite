@@ -114,7 +114,7 @@ export default function FAQPage() {
       <PageHero
         title="Seoul City Tour FAQ"
         description="Everything you need to know before booking your perfect Seoul adventure."
-        imageSrc="/images/seoul-palace-stone-wall-background.png"
+        imageSrc="/images/seoul-palace-stone-wall-background.jpg"
         alt="Traditional Korean palace stone wall and nature scenery"
       />
 

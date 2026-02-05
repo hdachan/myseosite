@@ -65,7 +65,7 @@ export default function TourImageGallery({
     </div>
   );
 
-  // --- [UI 헬퍼] "전체보기" 버튼 (버튼 애니메이션 유지) ---
+  // --- [UI 헬퍼] "전체보기" 버튼 ---
   const ShowAllButton = () => (
     <button
       onClick={() => openLightbox(0)}
@@ -76,7 +76,7 @@ export default function TourImageGallery({
     </button>
   );
 
-  // --- [UI 헬퍼] 공통 이미지 스타일 (이미지 애니메이션은 제거됨) ---
+  // --- [UI 헬퍼] 공통 이미지 스타일 ---
   const getImageClass = () =>
     `object-cover w-full h-full cursor-pointer ${
       isSuspended ? "grayscale opacity-50" : ""
@@ -90,6 +90,7 @@ export default function TourImageGallery({
           src={images[photoIndex]}
           alt={title}
           fill
+          sizes="100vw"
           className={`object-cover ${isSuspended ? "grayscale opacity-50" : ""}`}
           onClick={() => openLightbox(photoIndex)}
         />
@@ -97,7 +98,6 @@ export default function TourImageGallery({
 
         {images.length > 1 && (
           <>
-            {/* 모바일 화살표 버튼 애니메이션 적용 */}
             <button
               onClick={prevPhoto}
               className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 p-1.5 rounded-full shadow-md z-20 transition-all hover:bg-white active:scale-90"
@@ -130,6 +130,8 @@ export default function TourImageGallery({
             alt="Main"
             fill
             priority
+            // 🚀 [S등급 포인트] PC에서 큰 영역은 화면의 50~75% 정도 차지함
+            sizes="(max-width: 768px) 100vw, 75vw"
             className={getImageClass()}
           />
           {isSuspended && <SuspendedOverlay />}
@@ -147,9 +149,10 @@ export default function TourImageGallery({
                   src={img}
                   alt={`Gallery ${idx}`}
                   fill
+                  // 🚀 [S등급 포인트] 작은 썸네일은 화면의 25% 정도만 차지함
+                  sizes="(max-width: 768px) 100vw, 25vw"
                   className={getImageClass()}
                 />
-                {/* 이미지 위에는 아주 살짝 어두워지는 효과만 유지 (클릭 유도) */}
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors" />
               </div>
             ))}
@@ -165,7 +168,6 @@ export default function TourImageGallery({
           className="fixed inset-0 z-[9999] bg-black/95 flex items-center justify-center backdrop-blur-sm animate-in fade-in duration-200"
           onClick={closeLightbox}
         >
-          {/* 닫기 버튼 애니메이션 */}
           <button
             onClick={closeLightbox}
             className="absolute top-4 right-4 text-white/70 hover:text-white p-2 z-50 transition-all hover:rotate-90"
@@ -183,12 +185,12 @@ export default function TourImageGallery({
               fill
               className="object-contain"
               priority
+              sizes="100vw"
             />
           </div>
 
           {images.length > 1 && (
             <>
-              {/* 라이트박스 이동 버튼 애니메이션 */}
               <button
                 onClick={prevPhoto}
                 className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/80 text-white p-3 rounded-full transition-all hover:scale-110 active:scale-95"

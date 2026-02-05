@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import {
   MapPin,
   Bus,
@@ -15,7 +16,6 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { hangameFont } from "@/lib/fonts";
-// ✅ 환율 컨텍스트 추가 (일관된 통화 관리용)
 import { useCurrency } from "@/app/context/CurrencyContext";
 
 interface ScheduleItem {
@@ -45,13 +45,18 @@ export default function PackageDetailSidebar({
   selectedPackage,
   meetingPoint,
 }: PackageDetailSidebarProps) {
-  // ✅ 환율 관련 정보 가져오기 (필요 시 확장 가능)
   const { currency } = useCurrency();
 
-  // 📸 [팝업 상태 관리] - 기존 로직 100% 유지
+  // 📸 [팝업 상태 관리]
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [lightboxImages, setLightboxImages] = useState<string[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  // ✅ 클라이언트 사이드 렌더링 확인용
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const openLightbox = (images: string[] | undefined, index: number = 0) => {
     if (!images || images.length === 0) return;
@@ -84,6 +89,8 @@ export default function PackageDetailSidebar({
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") closeLightbox();
+      if (e.key === "ArrowRight") nextImage(e as any);
+      if (e.key === "ArrowLeft") prevImage(e as any);
     };
     if (isLightboxOpen) {
       window.addEventListener("keydown", handleKeyDown);
@@ -91,7 +98,7 @@ export default function PackageDetailSidebar({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isLightboxOpen]);
 
-  // 아이콘 헬퍼 - 기존 로직 유지
+  // 아이콘 헬퍼
   const getIcon = (type: string) => {
     switch (type) {
       case "transport":
@@ -124,11 +131,65 @@ export default function PackageDetailSidebar({
     }
   };
 
+  // 🌀 팝업 내용물
+  const lightboxContent = isLightboxOpen ? (
+    <div
+      className="fixed inset-0 z-[99999] bg-black/95 flex items-center justify-center backdrop-blur-sm animate-in fade-in duration-200"
+      onClick={closeLightbox}
+    >
+      {/* 🚀 [수정 완료] X 버튼 디자인을 갤러리와 똑같이 맞춤 (w-8 h-8, top-4 right-4) */}
+      <button
+        onClick={closeLightbox}
+        className="absolute top-4 right-4 text-white/70 hover:text-white p-2 z-[100000] transition-all hover:rotate-90"
+      >
+        <X className="w-8 h-8" />
+      </button>
+
+      {/* 이미지 컨테이너 */}
+      <div
+        className="relative w-full h-full max-w-6xl max-h-[85vh] flex items-center justify-center px-4 md:px-12"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {lightboxImages[currentIndex] && (
+          <Image
+            src={lightboxImages[currentIndex]}
+            alt="Full size view"
+            fill
+            className="object-contain"
+            sizes="100vw"
+            priority
+          />
+        )}
+
+        {lightboxImages.length > 1 && (
+          <>
+            <button
+              onClick={prevImage}
+              className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/80 text-white p-3 rounded-full transition-all hover:scale-110 active:scale-95 z-50"
+            >
+              <ChevronLeft className="w-8 h-8" />
+            </button>
+            <button
+              onClick={nextImage}
+              className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/80 text-white p-3 rounded-full transition-all hover:scale-110 active:scale-95 z-50"
+            >
+              <ChevronRight className="w-8 h-8" />
+            </button>
+          </>
+        )}
+
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/80 font-medium bg-black/50 px-3 py-1 rounded-full text-sm z-50">
+          {currentIndex + 1} / {lightboxImages.length}
+        </div>
+      </div>
+    </div>
+  ) : null;
+
   return (
     <>
       <aside className="lg:col-span-1">
         <div className="space-y-4 sticky top-24">
-          {/* 1. 투어 스케줄 (일정표) */}
+          {/* 1. 투어 스케줄 */}
           <section className="bg-white rounded-[6px] border border-gray-200 overflow-hidden shadow-sm">
             <div className="p-5 border-b border-gray-100 bg-gray-50/50">
               <p className="text-[10px] uppercase tracking-[0.2em] text-[#4A7C7E] font-bold mb-2">
@@ -201,7 +262,7 @@ export default function PackageDetailSidebar({
             </div>
           </section>
 
-          {/* 2. 미팅 포인트 - 기존 UI 그리드 정렬 유지 */}
+          {/* 2. 미팅 포인트 */}
           {meetingPoint && (
             <div className="bg-blue-50 p-5 rounded-[6px] border border-blue-100 text-sm text-blue-900">
               <p className="font-bold flex items-center gap-2 mb-3 text-blue-800">
@@ -248,53 +309,10 @@ export default function PackageDetailSidebar({
         </div>
       </aside>
 
-      {/* 🚀 이미지 팝업 (Lightbox) - 기존 로직 유지 */}
-      {isLightboxOpen && (
-        <div
-          className="fixed inset-0 z-[9999] bg-black/90 flex items-center justify-center backdrop-blur-sm p-4 animate-in fade-in duration-200"
-          onClick={closeLightbox}
-        >
-          <button
-            onClick={closeLightbox}
-            className="absolute top-4 right-4 text-white/70 hover:text-white p-2 z-50 transition-colors"
-          >
-            <X className="w-8 h-8" />
-          </button>
-          <div
-            className="relative w-full max-w-5xl h-full max-h-[80vh] flex items-center justify-center"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {lightboxImages[currentIndex] && (
-              <Image
-                src={lightboxImages[currentIndex]}
-                alt="Full size view"
-                fill
-                className="object-contain"
-                priority
-              />
-            )}
-            {lightboxImages.length > 1 && (
-              <>
-                <button
-                  onClick={prevImage}
-                  className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 md:-translate-x-12 bg-white/10 hover:bg-white/20 text-white p-2 rounded-full transition-all backdrop-blur-md"
-                >
-                  <ChevronLeft className="w-8 h-8" />
-                </button>
-                <button
-                  onClick={nextImage}
-                  className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 md:translate-x-12 bg-white/10 hover:bg-white/20 text-white p-2 rounded-full transition-all backdrop-blur-md"
-                >
-                  <ChevronRight className="w-8 h-8" />
-                </button>
-              </>
-            )}
-            <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 text-white/80 text-sm font-medium">
-              {currentIndex + 1} / {lightboxImages.length}
-            </div>
-          </div>
-        </div>
-      )}
+      {/* 🌀 팝업을 Portal로 내보내기 */}
+      {mounted &&
+        isLightboxOpen &&
+        createPortal(lightboxContent, document.body)}
     </>
   );
 }

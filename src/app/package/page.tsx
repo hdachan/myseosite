@@ -6,10 +6,10 @@ import { mergeReviews } from "@/lib/review"; // ✅ 공통 리뷰 병합 함수 
 export const revalidate = 60;
 
 export const metadata = {
-  title: "Korea Package Tours 2025 | Seoul DMZ, Daily & Ski Tours",
+  title: "Korea Package Tours 2026 | Seoul DMZ, Daily & Ski Tours",
   description:
     "Best Korea group tours: DMZ, Seoul Daily Tours, Nami Island, Ski & K-Drama. Muslim-friendly options. Book now!",
-  alternates: { canonical: "https://yourdomain.co/package" },
+  alternates: { canonical: "https://myseosite.vercel.app/package" },
 };
 
 export default async function AllToursPage() {
@@ -26,7 +26,6 @@ export default async function AllToursPage() {
     id: tour._id, // Sanity의 _id를 id로 매핑
     image: tour.image || "", // 이미지는 Sanity 데이터를 그대로 사용
     price: tour.price || 0,
-    bookings: tour.bookings || "0+ booked",
     tags: tour.tags || [],
   }));
 

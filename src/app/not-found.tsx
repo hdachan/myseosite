@@ -1,6 +1,16 @@
 import Link from "next/link";
 import { MapPinOff, Home } from "lucide-react";
 import { hangameFont } from "@/lib/fonts";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Page Not Found | Seoul City Tour", // 브라우저 탭에 깔끔하게 표시
+  description: "Sorry, the page you are looking for does not exist.",
+  robots: {
+    index: false,
+    follow: true,
+  },
+};
 
 export default function NotFound() {
   return (

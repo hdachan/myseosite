@@ -120,7 +120,8 @@ export default function HeroCarousel() {
           fill
           priority
           sizes="100vw"
-          className="object-cover object-center"
+          // object-center 대신 아래 클래스 추가
+          className="object-cover object-[50%_75%]"
         />
 
         {/* 배경 그라디언트 */}

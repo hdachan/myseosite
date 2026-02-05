@@ -1,21 +1,24 @@
-import FeaturedTours from "@/components/Main/FeaturedTours";
+import dynamic from "next/dynamic";
+
+// 1. [LCP & SEO 핵심] 즉시 로딩되어야 하는 컴포넌트 (Static Import)
 import HeroCarousel from "@/components/Main/HeroCarousel";
 import WhyChooseUs from "@/components/Main/WhyChooseUs";
-import PartnerSection from "@/components/Main/PartnerSection";
-import TourPackagesSection from "@/components/Main/TourPackagesSection";
+
+const TourPackagesSection = dynamic(
+  () => import("@/components/Main/TourPackagesSection"),
+);
+const FeaturedTours = dynamic(() => import("@/components/Main/FeaturedTours"));
+const PartnerSection = dynamic(
+  () => import("@/components/Main/PartnerSection"),
+);
 
 export default function Home() {
   return (
     <>
-      {/* 1. H1 태그가 포함된 Hero (SEO 점수 획득) */}
       <HeroCarousel />
-
       <WhyChooseUs />
-
       <TourPackagesSection />
-
       <FeaturedTours />
-
       <PartnerSection />
     </>
   );

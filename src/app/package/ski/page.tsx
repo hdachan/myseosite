@@ -1,30 +1,32 @@
 import { client } from "@/sanity/lib/client";
 import { TOURS_BY_CATEGORY_QUERY } from "@/sanity/lib/queries";
 import TourLayout from "@/components/TourLayout";
+import { mergeReviews } from "@/lib/review"; // 🚀 [추가]
 
 export const revalidate = 60;
 
 export const metadata = {
-  title: "Korea Ski Tours 2025 | Best Ski Resorts from Seoul",
+  title: "Korea Ski Tours 2026 | Best Ski Resorts from Seoul",
   description:
     "Top ski & snowboard day trips from Seoul: Yongpyong, Alpensia, High1 Resort. Shuttle, lift pass included.",
-  alternates: { canonical: "https://yourdomain.com/package/ski" },
+  alternates: { canonical: "https://www.seoulcitytour.co.kr/package/ski" },
 };
 
 export default async function SkiToursPage() {
-  // 🚀 Sanity에서 "SKI" 카테고리만 가져오기
   const sanityTours = await client.fetch(TOURS_BY_CATEGORY_QUERY, {
     category: "SKI",
   });
 
-  const tours = sanityTours.map((tour: any) => ({
+  // 🚀 [추가] 리뷰 데이터 병합
+  const mergedTours = await mergeReviews(sanityTours);
+
+  const tours = mergedTours.map((tour: any) => ({
     ...tour,
     id: tour._id,
     image: tour.image || "",
     price: tour.price || 0,
     rating: tour.rating || 5.0,
     reviews: tour.reviews || 0,
-    bookings: tour.bookings || "0+ booked",
     tags: tour.tags || [],
   }));
 

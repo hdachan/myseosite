@@ -1,30 +1,33 @@
 import { client } from "@/sanity/lib/client";
 import { TOURS_BY_CATEGORY_QUERY } from "@/sanity/lib/queries";
 import TourLayout from "@/components/TourLayout";
+import { mergeReviews } from "@/lib/review"; // 🚀 [추가]
 
 export const revalidate = 60;
 
 export const metadata = {
-  title: "Local Tours in Korea 2025 | Hidden Gems & Regional Experiences",
+  title: "Local Tours in Korea 2026 | Hidden Gems & Regional Experiences",
   description:
     "Explore authentic local Korea: hidden towns, traditional villages, cultural experiences off the beaten path.",
-  alternates: { canonical: "https://yourdomain.com/package/local" },
+  // ✅ [수정] 실제 도메인으로 변경
+  alternates: { canonical: "https://www.seoulcitytour.co.kr/package/local" },
 };
 
 export default async function LocalToursPage() {
-  // 🚀 Sanity에서 "LOCAL" 카테고리만 가져오기
   const sanityTours = await client.fetch(TOURS_BY_CATEGORY_QUERY, {
     category: "LOCAL",
   });
 
-  const tours = sanityTours.map((tour: any) => ({
+  // 🚀 [추가] 리뷰 데이터 병합
+  const mergedTours = await mergeReviews(sanityTours);
+
+  const tours = mergedTours.map((tour: any) => ({
     ...tour,
     id: tour._id,
     image: tour.image || "",
     price: tour.price || 0,
     rating: tour.rating || 5.0,
     reviews: tour.reviews || 0,
-    bookings: tour.bookings || "0+ booked",
     tags: tour.tags || [],
   }));
 

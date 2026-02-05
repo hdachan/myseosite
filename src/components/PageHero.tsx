@@ -22,12 +22,11 @@ export default function PageHero({
       <div className="absolute inset-0">
         <Image
           src={imageSrc}
-          // ✅ [수정 완료] alt가 있으면 그걸 쓰고, 없으면 title을 씀!
           alt={alt || title}
-          width={1920}
-          height={300}
+          fill
+          sizes="100vw"
           priority
-          className="w-full h-full object-cover"
+          className="object-cover"
         />
       </div>
 

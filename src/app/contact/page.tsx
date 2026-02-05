@@ -67,7 +67,7 @@ export default function ContactPage() {
       <PageHero
         title="Contact Us"
         description="We are here to help you plan your perfect trip to Korea."
-        imageSrc="/images/seoul-palace-stone-wall-background.png"
+        imageSrc="/images/seoul-palace-stone-wall-background.jpg"
         alt="Traditional Korean palace stone wall and nature scenery"
       />
 

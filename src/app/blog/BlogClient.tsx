@@ -50,7 +50,7 @@ export default function BlogClient({ posts, categories }: BlogClientProps) {
       <PageHero
         title="Korea Travel Blog"
         description="Discover authentic Korean experiences, hidden gems, and insider travel tips."
-        imageSrc="/images/seoul-palace-stone-wall-background.png"
+        imageSrc="/images/seoul-palace-stone-wall-background.jpg"
         alt="Traditional Korean palace stone wall and nature scenery"
       />
 
