@@ -1,8 +1,10 @@
 import { Metadata } from "next";
 import FAQClient from "./FAQClient";
 import PageHero from "@/components/PageHero";
-// 폰트 경로 (사용하시는 경로에 맞게 유지)
 import { hangameFont } from "@/lib/fonts";
+
+// ✅ 1법칙: 도메인 동적 할당
+const BASE_URL = process.env.NEXT_PUBLIC_URL || "https://myseosite.vercel.app/";
 
 // ==============================
 // SEO Metadata
@@ -13,23 +15,45 @@ export const metadata: Metadata = {
     "Answers to frequently asked questions about Seoul city tours: last-minute booking, solo travelers, group size, languages (English/Japanese/Chinese), pickup locations, cancellation, refunds, and more.",
 
   alternates: {
-    canonical: "https://yourdomain.com/faq",
+    canonical: `${BASE_URL}/faq`,
     languages: {
-      en: "https://yourdomain.com/faq",
-      ja: "https://yourdomain.com/ja/faq",
-      zh: "https://yourdomain.com/zh/faq",
-      "x-default": "https://yourdomain.com/faq",
+      en: `${BASE_URL}/faq`,
+      // 다국어 페이지가 실제로 있다면 아래 주석 해제 및 경로 수정
+      // ja: `${BASE_URL}/ja/faq`,
+      // zh: `${BASE_URL}/zh/faq`,
+      "x-default": `${BASE_URL}/faq`,
     },
   },
 
+  // 🚨 [중요 수정] 검색 엔진 허용 (False -> True)
   robots: {
     index: false,
     follow: false,
+    googleBot: {
+      index: false,
+      follow: false,
+    },
+  },
+
+  openGraph: {
+    title: "Seoul City Tours FAQ | Common Questions",
+    description:
+      "Everything you need to know regarding booking, cancellation, and tour details.",
+    url: `${BASE_URL}/faq`,
+    type: "website",
+    images: [
+      {
+        url: "/images/background_korea_pt2.png",
+        width: 1200,
+        height: 630,
+        alt: "Seoul City Tour FAQ Cover",
+      },
+    ],
   },
 };
 
 // ==============================
-// FAQ CONTENT (✅ 취소 규정 업데이트 완료)
+// FAQ CONTENT (정적 데이터 - 안정성 확보)
 // ==============================
 const faqData = [
   {
@@ -86,7 +110,7 @@ const faqData = [
 ];
 
 // ==============================
-// FAQ Schema
+// FAQ Schema (구글 검색결과 노출용)
 // ==============================
 const faqSchema = {
   "@context": "https://schema.org",
@@ -104,7 +128,7 @@ const faqSchema = {
 export default function FAQPage() {
   return (
     <main className={`min-h-screen bg-gray-50 ${hangameFont.className}`}>
-      {/* FAQ Structured Data */}
+      {/* ✅ 1법칙: JSON-LD 삽입 */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
@@ -119,45 +143,46 @@ export default function FAQPage() {
       />
 
       {/* Main Container */}
-      <div className="max-w-6xl mx-auto px-8 lg:px-12 py-16 sm:py-24">
+      <div className="max-w-6xl mx-auto px-6 lg:px-12 py-16 sm:py-24">
         {/* Intro Section */}
         <div className="mb-12 max-w-2xl">
-          <h2 className="text-2xl font-bold text-gray-900 mb-3">
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">
             Common Questions
           </h2>
-          <p className="text-gray-500 leading-relaxed">
+          <p className="text-gray-500 leading-relaxed text-lg">
             Cannot find what you are looking for? Check our answers below to
             prepare for your trip.
           </p>
         </div>
 
-        {/* FAQ UI */}
+        {/* FAQ UI Structure */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-          {/* FAQ List */}
+          {/* FAQ List (Client Component) */}
           <div className="lg:col-span-8">
             <FAQClient faqData={faqData} />
           </div>
 
           {/* Side CTA / Info */}
           <div className="lg:col-span-4 space-y-6">
-            <div className="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm">
+            {/* Sticky 효과를 위해 sticky top-24 추가 추천 */}
+            <div className="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm sticky top-24">
               <h3 className="text-2xl font-bold text-gray-900 mb-4">
                 Need Help?
               </h3>
-              <p className="text-gray-600 mb-6 text-sm leading-relaxed">
+              <p className="text-gray-600 mb-8 text-sm leading-relaxed">
                 If you have specific questions about private tours or custom
                 itineraries, feel free to contact us directly.
               </p>
               <div className="flex flex-col gap-3">
                 <a
                   href="/package"
-                  className="w-full inline-flex items-center justify-center rounded-xl bg-red-700 px-6 py-3.5 text-sm font-bold text-white transition-all hover:bg-red-800"
+                  className="w-full inline-flex items-center justify-center rounded-xl bg-black text-white px-6 py-4 text-sm font-bold transition-all hover:bg-gray-800 shadow-md"
                 >
                   View Packages
                 </a>
                 <a
                   href="/contact"
-                  className="w-full inline-flex items-center justify-center rounded-xl border border-gray-200 bg-white px-6 py-3.5 text-sm font-bold text-gray-900 transition-all hover:bg-gray-50 hover:border-gray-300"
+                  className="w-full inline-flex items-center justify-center rounded-xl border-2 border-gray-200 bg-white px-6 py-4 text-sm font-bold text-gray-900 transition-all hover:border-black hover:bg-gray-50"
                 >
                   Contact Us
                 </a>

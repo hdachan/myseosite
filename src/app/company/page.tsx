@@ -5,16 +5,58 @@ import { Quote } from "lucide-react";
 import PageHero from "@/components/PageHero";
 import { hangameFont } from "@/lib/fonts";
 
-// ✅ [SEO] 검색엔진 최적화 (제목, 설명, 썸네일)
+// ✅ 1법칙: 도메인 동적 할당
+const BASE_URL = process.env.NEXT_PUBLIC_URL || "https://myseosite.vercel.app";
+
+// ✅ 1법칙: SEO 최적화 (Canonical, Robots 추가)
 export const metadata: Metadata = {
   title: "About Us | Seoul City Tour",
   description:
     "Since 2004, Seoul City Tour has been Korea's trusted travel partner. Licensed by the government, authorized for DMZ tours. Meet our CEO Do-Young Park and professional team.",
+  alternates: {
+    canonical: `${BASE_URL}/company`,
+  },
+  // 🚨 개발 중이므로 false (오픈 시 true로 변경)
+  robots: {
+    index: false,
+    follow: false,
+  },
   openGraph: {
     title: "About Seoul City Tour - Trusted Since 2004",
     description:
       "Korea's No.1 Inbound Travel Agency. Official DMZ Tour Operator & Government Certified Partner.",
     images: ["/images/company/dmz-group-photo.jpg"],
+    url: `${BASE_URL}/company`,
+    type: "website",
+  },
+};
+
+// ✅ 1법칙: 회사 정보 구조화 데이터 (JSON-LD)
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "AboutPage",
+  mainEntity: {
+    "@type": "TravelAgency",
+    name: "Seoul City Tour",
+    foundingDate: "2004",
+    description:
+      "Korea's trusted travel partner specializing in DMZ and private tours.",
+    url: BASE_URL,
+    logo: `${BASE_URL}/images/logo.png`,
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: "507, Hanaro Building, 194-4 Insadong, Jongno-gu",
+      addressLocality: "Seoul",
+      postalCode: "03162",
+      addressCountry: "KR",
+    },
+    employee: [
+      {
+        "@type": "Person",
+        name: "Do-Young Park",
+        jobTitle: "CEO",
+      },
+    ],
   },
 };
 
@@ -26,18 +68,18 @@ export default function CompanyPage() {
       image: "/images/company/team_01.jpg",
     },
     {
-      name: "Sarah Jhonson",
+      name: "Sarah Johnson",
       role: "Product Manager",
       image: "/images/company/team_02.jpg",
     },
     {
       name: "William Anderson",
-      role: "CTO",
+      role: "Head of Operations",
       image: "/images/company/team_03.jpg",
     },
     {
-      name: "Amanda Jepson",
-      role: "Accountant",
+      name: "Ji-Min Kim",
+      role: "Lead Guide",
       image: "/images/company/team_04.jpg",
     },
   ];
@@ -77,6 +119,12 @@ export default function CompanyPage() {
 
   return (
     <div className="min-h-screen bg-white">
+      {/* ✅ 1법칙: JSON-LD 삽입 */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
+
       {/* 1. Hero Section */}
       <PageHero
         title="About Us"
@@ -261,6 +309,7 @@ export default function CompanyPage() {
                 className="min-w-[260px] flex-shrink-0 snap-center lg:min-w-0 lg:w-auto bg-white rounded-[6px] overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 border border-gray-100"
               >
                 <div className="relative h-64 bg-gray-200">
+                  {/* 실제 이미지가 없을 경우를 대비한 대체 텍스트(alt) 필수 */}
                   <Image
                     src={member.image}
                     alt={`${member.name} - ${member.role}`}
