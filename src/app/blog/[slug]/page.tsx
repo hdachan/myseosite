@@ -10,6 +10,7 @@ import { client } from "@/sanity/lib/client";
 
 /* ✅ 폰트 가져오기 */
 import { hangameFont } from "@/lib/fonts";
+import { Metadata } from "next";
 
 type SanityPost = {
   title: string;
@@ -17,12 +18,19 @@ type SanityPost = {
   content: any;
   category?: string;
   tags?: string[];
-  readTime?: number | string;
+  readTime?: string;
   publishedAt?: string;
   author?: string;
-  image?: any;
+  image?: {
+    asset?: {
+      _id: string;
+      url: string;
+    };
+    alt?: string;
+  };
 };
 
+// 정적 경로 생성
 export async function generateStaticParams() {
   const slugs: { slug: string }[] = await client.fetch(`
     *[_type == "post" && defined(slug.current)]{ "slug": slug.current }
@@ -34,22 +42,49 @@ export async function generateMetadata({
   params,
 }: {
   params: Promise<{ slug: string }>;
-}) {
+}): Promise<Metadata> {
   const { slug } = await params;
+
+  // 메타데이터용 가벼운 쿼리 실행
   const post = await client.fetch(
     `*[_type == "post" && slug.current == $slug][0]{
-      title, description, image
+      title, description, image { asset->{url}, alt }, publishedAt, author
     }`,
-    { slug }
+    { slug },
   );
+
   if (!post) return { title: "Post Not Found" };
+
+  const ogImage = post.image?.asset?.url
+    ? urlFor(post.image).width(1200).height(630).url()
+    : "/images/default-og.png"; // 기본 이미지 fallback
+
   return {
     title: post.title,
     description: post.description,
+    alternates: {
+      canonical: `/blog/${slug}`,
+    },
     openGraph: {
       title: post.title,
       description: post.description,
-      images: post.image ? [urlFor(post.image).url()] : [],
+      type: "article",
+      publishedTime: post.publishedAt,
+      authors: [post.author || "Seoul City Tour"],
+      images: [
+        {
+          url: ogImage,
+          width: 1200,
+          height: 630,
+          alt: post.image?.alt || post.title,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description: post.description,
+      images: [ogImage],
     },
   };
 }
@@ -135,9 +170,10 @@ const ptComponents: PortableTextComponents = {
           <figure className="relative w-full aspect-[3/2] bg-gray-100 overflow-hidden rounded-[6px]">
             <Image
               src={urlFor(value).width(1200).url()}
-              alt={value.alt || "Blog image"}
+              // ✅ 1법칙: 본문 이미지도 Alt Text가 있으면 우선 사용
+              alt={value.alt || "Blog content image"}
               fill
-              className="object-cover" // 꽉 채우기 (찌그러짐 방지)
+              className="object-cover"
             />
           </figure>
           {value.caption && (
@@ -157,18 +193,42 @@ export default async function BlogPostPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
+
+  // ✅ 2법칙: 타입 안전하게 데이터 Fetch
   const post = await client.fetch<SanityPost>(blogDetailQuery, { slug });
+
   if (!post) notFound();
 
+  // 날짜 포맷팅 (데이터 무결성: 값이 없을 경우 대비)
   const formattedDate = post.publishedAt
     ? format(new Date(post.publishedAt), "MMMM dd, yyyy")
-    : "No date";
+    : "Date not available";
 
   const authorName = post.author || "Seoul City Tour Editor";
 
+  // ✅ 1법칙: JSON-LD 생성 (구글 검색 엔진용 구조화 데이터)
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: post.title,
+    description: post.description,
+    image: post.image?.asset?.url ? [urlFor(post.image).url()] : [],
+    datePublished: post.publishedAt,
+    author: {
+      "@type": "Person",
+      name: authorName,
+    },
+  };
+
   return (
     <article className="min-h-screen bg-white text-gray-900 pb-32">
-      {/* ✅ 1. 상단 네비게이션 (중앙 정렬) */}
+      {/* ✅ 1법칙: JSON-LD 삽입 (검색엔진이 읽는 부분) */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
+      {/* 1. 상단 네비게이션 */}
       <nav className="max-w-3xl mx-auto px-6 pt-12 pb-12">
         <Link
           href="/blog"
@@ -179,7 +239,7 @@ export default async function BlogPostPage({
         </Link>
       </nav>
 
-      {/* ✅ 2. 헤더 영역 (중앙 정렬) */}
+      {/* 2. 헤더 영역 */}
       <header className="max-w-3xl mx-auto px-6 mb-12">
         {/* 카테고리 & 태그 */}
         <div className="flex flex-wrap gap-2 mb-6">
@@ -216,21 +276,21 @@ export default async function BlogPostPage({
             {post.readTime && (
               <>
                 <span className="hidden md:inline w-px h-4 bg-gray-300"></span>
-                <span className="text-gray-600">{post.readTime} min read</span>
+                <span className="text-gray-600">{post.readTime}</span>
               </>
             )}
           </div>
         </div>
       </header>
 
-      {/* ✅ 3. 메인 커버 이미지 (중앙 정렬 + 16:9 고정) */}
-      {post.image && (
+      {/* 3. 메인 커버 이미지 (16:9 고정) */}
+      {post.image?.asset?.url && (
         <div className="max-w-3xl mx-auto px-6 mb-16">
-          {/* ✅ 수정됨: rounded-[6px] 적용 (모서리 둥글게) */}
           <div className="relative aspect-[16/9] w-full bg-gray-100 rounded-[6px] overflow-hidden">
             <Image
               src={urlFor(post.image).width(1200).url()}
-              alt={post.title}
+              // ✅ 1법칙: Sanity에서 가져온 Alt Text 적용 (없으면 제목으로 대체)
+              alt={post.image.alt || post.title}
               fill
               className="object-cover"
               priority
@@ -239,7 +299,7 @@ export default async function BlogPostPage({
         </div>
       )}
 
-      {/* ✅ 4. 본문 컨텐츠 (중앙 정렬 + 가독성 최적화) */}
+      {/* 4. 본문 컨텐츠 */}
       <main className="max-w-3xl mx-auto px-6">
         <div
           className="prose prose-lg prose-slate max-w-none 

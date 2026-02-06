@@ -1,7 +1,7 @@
 import { groq } from "next-sanity";
 
 // ==========================================================
-// 📝 1. 블로그 관련 쿼리
+// 📝 1. 블로그 관련 쿼리 (SEO 강화: alt 필드 추가)
 // ==========================================================
 export const blogListQuery = groq`
   *[_type == "post"] | order(date desc){
@@ -13,7 +13,11 @@ export const blogListQuery = groq`
     readTime,
     "publishedAt": date,
     featured,
-    image{ asset->{ _id, url } },
+    // ✅ [수정됨] 이미지 URL과 함께 Alt Text도 가져옴
+    image {
+      asset->{ _id, url },
+      alt
+    },
     author
   }
 `;
@@ -28,7 +32,11 @@ export const blogDetailQuery = groq`
     readTime,
     "publishedAt": date,
     featured,
-    image{ asset->{ _id, url } },
+    // ✅ [수정됨] 상세 페이지에서도 Alt Text 필수
+    image {
+      asset->{ _id, url },
+      alt
+    },
     author
   }
 `;
