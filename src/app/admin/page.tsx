@@ -2,163 +2,215 @@
 
 import { createClient } from "@/lib/supabase";
 import { useRouter, notFound } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import AdminBookingTable from "@/components/admin/AdminBookingTable";
 import AdminReviewTable from "@/components/admin/AdminReviewTable";
+import AdminFilterBar from "@/components/admin/AdminFilterBar";
+import AdminStats from "@/components/admin/AdminStats";
 
-// ----------------------
-// 1. 타입 정의 (Types)
-// ----------------------
-interface Booking {
-  id: string;
-  created_at: string;
-  tour_title: string;
-  customer_name: string;
-  customer_email: string;
-  customer_phone: string;
-  tour_date: string;
-  option_name: string;
-  hotel_info: string;
-  adults: number;
-  children: number;
-  total_price: number;
-  usd_amount?: number; // ✅ 추가: 달러 결제 금액
-  currency?: string; // ✅ 추가: 결제 통화 (USD/KRW)
-  status: string;
-  submission_type: string;
-  order_number: string;
-  review_token: string;
-  is_reviewed: boolean;
-  last_emailed_at?: string;
-}
+// -------------------------------------------------------------------------
+// ✅ [제 1법칙: SEO/보안] 어드민 하위의 모든 페이지를 검색 엔진에서 차단합니다.
+// 실제 차단 설정(metadata)은 동등한 경로의 layout.tsx에서 처리되었습니다.
+// -------------------------------------------------------------------------
 
-interface Review {
-  id: number;
-  created_at: string;
-  tour_title: string;
-  author_name: string;
-  rating: number;
-  content: string;
-  is_approved: boolean;
-}
-
-interface GroupedOrder {
-  orderNumber: string;
-  customerName: string;
-  customerEmail: string;
-  customerPhone: string;
-  hotelInfo: string;
-  createdAt: string;
-  status: string;
-  totalOrderPrice: number;
-  totalUSDPrice: number; // ✅ 추가: 주문 그룹별 달러 합계
-  items: Booking[];
-}
+const ITEMS_PER_PAGE = 30;
 
 export default function AdminPage() {
   const router = useRouter();
   const supabase = createClient();
 
-  // ----------------------
-  // 2. 상태 관리 (State)
-  // ----------------------
-  const [bookings, setBookings] = useState<Booking[]>([]);
-  const [reviews, setReviews] = useState<Review[]>([]);
-  const [loading, setLoading] = useState(true);
+  // --------------------------------------------
+  // 1. 상태 관리 (State) - 제 2법칙: 데이터 무결성
+  // --------------------------------------------
+  const [bookings, setBookings] = useState<any[]>([]);
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [loadingBookings, setLoadingBookings] = useState(true);
+  const [loadingReviews, setLoadingReviews] = useState(true);
+  const [loadingStats, setLoadingStats] = useState(true);
   const [userEmail, setUserEmail] = useState("");
   const [sendingEmailId, setSendingEmailId] = useState<string | null>(null);
+  const [stats, setStats] = useState({ today: 0, newReservations: 0 });
+  const [totalCount, setTotalCount] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [filters, setFilters] = useState({
+    search: "",
+    status: "all",
+    currency: "all",
+    startDate: "",
+    endDate: "",
+  });
 
-  // ----------------------
-  // 3. 데이터 불러오기 (Fetch)
-  // ----------------------
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-
-      const { data: bookingData, error: bError } = await supabase
-        .from("bookings")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (bError) console.error("예약 불러오기 실패:", bError);
-      else setBookings(bookingData || []);
-
-      const { data: reviewData, error: rError } = await supabase
-        .from("reviews")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (rError) console.error("리뷰 불러오기 실패:", rError);
-      else setReviews(reviewData || []);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  // --------------------------------------------
+  // 2. 인증 체크 (보안 강화)
+  // --------------------------------------------
   useEffect(() => {
-    const init = async () => {
+    const checkAuth = async () => {
       const {
         data: { user },
       } = await supabase.auth.getUser();
-      if (!user) {
-        notFound();
-        return;
-      }
+      // 비인가 사용자는 '404' 페이지로 던져서 페이지의 존재 자체를 숨깁니다.
+      if (!user) return notFound();
       setUserEmail(user.email || "");
-      fetchData();
     };
-    init();
+    checkAuth();
   }, [supabase]);
 
-  const handleLogout = async () => {
-    if (window.confirm("로그아웃 하시겠습니까?")) {
-      await supabase.auth.signOut();
-      router.push("/login");
-      router.refresh();
-    }
-  };
+  // --------------------------------------------
+  // 3. 데이터 로딩 함수 (Data Fetching)
+  // --------------------------------------------
+  const fetchStats = useCallback(async () => {
+    try {
+      setLoadingStats(true);
+      const now = new Date();
+      const todayStart = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate(),
+      ).toISOString();
 
-  // ----------------------
-  // 4. 기능 핸들러 (Handlers)
-  // ----------------------
+      const todayPromise = supabase
+        .from("bookings")
+        .select("*", { count: "exact", head: true })
+        .gte("created_at", todayStart);
+      const newReservationsPromise = supabase
+        .from("bookings")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "pending")
+        .eq("submission_type", "RESERVATION");
+
+      const [todayRes, newReservationsRes] = await Promise.all([
+        todayPromise,
+        newReservationsPromise,
+      ]);
+      setStats({
+        today: todayRes.count || 0,
+        newReservations: newReservationsRes.count || 0,
+      });
+    } finally {
+      setLoadingStats(false);
+    }
+  }, [supabase]);
+
+  const fetchBookings = useCallback(async () => {
+    try {
+      setLoadingBookings(true);
+      let query = supabase.from("bookings").select("*", { count: "exact" });
+
+      if (filters.search) {
+        query = query.or(
+          `customer_name.ilike.%${filters.search}%,customer_email.ilike.%${filters.search}%,customer_phone.ilike.%${filters.search}%,order_number.ilike.%${filters.search}%`,
+        );
+      }
+
+      if (filters.status !== "all") {
+        if (filters.status === "pending_reservation") {
+          query = query
+            .eq("status", "pending")
+            .eq("submission_type", "RESERVATION");
+        } else if (filters.status === "pending_payment") {
+          query = query
+            .eq("status", "pending")
+            .neq("submission_type", "RESERVATION");
+        } else {
+          query = query.eq("status", filters.status);
+        }
+      }
+
+      if (filters.currency !== "all")
+        query = query.eq("currency", filters.currency);
+      if (filters.startDate) query = query.gte("tour_date", filters.startDate);
+      if (filters.endDate) query = query.lte("tour_date", filters.endDate);
+
+      const from = (currentPage - 1) * ITEMS_PER_PAGE;
+      const to = from + ITEMS_PER_PAGE - 1;
+
+      const { data, error, count } = await query
+        .order("created_at", { ascending: false })
+        .range(from, to);
+
+      if (!error) {
+        setBookings(data || []);
+        setTotalCount(count || 0);
+      }
+    } finally {
+      setLoadingBookings(false);
+    }
+  }, [currentPage, filters, supabase]);
+
+  const fetchReviews = useCallback(async () => {
+    try {
+      setLoadingReviews(true);
+      const { data, error } = await supabase
+        .from("reviews")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (!error) setReviews(data || []);
+    } finally {
+      setLoadingReviews(false);
+    }
+  }, [supabase]);
+
+  // --------------------------------------------
+  // 4. 초기 실행 및 갱신
+  // --------------------------------------------
+  useEffect(() => {
+    fetchBookings();
+    fetchStats();
+  }, [fetchBookings, fetchStats]);
+
+  useEffect(() => {
+    fetchReviews();
+  }, [fetchReviews]);
+
+  // --------------------------------------------
+  // 5. 핸들러 (Handlers) - 제 2법칙: 안정성
+  // --------------------------------------------
   const handleStatusChange = async (orderNumber: string, newStatus: string) => {
     const statusLabels: Record<string, string> = {
-      pending: "대기/확인중",
+      pending: "대기",
       paid: "완료",
       cancelled: "취소",
       fraud_suspected: "위변조의심",
     };
-
     if (
-      !confirm(`주문의 상태를 '${statusLabels[newStatus]}'로 변경하시겠습니까?`)
+      !confirm(`주문 상태를 '${statusLabels[newStatus]}'로 변경하시겠습니까?`)
     )
       return;
+
+    const previousBookings = [...bookings];
+    setBookings((prev) =>
+      prev.map((b) =>
+        b.order_number === orderNumber ? { ...b, status: newStatus } : b,
+      ),
+    );
 
     const { error } = await supabase
       .from("bookings")
       .update({ status: newStatus })
       .eq("order_number", orderNumber);
-
-    if (error) alert("변경 실패: " + error.message);
-    else fetchData();
+    if (error) {
+      alert("상태 변경 실패: " + error.message);
+      setBookings(previousBookings);
+    } else {
+      fetchStats();
+      if (filters.status !== "all") fetchBookings();
+    }
   };
 
   const handleDeleteBooking = async (orderNumber: string) => {
-    if (!window.confirm("정말로 이 주문 전체를 삭제하시겠습니까?")) return;
+    if (!confirm("정말로 이 주문 전체를 삭제하시겠습니까?")) return;
     const { error } = await supabase
       .from("bookings")
       .delete()
       .eq("order_number", orderNumber);
-    if (error) alert("삭제 실패: " + error.message);
-    else fetchData();
+    if (!error) {
+      fetchBookings();
+      fetchStats();
+    }
   };
 
-  const handleSendEmail = async (booking: Booking) => {
-    if (!confirm(`${booking.customer_name}님께 리뷰 요청 메일을 보낼까요?`))
-      return;
-
+  const handleSendEmail = async (booking: any) => {
+    if (!confirm("리뷰 요청 메일을 보낼까요?")) return;
     setSendingEmailId(booking.id);
     try {
       const res = await fetch("/api/email", {
@@ -171,47 +223,26 @@ export default function AdminPage() {
           token: booking.review_token,
         }),
       });
-
-      if (!res.ok) throw new Error("이메일 전송 실패");
-
-      const { error: updateError } = await supabase
-        .from("bookings")
-        .update({ last_emailed_at: new Date().toISOString() })
-        .eq("id", booking.id);
-
-      if (updateError) throw updateError;
-
-      alert("📧 이메일이 성공적으로 발송되었습니다!");
-      fetchData();
-    } catch (error: any) {
-      console.error(error);
-      alert("오류 발생: " + error.message);
+      if (res.ok) {
+        const now = new Date().toISOString();
+        setBookings((prev) =>
+          prev.map((b) =>
+            b.id === booking.id ? { ...b, last_emailed_at: now } : b,
+          ),
+        );
+        await supabase
+          .from("bookings")
+          .update({ last_emailed_at: now })
+          .eq("id", booking.id);
+        alert("📧 발송 완료!");
+      }
     } finally {
       setSendingEmailId(null);
     }
   };
 
-  const handleToggleReview = async (id: number, currentStatus: boolean) => {
-    const { error } = await supabase
-      .from("reviews")
-      .update({ is_approved: !currentStatus })
-      .eq("id", id);
-    if (error) alert("상태 변경 실패: " + error.message);
-    else fetchData();
-  };
-
-  const handleDeleteReview = async (id: number) => {
-    if (!confirm("정말 이 리뷰를 삭제하시겠습니까?")) return;
-    const { error } = await supabase.from("reviews").delete().eq("id", id);
-    if (error) alert("삭제 실패: " + error.message);
-    else fetchData();
-  };
-
-  // ----------------------
-  // 5. 데이터 그룹화 로직 (Helper)
-  // ----------------------
   const getGroupedBookings = () => {
-    const groups: Record<string, GroupedOrder> = {};
+    const groups: Record<string, any> = {};
     bookings.forEach((booking) => {
       const key = booking.order_number || booking.id;
       if (!groups[key]) {
@@ -224,43 +255,64 @@ export default function AdminPage() {
           createdAt: booking.created_at,
           status: booking.status,
           totalOrderPrice: 0,
-          totalUSDPrice: 0, // ✅ 달러 합계 초기화
+          totalUSDPrice: 0,
           items: [],
         };
       }
       groups[key].items.push(booking);
       groups[key].totalOrderPrice += booking.total_price;
-      // ✅ 달러 금액이 있을 경우 합산
-      if (booking.usd_amount) {
-        groups[key].totalUSDPrice += booking.usd_amount;
-      }
+      if (booking.usd_amount) groups[key].totalUSDPrice += booking.usd_amount;
     });
     return Object.values(groups);
   };
 
-  if (loading)
-    return (
-      <div className="p-10 text-center text-lg font-bold">
-        Data Loading... ⏳
-      </div>
+  const handleToggleReviewStatus = async (id: number, current: boolean) => {
+    setReviews((prev) =>
+      prev.map((r) => (r.id === id ? { ...r, is_approved: !current } : r)),
     );
+    const { error } = await supabase
+      .from("reviews")
+      .update({ is_approved: !current })
+      .eq("id", id);
+    if (error) alert("상태 변경 실패: " + error.message);
+  };
+
+  const handleDeleteReview = async (id: number) => {
+    if (!confirm("이 리뷰를 삭제하시겠습니까?")) return;
+    const { error } = await supabase.from("reviews").delete().eq("id", id);
+    if (!error) setReviews((prev) => prev.filter((r) => r.id !== id));
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-8">
-      <div className="max-w-7xl mx-auto bg-white px-6 py-4 rounded-lg shadow-sm flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-bold text-gray-800">Admin Dashboard 🛠️</h1>
+      {/* 헤더 */}
+      <div className="max-w-7xl mx-auto bg-white px-6 py-4 rounded-xl shadow-sm flex justify-between items-center mb-6 border border-gray-100">
+        <h1 className="text-2xl font-black text-gray-800 tracking-tight">
+          Admin <span className="text-blue-600">Dashboard</span>
+        </h1>
         <div className="flex items-center gap-4">
-          <span className="text-sm text-gray-500 hidden sm:inline">
+          <span className="text-xs font-semibold bg-gray-100 px-3 py-1 rounded-full text-gray-500">
             {userEmail}
           </span>
           <button
-            onClick={handleLogout}
-            className="bg-gray-800 hover:bg-gray-900 text-white text-sm font-bold px-4 py-2 rounded transition"
+            onClick={() =>
+              supabase.auth.signOut().then(() => router.push("/login"))
+            }
+            className="text-sm font-bold text-red-500 hover:text-red-700 transition"
           >
             Logout
           </button>
         </div>
       </div>
+
+      <AdminStats stats={stats} loading={loadingStats} />
+      <AdminFilterBar
+        onFilterChange={(f: any) => {
+          setFilters(f);
+          setCurrentPage(1);
+        }}
+        loading={loadingBookings}
+      />
 
       <AdminBookingTable
         groupedBookings={getGroupedBookings()}
@@ -268,18 +320,27 @@ export default function AdminPage() {
         onDelete={handleDeleteBooking}
         onSendEmail={handleSendEmail}
         sendingEmailId={sendingEmailId}
+        currentPage={currentPage}
+        totalCount={totalCount}
+        itemsPerPage={ITEMS_PER_PAGE}
+        onPageChange={setCurrentPage}
+        loading={loadingBookings}
       />
 
       <AdminReviewTable
         reviews={reviews}
-        onToggleStatus={handleToggleReview}
+        onToggleStatus={handleToggleReviewStatus}
         onDelete={handleDeleteReview}
+        loading={loadingReviews}
       />
 
       <button
-        onClick={fetchData}
-        className="fixed bottom-8 right-8 bg-[#4A7C7E] text-white p-4 rounded-full shadow-lg hover:bg-[#3D6566] transition-all active:scale-95 z-50"
-        title="Refresh Data"
+        onClick={() => {
+          fetchBookings();
+          fetchReviews();
+          fetchStats();
+        }}
+        className="fixed bottom-8 right-8 bg-blue-600 text-white w-14 h-14 rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-transform active:rotate-180 z-50"
       >
         🔄
       </button>

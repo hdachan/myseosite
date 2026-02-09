@@ -2,7 +2,6 @@
 
 import React from "react";
 
-// 리뷰 데이터 타입 정의 (기존 인터페이스 유지)
 interface Review {
   id: number;
   created_at: string;
@@ -17,12 +16,14 @@ interface Props {
   reviews: Review[];
   onToggleStatus: (id: number, currentStatus: boolean) => void;
   onDelete: (id: number) => void;
+  loading?: boolean; // 로딩 상태 추가
 }
 
 export default function AdminReviewTable({
   reviews,
   onToggleStatus,
   onDelete,
+  loading = false,
 }: Props) {
   const formatDate = (dateString: string) => {
     if (!dateString) return "-";
@@ -35,9 +36,17 @@ export default function AdminReviewTable({
         <h2 className="text-lg font-bold text-gray-700">
           💬 리뷰 관리 (Reviews)
         </h2>
-        <span className="text-sm text-gray-500 font-medium">
-          총 {reviews.length}개의 리뷰
-        </span>
+        <div className="flex items-center gap-3">
+          <span className="text-sm text-gray-500 font-medium">
+            총 {reviews.length}개의 리뷰
+          </span>
+          {loading && (
+            <div className="flex items-center gap-2 text-sm text-blue-600">
+              <div className="animate-spin h-4 w-4 border-2 border-blue-600 border-t-transparent rounded-full"></div>
+              <span className="font-medium">로딩중...</span>
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="overflow-x-auto">
@@ -53,71 +62,19 @@ export default function AdminReviewTable({
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {reviews.map((review) => (
-              <tr
-                key={review.id}
-                className={`hover:bg-gray-50 transition-colors align-top ${
-                  !review.is_approved ? "bg-yellow-50/40" : ""
-                }`}
-              >
-                {/* 작성일 */}
-                <td className="p-4 text-xs text-gray-600">
-                  {formatDate(review.created_at)}
-                </td>
-
-                {/* 작성자 및 평점(별점) */}
-                <td className="p-4">
-                  <div className="font-bold text-gray-900 text-sm">
-                    {review.author_name}
+            {loading ? (
+              <tr>
+                <td
+                  colSpan={6}
+                  className="p-24 text-center text-gray-400 font-medium"
+                >
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="animate-spin h-8 w-8 border-4 border-blue-600 border-t-transparent rounded-full"></div>
+                    <span>리뷰를 불러오는 중...</span>
                   </div>
-                  <div className="flex text-orange-400 text-xs mt-1 tracking-tighter">
-                    {"★".repeat(review.rating)}
-                    {"☆".repeat(5 - review.rating)}
-                    <span className="ml-1 text-gray-400 font-medium">
-                      ({review.rating})
-                    </span>
-                  </div>
-                </td>
-
-                {/* 리뷰 본문 */}
-                <td className="p-4 text-sm text-gray-700 whitespace-pre-wrap leading-relaxed max-w-md">
-                  {review.content}
-                </td>
-
-                {/* 관련 투어 상품명 */}
-                <td className="p-4 text-xs text-gray-500 font-medium italic">
-                  {review.tour_title}
-                </td>
-
-                {/* 승인/숨김 토글 버튼 */}
-                <td className="p-4 text-center">
-                  <button
-                    onClick={() =>
-                      onToggleStatus(review.id, review.is_approved)
-                    }
-                    className={`px-3 py-1.5 rounded-full text-[11px] font-bold border transition-all shadow-sm ${
-                      review.is_approved
-                        ? "bg-green-100 text-green-700 border-green-200 hover:bg-green-200"
-                        : "bg-yellow-100 text-yellow-700 border-yellow-200 hover:bg-yellow-200 animate-pulse-subtle"
-                    }`}
-                  >
-                    {review.is_approved ? "공개중 🟢" : "승인대기 🟠"}
-                  </button>
-                </td>
-
-                {/* 삭제 버튼 */}
-                <td className="p-4 text-center">
-                  <button
-                    onClick={() => onDelete(review.id)}
-                    className="text-gray-300 hover:text-red-600 hover:bg-red-50 p-2 rounded-full transition-all active:scale-90"
-                    title="리뷰 삭제"
-                  >
-                    🗑️
-                  </button>
                 </td>
               </tr>
-            ))}
-            {reviews.length === 0 && (
+            ) : reviews.length === 0 ? (
               <tr>
                 <td
                   colSpan={6}
@@ -126,6 +83,71 @@ export default function AdminReviewTable({
                   등록된 리뷰가 없습니다.
                 </td>
               </tr>
+            ) : (
+              reviews.map((review) => (
+                <tr
+                  key={review.id}
+                  className={`hover:bg-gray-50 transition-colors align-top ${
+                    !review.is_approved ? "bg-yellow-50/40" : ""
+                  }`}
+                >
+                  {/* 작성일 */}
+                  <td className="p-4 text-xs text-gray-600">
+                    {formatDate(review.created_at)}
+                  </td>
+
+                  {/* 작성자 및 평점 */}
+                  <td className="p-4">
+                    <div className="font-bold text-gray-900 text-sm">
+                      {review.author_name}
+                    </div>
+                    <div className="flex text-orange-400 text-xs mt-1 tracking-tighter">
+                      {"★".repeat(review.rating)}
+                      {"☆".repeat(5 - review.rating)}
+                      <span className="ml-1 text-gray-400 font-medium">
+                        ({review.rating})
+                      </span>
+                    </div>
+                  </td>
+
+                  {/* 리뷰 본문 */}
+                  <td className="p-4 text-sm text-gray-700 whitespace-pre-wrap leading-relaxed max-w-md">
+                    {review.content}
+                  </td>
+
+                  {/* 관련 투어 상품명 */}
+                  <td className="p-4 text-xs text-gray-500 font-medium italic">
+                    {review.tour_title}
+                  </td>
+
+                  {/* 승인/숨김 토글 버튼 */}
+                  <td className="p-4 text-center">
+                    <button
+                      onClick={() =>
+                        onToggleStatus(review.id, review.is_approved)
+                      }
+                      className={`px-3 py-1.5 rounded-full text-[11px] font-bold border transition-all shadow-sm ${
+                        review.is_approved
+                          ? "bg-green-100 text-green-700 border-green-200 hover:bg-green-200"
+                          : "bg-yellow-100 text-yellow-700 border-yellow-200 hover:bg-yellow-200 animate-pulse-subtle"
+                      }`}
+                    >
+                      {review.is_approved ? "공개중 🟢" : "승인대기 🟠"}
+                    </button>
+                  </td>
+
+                  {/* 삭제 버튼 */}
+                  <td className="p-4 text-center">
+                    <button
+                      onClick={() => onDelete(review.id)}
+                      className="text-gray-300 hover:text-red-600 hover:bg-red-50 p-2 rounded-full transition-all active:scale-90"
+                      title="리뷰 삭제"
+                    >
+                      🗑️
+                    </button>
+                  </td>
+                </tr>
+              ))
             )}
           </tbody>
         </table>
