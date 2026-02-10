@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic"; // ✅ 캐시 방지
+
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 import crypto from "crypto";
@@ -5,101 +7,151 @@ import crypto from "crypto";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { email, customerName, tourTitle, token } = body;
 
-    // 1. 유효성 검사
-    if (!email || !token) {
-      return NextResponse.json({ error: "필수 데이터 누락" }, { status: 400 });
+    const {
+      email,
+      customerName,
+      tourTitle,
+      token,
+      type,
+      orderNumber,
+      amount,
+      currency,
+      phone,
+      tourDate,
+      hotelInfo,
+      clientEmail,
+    } = body;
+
+    // 1. 환경변수 로드
+    const SMTP_HOST = process.env.SMTP_HOST;
+    const SMTP_PORT = Number(process.env.SMTP_PORT);
+    const SMTP_USER = process.env.SMTP_USER;
+    const SMTP_PASS = process.env.SMTP_PASS;
+
+    // -----------------------------------------------------------------------
+    // 🔥 [수정 완료] 개발(내컴퓨터) vs 배포(Vercel) 환경 자동 감지 코드
+    // (리뷰 링크가 올바른 주소로 생성되도록 합니다)
+    // -----------------------------------------------------------------------
+    const SITE_URL =
+      process.env.NODE_ENV === "development"
+        ? "http://localhost:3000"
+        : process.env.NEXT_PUBLIC_SITE_URL || "https://myseosite.vercel.app";
+
+    // 2. 유효성 검사 (리뷰일 때만 토큰 필수)
+    if (type === "REVIEW" && (!email || !token)) {
+      return NextResponse.json(
+        { error: "Review data missing" },
+        { status: 400 },
+      );
     }
 
-    // 2. 환경 변수 기반 URL 설정
-    const baseUrl =
-      process.env.NEXT_PUBLIC_SITE_URL || "https://myseosite.vercel.app";
-    const reviewLink = `${baseUrl}/reviews?token=${token}`;
+    if (!SMTP_USER || !SMTP_PASS) {
+      return NextResponse.json(
+        { error: "SMTP config missing" },
+        { status: 500 },
+      );
+    }
 
-    // 3. 우체부 설정 (카페24 최적화 및 보안 우회)
+    // 3. 우체부 설정
     const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: 587,
-      secure: false, // 587 포트 필수 설정
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
+      host: SMTP_HOST,
+      port: SMTP_PORT,
+      secure: false,
+      auth: { user: SMTP_USER, pass: SMTP_PASS },
       tls: {
-        // ✅ 최신 Node.js의 보안 차단을 해제하는 핵심 옵션
         secureOptions: crypto.constants.SSL_OP_LEGACY_SERVER_CONNECT,
         ciphers: "DEFAULT@SECLEVEL=0",
         minVersion: "TLSv1",
         rejectUnauthorized: false,
       },
-      logger: true,
-      debug: true,
     });
 
-    // 4. SMTP 서버 연결 확인 (안정성 확보)
-    await transporter.verify();
-    console.log("✅ SMTP 서버 연결 성공");
+    // 4. 메일 내용 생성
+    let subject = "";
+    let htmlContent = "";
 
-    // 5. 메일 내용 작성 (지메일 스팸 회피 전략 반영)
-    const mailOptions = {
-      from: `"Seoul City Tour" <${process.env.SMTP_USER}>`,
-      to: email,
-      // ✅ 지메일이 선호하는 명확한 제목 형식
-      subject: `[Seoul City Tour] ${customerName}님, 서울 여행은 어떠셨나요? 특별한 선물이 기다리고 있습니다.`,
+    // 알림 메일은 사장님(SMTP_USER)에게, 리뷰 메일은 고객(email)에게
+    const targetEmail = email || SMTP_USER;
 
-      // ✅ 텍스트 버전 추가 (스팸 점수를 낮추는 핵심 요소)
-      text: `안녕하세요 ${customerName}님, 서울시티투어를 이용해 주셔서 감사합니다. 참여하신 '${tourTitle}' 투어에 대한 소중한 후기를 남겨주시면 감사의 선물을 보내드립니다. 리뷰 작성 링크: ${reviewLink}`,
+    // 메일 본문 스타일 정의
+    const labelStyle =
+      "color: #555; font-weight: bold; width: 120px; display: inline-block;";
+    const valueStyle = "color: #000; font-weight: normal;";
 
-      html: `
-        <div style="font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; max-width: 600px; margin: 0 auto; color: #333; line-height: 1.6; border: 1px solid #eee; border-radius: 12px; overflow: hidden;">
-          <div style="padding: 40px 20px; text-align: center; background-color: #ffffff;">
-            <h1 style="font-size: 24px; color: #111; margin-bottom: 20px;">Your Memories in Seoul! 📸</h1>
-            <p style="font-size: 16px; color: #444; margin-bottom: 10px;">안녕하세요, <strong>${customerName}</strong>님!</p>
-            <p style="font-size: 16px; color: #444; margin-bottom: 30px;">
-              저희 <strong>Seoul City Tour</strong>와 함께한 <strong>${tourTitle}</strong> 투어는 즐거우셨나요? <br/>
-              고객님의 소중한 후기는 저희 가이드팀에게 가장 큰 선물이 됩니다.
-            </p>
+    switch (type) {
+      case "NEW_BOOKING": // 🟢 [현장지불/예약]
+        subject = `[신규예약] ${customerName}님 (${tourDate || "날짜미정"})`;
+        htmlContent = `
+          <div style="border: 1px solid #ddd; padding: 30px; border-radius: 15px; max-width: 600px; font-family: sans-serif;">
+            <h2 style="color: #2563eb; margin-top: 0;">📝 신규 예약 접수 (현장지불)</h2>
+            <p style="color: #666; font-size: 14px;">고객이 '예약하기' 버튼을 통해 접수한 건입니다.</p>
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
             
-            <div style="margin: 40px 0;">
-              <a href="${reviewLink}" 
-                 style="background-color: #000; color: #ffffff; padding: 18px 35px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">
-                 Write a Review & Get a Gift 🎁
-              </a>
+            <p><span style="${labelStyle}">고객명:</span> <span style="${valueStyle}">${customerName}</span></p>
+            <p><span style="${labelStyle}">투어일자:</span> <span style="${valueStyle}">${tourDate}</span></p>
+            <p><span style="${labelStyle}">투어상품:</span> <span style="${valueStyle}">${tourTitle}</span></p>
+            <p><span style="${labelStyle}">연락처:</span> <span style="${valueStyle}">${phone}</span></p>
+            <p><span style="${labelStyle}">이메일:</span> <span style="${valueStyle}">${clientEmail || "-"}</span></p>
+            <p><span style="${labelStyle}">호텔정보:</span> <span style="${valueStyle}">${hotelInfo || "미입력"}</span></p>
+            <p><span style="${labelStyle}">예상금액:</span> <span style="${valueStyle}">${currency} ${amount?.toLocaleString()}</span></p>
+            <p><span style="${labelStyle}">주문번호:</span> <span style="${valueStyle}">${orderNumber}</span></p>
+            
+            <div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 20px; color: #666; font-size: 13px;">
+              ※ 아직 입금되지 않았거나 현장 지불 예정입니다. 고객에게 연락하여 예약을 확정해주세요.
             </div>
-      
-          </div>
+          </div>`;
+        break;
 
-          <div style="padding: 30px 20px; background-color: #f8f8f8; font-size: 12px; color: #888; text-align: center;">
-            <p style="margin-bottom: 10px;">본 메일은 세울시티투어 서비스를 이용하신 고객님께 발송되는 발신전용 메일입니다.</p>
-            <p style="margin-bottom: 5px;"><strong>Seoul City Tour (서울시티투어)</strong></p>
-            <p style="margin-bottom: 5px;">Address: 123, Teheran-ro, Gangnam-gu, Seoul, Republic of Korea</p>
-            <p style="margin-bottom: 20px;">Contact: <a href="mailto:${process.env.SMTP_USER}" style="color: #888;">${process.env.SMTP_USER}</a></p>
+      case "PAYMENT_CONFIRMED": // 🔵 [결제완료]
+        subject = `[결제완료] ${customerName}님 (${tourDate || "날짜미정"})`;
+        htmlContent = `
+          <div style="border: 1px solid #ddd; padding: 30px; border-radius: 15px; max-width: 600px; font-family: sans-serif;">
+            <h2 style="color: #16a34a; margin-top: 0;">💰 결제 완료 알림 (입금됨)</h2>
+            <p style="color: #666; font-size: 14px;">고객이 온라인 결제를 완료했습니다.</p>
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
             
-            <p style="margin-top: 10px;">
-              수신을 원치 않으시면 <a href="${baseUrl}/unsubscribe" style="color: #888; text-decoration: underline;">수신거부</a>를 클릭해 주세요.
-            </p>
-          </div>
-        </div>
-      `,
-      replyTo: process.env.SMTP_USER,
-    };
+            <p><span style="${labelStyle}">고객명:</span> <span style="${valueStyle}">${customerName}</span></p>
+            <p><span style="${labelStyle}">투어일자:</span> <span style="${valueStyle}">${tourDate}</span></p>
+            <p><span style="${labelStyle}">투어상품:</span> <span style="${valueStyle}">${tourTitle}</span></p>
+            <p><span style="${labelStyle}">연락처:</span> <span style="${valueStyle}">${phone}</span></p>
+            <p><span style="${labelStyle}">이메일:</span> <span style="${valueStyle}">${clientEmail || "-"}</span></p>
+            <p><span style="${labelStyle}">호텔정보:</span> <span style="${valueStyle}">${hotelInfo || "미입력"}</span></p>
+            <p><span style="${labelStyle}">결제금액:</span> <span style="${valueStyle}">${currency} ${amount?.toLocaleString()}</span></p>
+            <p><span style="${labelStyle}">주문번호:</span> <span style="${valueStyle}">${orderNumber}</span></p>
+            
+            <div style="background-color: #e6fffa; padding: 15px; border-radius: 8px; margin-top: 20px; color: #16a34a; font-weight: bold; font-size: 13px;">
+              ※ 결제가 정상적으로 완료되었습니다.
+            </div>
+          </div>`;
+        break;
 
-    // 6. 메일 발송 및 결과 출력
-    const info = await transporter.sendMail(mailOptions);
+      case "REVIEW": // 🟡 [리뷰 요청]
+      default:
+        const reviewLink = `${SITE_URL}/reviews?token=${token}`;
+        subject = `[Seoul City Tour] ${customerName}님, 서울 여행은 어떠셨나요?`;
+        htmlContent = `
+          <div style="padding: 20px; text-align: center;">
+            <h2>Your Memories in Seoul! 📸</h2>
+            <p><strong>${tourTitle}</strong> 투어는 즐거우셨나요?</p>
+            <a href="${reviewLink}" style="background-color: #000; color: #fff; padding: 15px 30px; text-decoration: none; border-radius: 5px;">리뷰 작성하기</a>
+          </div>`;
+        break;
+    }
 
-    console.log("📧 발송 성공:", {
-      messageId: info.messageId,
-      response: info.response,
-      accepted: info.accepted,
+    // 5. 전송
+    const info = await transporter.sendMail({
+      from: `"Seoul City Tour" <${SMTP_USER}>`,
+      to: targetEmail,
+      subject: subject,
+      html: htmlContent,
+      replyTo: SMTP_USER,
     });
 
-    return NextResponse.json({
-      success: true,
-      messageId: info.messageId,
-    });
+    return NextResponse.json({ success: true, messageId: info.messageId });
   } catch (error: any) {
-    console.error("❌ 에러 상세:", error.message);
+    // 에러 로그는 남겨두는 것이 좋습니다 (문제 발생 시 확인용)
+    console.error("❌ Email Error:", error.message);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

@@ -173,7 +173,9 @@ function BookingContent() {
       if (!response.ok) throw new Error("Booking failed");
 
       if (submissionType === "RESERVATION") {
-        router.push(`/booking/success?orderId=${orderNumber}&type=RESERVATION`);
+        router.replace(
+          `/booking/success?orderId=${orderNumber}&type=RESERVATION`,
+        );
       } else {
         if (typeof window === "undefined" || !(window as any).FirstPay) {
           alert("Payment system loading... Please try again.");

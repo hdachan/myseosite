@@ -36,7 +36,7 @@ function SuccessContent() {
     ) {
       setIsPopup(true);
       try {
-        window.opener.location.href = window.location.href;
+        window.opener.location.replace(window.location.href);
         setTimeout(() => {
           window.close();
         }, 500);

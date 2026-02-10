@@ -11,13 +11,20 @@ export async function POST(request: Request) {
 
     console.log("🔥 [KPN 데이터 수신]", rawData);
 
-    const replyCode =
-      rawData["code"] || rawData["ReplyCode"] || rawData["replyCode"];
+    const replyCode = rawData["code"] || rawData["ReplyCode"] || "9999";
     const mxIssueNo =
       rawData["mxIssueNo"] || rawData["MxIssueNO"] || rawData["order_no"];
     const message = rawData["message"] || rawData["ReplyMessage"] || "";
     const paidAmount = Number(rawData["amount"] || rawData["Amount"] || 0);
     const paidCurrency = rawData["currency"] || rawData["Currency"] || "KRW";
+
+    // -----------------------------------------------------------------------
+    // 🔥 [수정 완료] 개발(내컴퓨터) vs 배포(Vercel) 환경 자동 감지 코드
+    // -----------------------------------------------------------------------
+    const siteUrl =
+      process.env.NODE_ENV === "development"
+        ? "http://localhost:3000"
+        : process.env.NEXT_PUBLIC_SITE_URL || "https://myseosite.vercel.app";
 
     if (!replyCode || !mxIssueNo) {
       return NextResponse.redirect(
@@ -32,10 +39,22 @@ export async function POST(request: Request) {
     );
 
     if (replyCode === "0000") {
-      // ✅ 사장님 DB 컬럼(total_price, usd_amount) 그대로 호출
       const { data: order, error: fetchError } = await supabase
         .from("bookings")
-        .select("total_price, usd_amount, currency, status")
+        .select(
+          `
+          total_price, 
+          usd_amount, 
+          currency, 
+          status, 
+          customer_name, 
+          customer_phone, 
+          customer_email, 
+          tour_title, 
+          tour_date, 
+          hotel_info
+        `,
+        )
         .eq("order_number", mxIssueNo)
         .single();
 
@@ -46,7 +65,6 @@ export async function POST(request: Request) {
         );
       }
 
-      // ✅ [금액 위변조 체크] 사장님 DB의 usd_amount가 문자열일 수 있으므로 Number() 처리
       let isAmountValid = false;
       if (paidCurrency === "USD") {
         isAmountValid = Math.abs(Number(order.usd_amount) - paidAmount) < 0.01;
@@ -55,12 +73,9 @@ export async function POST(request: Request) {
       }
 
       if (!isAmountValid) {
-        console.error(
-          `🚨 [위변조의심] DB:${order.usd_amount}, 실결제:${paidAmount}`,
-        );
         await supabase
           .from("bookings")
-          .update({ status: "fraud_suspected" }) // 관리자가 어드민에서 확인 가능하도록 상태값 변경
+          .update({ status: "fraud_suspected" })
           .eq("order_number", mxIssueNo);
         return NextResponse.redirect(
           new URL(`/cart?error=amount_mismatch`, request.url),
@@ -68,11 +83,33 @@ export async function POST(request: Request) {
         );
       }
 
-      // ✅ 결제 성공 처리
       await supabase
         .from("bookings")
         .update({ status: "paid" })
         .eq("order_number", mxIssueNo);
+
+      // -----------------------------------------------------------------------
+      // 🔥 [결제완료] 메일 발송 (제목: [결제완료])
+      // -----------------------------------------------------------------------
+      fetch(`${siteUrl}/api/email`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "PAYMENT_CONFIRMED",
+          email: process.env.SMTP_USER,
+
+          clientEmail: order.customer_email,
+          customerName: order.customer_name,
+          phone: order.customer_phone,
+          tourTitle: order.tour_title,
+          tourDate: order.tour_date,
+          hotelInfo: order.hotel_info,
+
+          orderNumber: mxIssueNo,
+          amount: paidAmount,
+          currency: paidCurrency,
+        }),
+      }).catch((err) => console.error("입금 알림 메일 발송 실패:", err));
 
       return NextResponse.redirect(
         new URL(
@@ -82,7 +119,6 @@ export async function POST(request: Request) {
         303,
       );
     } else {
-      // 결제 실패 시 상태 유지 혹은 실패 기록
       return NextResponse.redirect(
         new URL(
           `/cart?error=${encodeURIComponent(message || "payment_failed")}`,
