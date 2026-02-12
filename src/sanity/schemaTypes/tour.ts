@@ -64,7 +64,6 @@ export default defineType({
       type: "number",
       description: "카드에 표시될 '최저가'입니다.",
     }),
-    // ✅ 최소 출발 인원 설정
     defineField({
       name: "minPax",
       title: "Minimum Travelers (최소 출발 인원)",
@@ -73,14 +72,14 @@ export default defineType({
       description: "이 투어를 예약하기 위한 최소 인원입니다. (예: 2명 이상)",
       validation: (Rule) => Rule.required().min(1),
     }),
+
+    // ⚠️ 카드(리스트)용 할인 전 가격
     defineField({
       name: "originalPrice",
       title: "Original Price",
       type: "number",
       description: "할인 전 가격 (할인 표시가 필요할 때만 입력)",
     }),
-
-    // ❌ [삭제됨] rating, reviews 필드 제거 완료
 
     defineField({
       name: "tags",
@@ -91,9 +90,25 @@ export default defineType({
     }),
     defineField({
       name: "description",
-      title: "Short Description",
-      type: "string",
-      description: "카드에 들어갈 짧은 설명 (1-2문장)",
+      title: "Highlight", // 이름 변경
+      description:
+        "투어의 핵심 포인트(이전에 Short Description) 를 적어주세요. (리스트, 굵게 사용 가능)",
+      type: "array",
+      of: [
+        {
+          type: "block",
+          styles: [{ title: "Normal", value: "normal" }], // 카드 디자인 보호를 위해 Normal만 허용
+          lists: [
+            { title: "Bullet", value: "bullet" }, // ✅ 점 리스트 허용
+          ],
+          marks: {
+            decorators: [
+              { title: "Strong", value: "strong" }, // ✅ 굵게
+              { title: "Emphasis", value: "em" }, // ✅ 기울임
+            ],
+          },
+        },
+      ],
     }),
 
     // =================================================
@@ -113,35 +128,6 @@ export default defineType({
       rows: 10,
       description: "상세 페이지 하단 'Tour Overview'에 들어갈 긴 설명입니다.",
     }),
-    defineField({
-      name: "includes",
-      title: "Included Items (SEO)",
-      type: "array",
-      of: [{ type: "string" }],
-      description: "구글 검색(SEO) 및 구조화된 데이터를 위한 포함 내역입니다.",
-    }),
-
-    // ✅ [수정됨] Meeting Point: 텍스트 + 사진 여러 장
-    defineField({
-      name: "meetingPoint",
-      title: "Meeting Point Info",
-      type: "object", // 텍스트에서 객체로 변경
-      fields: [
-        {
-          name: "description",
-          title: "Description / Address",
-          type: "text",
-          description: "미팅 포인트 상세 주소 및 설명",
-        },
-        {
-          name: "images",
-          title: "Meeting Point Images",
-          type: "array",
-          of: [{ type: "image", options: { hotspot: true } }],
-          description: "약도나 미팅 포인트 전경 사진 (여러 장 가능)",
-        },
-      ],
-    }),
 
     // =================================================
     // 🔥 3️⃣ 옵션 & 일정표 (Pricing & Schedule)
@@ -149,7 +135,7 @@ export default defineType({
     defineField({
       name: "packageOptions",
       title: "Pricing Options",
-      description: "가격 옵션과 해당 옵션의 일정표를 관리합니다.",
+      description: "가격 옵션, 미팅 포인트, 일정표를 관리합니다.",
       type: "array",
       of: [
         {
@@ -163,18 +149,75 @@ export default defineType({
               type: "string",
               description: "옵션 이름 (예: DMZ Morning Tour)",
             },
+
+            // ✅ 할인 전 정가 (취소선 표시용)
+            defineField({
+              name: "originalPrice",
+              title: "Original Price (Before Discount)",
+              type: "number",
+              description:
+                "할인 전 정가입니다. (입력 시 $100 -> $80 처럼 표시됨) 할인가 없으면 비워주세요! ",
+            }),
+
+            // ✅ 실제 판매가
             {
               name: "price",
-              title: "Price ($)",
+              title: "Sale Price (Final)",
               type: "number",
-              description: "이 옵션의 실제 판매 가격",
+              description: "고객이 실제로 결제할 최종 가격입니다.",
+              validation: (Rule) => Rule.required(),
             },
             {
               name: "badge",
               title: "Badge",
               type: "string",
-              description: "옵션 옆에 붙을 뱃지 (예: Popular)",
+              description: "옵션 옆에 붙을 뱃지 (예: Popular, 20% OFF)",
             },
+
+            // ✅ Meeting Points (여러 개 가능)
+            defineField({
+              name: "meetingPoints",
+              title: "Meeting Points Info",
+              type: "array",
+              description: "이 옵션에서 선택 가능한 미팅 장소들입니다.",
+              of: [
+                {
+                  type: "object",
+                  name: "point",
+                  fields: [
+                    {
+                      name: "name",
+                      title: "Point Name",
+                      type: "string",
+                      description:
+                        "장소 이름 (예: Hongik Univ. Station Exit 3)",
+                    },
+                    {
+                      name: "description",
+                      title: "Description / Address",
+                      type: "text",
+                      rows: 3,
+                      description: "상세 주소 및 찾아오는 길 설명",
+                    },
+                    {
+                      name: "images",
+                      title: "Meeting Point Images",
+                      type: "array",
+                      of: [{ type: "image", options: { hotspot: true } }],
+                      description:
+                        "약도나 미팅 포인트 전경 사진 (여러 장 가능)",
+                    },
+                  ],
+                  preview: {
+                    select: {
+                      title: "name",
+                      media: "images.0",
+                    },
+                  },
+                },
+              ],
+            }),
+
             defineField({
               name: "details",
               title: "Simple Course List (For Card)",
@@ -183,6 +226,7 @@ export default defineType({
               type: "array",
               of: [{ type: "string" }],
             }),
+
             defineField({
               name: "itinerary",
               title: "Tour Schedule (For Sidebar)",
@@ -228,7 +272,6 @@ export default defineType({
                       },
                       initialValue: "location",
                     },
-                    // ✅ [수정됨] 일정 사진: 한 장 -> 여러 장 (Array)
                     {
                       name: "images",
                       title: "Activity Images",
@@ -241,7 +284,6 @@ export default defineType({
                     select: {
                       title: "title",
                       subtitle: "time",
-                      // 배열의 첫 번째 이미지를 썸네일로 사용
                       media: "images.0",
                     },
                     prepare({ title, subtitle, media }) {
@@ -255,14 +297,49 @@ export default defineType({
                 },
               ],
             }),
-            // ❌ [삭제됨] excluded (불포함 사항) 필드 제거 완료
+
+            // ✅ Portable Text (Note)
+            defineField({
+              name: "note",
+              title: "Additional Note / Important Notice",
+              description:
+                "이 옵션에 대한 주의사항을 자유롭게 작성하세요. (굵게, 리스트, 링크 등)",
+              type: "array",
+              of: [
+                {
+                  type: "block",
+                  styles: [
+                    { title: "Normal", value: "normal" },
+                    { title: "H4", value: "h4" },
+                    { title: "Quote", value: "blockquote" },
+                  ],
+                  lists: [
+                    { title: "Bullet", value: "bullet" },
+                    { title: "Number", value: "number" },
+                  ],
+                  marks: {
+                    decorators: [
+                      { title: "Strong", value: "strong" },
+                      { title: "Emphasis", value: "em" },
+                      { title: "Underline", value: "underline" },
+                    ],
+                  },
+                },
+              ],
+            }),
           ],
           preview: {
-            select: { title: "name", subtitle: "price" },
-            prepare({ title, subtitle }) {
+            select: {
+              title: "name",
+              price: "price",
+              original: "originalPrice",
+            },
+            prepare({ title, price, original }) {
               return {
                 title: title,
-                subtitle: subtitle ? `$${subtitle}` : "Price not set",
+                subtitle: original
+                  ? `$${price} (was $${original})`
+                  : `$${price}`,
               };
             },
           },

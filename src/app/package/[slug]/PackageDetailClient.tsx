@@ -198,7 +198,8 @@ export default function PackageDetailClient({ tour }: Props) {
                 <div className="sticky top-24">
                   <PackageDetailSidebar
                     selectedPackage={selectedPackage}
-                    meetingPoint={tour.meetingPoint}
+                    // ✅ [수정됨] 스키마 변경 반영: tour.meetingPoint(전역) -> selectedPackage.meetingPoints(옵션별 배열)
+                    meetingPoints={selectedPackage.meetingPoints}
                   />
                 </div>
               </div>

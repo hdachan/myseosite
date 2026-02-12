@@ -6,7 +6,7 @@ import { Star } from "lucide-react";
 import { hangameFont } from "@/lib/fonts";
 import { useCurrency } from "@/app/context/CurrencyContext";
 
-// Sanity + Supabase 데이터 통합 인터페이스 (기존 유지)
+// Sanity + Supabase 데이터 통합 인터페이스
 interface TourData {
   id: string | number;
   slug: string;
@@ -18,8 +18,8 @@ interface TourData {
   averageRating?: number;
   totalReviews?: number;
   price: number;
-  originalPrice?: number;
-  discount?: number;
+  originalPrice?: number; // Sanity에서 입력한 정가
+  discount?: number; // (사용 안함 - 호환성을 위해 유지)
 }
 
 interface TourCardProps {
@@ -28,9 +28,9 @@ interface TourCardProps {
 }
 
 export default function TourCard({ tour, priority = false }: TourCardProps) {
-  // ✅ 2. formatPrice 함수 가져오기
   const { formatPrice } = useCurrency();
 
+  // 태그 처리 로직
   const displayTags =
     tour.tags && tour.tags.length > 0
       ? tour.tags
@@ -41,11 +41,14 @@ export default function TourCard({ tour, priority = false }: TourCardProps) {
   const ratingValue = tour.averageRating || 0;
   const reviewCount = tour.totalReviews || 0;
 
+  // ✅ 할인 중인지 판단하는 로직 (정가가 판매가보다 높을 때)
+  const isDiscounted = tour.originalPrice && tour.originalPrice > tour.price;
+
   return (
     <div className="group cursor-pointer flex flex-col h-full">
       <Link href={`/package/${tour.slug}`} className="block h-full">
         <div className="h-full flex flex-col bg-white rounded-[6px] overflow-hidden border border-gray-200 shadow-sm shadow-[inset_0_0_14px_rgba(0,0,0,0.04)] hover:shadow-md transition-all duration-300">
-          {/* 1. 이미지 영역 (기존 유지) */}
+          {/* 1. 이미지 영역 */}
           <div className="relative h-[150px] md:h-[200px] w-full overflow-hidden bg-gray-50 border-b border-gray-100">
             {tour.image ? (
               <Image
@@ -63,7 +66,7 @@ export default function TourCard({ tour, priority = false }: TourCardProps) {
             )}
           </div>
 
-          {/* 2. 텍스트 내용 영역 (기존 유지) */}
+          {/* 2. 텍스트 내용 영역 */}
           <div className="p-3 md:p-4 flex flex-col flex-1">
             <div className="text-[10px] md:text-[11px] text-gray-400 mb-1 truncate font-medium uppercase tracking-wide">
               {tour.location || "Korea"}
@@ -106,21 +109,23 @@ export default function TourCard({ tour, priority = false }: TourCardProps) {
                 )}
               </div>
 
-              {/* ✅ 3. 가격 줄: formatPrice 적용 */}
+              {/* ✅ 3. 가격 표시 영역: originalPrice 존재 여부에 따라 분기 */}
               <div className="flex items-end gap-1.5">
-                {tour.discount ? (
+                {isDiscounted ? (
                   <div className="flex items-baseline gap-1.5">
+                    {/* 최종 판매가 (빨간색) */}
                     <span
                       className={`${hangameFont.className} text-[15px] md:text-[17px] font-bold text-[#ad3928]`}
                     >
-                      {/* ✅ 원화(₩) 기호까지 formatPrice 내부에서 처리됨 */}
                       {formatPrice(tour.price)}
                     </span>
+                    {/* 할인 전 정가 (회색 취소선) */}
                     <span className="text-[10px] md:text-[11px] text-gray-300 line-through decoration-gray-300">
                       {formatPrice(tour.originalPrice || 0)}
                     </span>
                   </div>
                 ) : (
+                  /* 할인 정보가 없을 때 (일반 판매가만 표시) */
                   <span
                     className={`${hangameFont.className} text-[15px] md:text-[17px] font-bold text-gray-900`}
                   >

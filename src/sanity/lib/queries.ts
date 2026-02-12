@@ -13,7 +13,6 @@ export const blogListQuery = groq`
     readTime,
     "publishedAt": date,
     featured,
-    // ✅ [수정됨] 이미지 URL과 함께 Alt Text도 가져옴
     image {
       asset->{ _id, url },
       alt
@@ -32,7 +31,6 @@ export const blogDetailQuery = groq`
     readTime,
     "publishedAt": date,
     featured,
-    // ✅ [수정됨] 상세 페이지에서도 Alt Text 필수
     image {
       asset->{ _id, url },
       alt
@@ -75,7 +73,6 @@ export const TOURS_BY_CATEGORY_QUERY = groq`
     originalPrice,
     discount,
     location,
-    // ❌ rating, reviews 제거됨
     tags,
     description,
     "minPax": coalesce(minPax, 1)
@@ -92,15 +89,8 @@ export const TOUR_DETAIL_QUERY = groq`
     "images": gallery[].asset->url,
     category,
     tags,
-    // ❌ rating, reviews 제거됨
     description,        
     fullDescription,    
-    meetingPoint {
-      description,
-      "images": images[].asset->url
-    },
-
-    includes,
 
     // 최소 인원
     "minPax": coalesce(minPax, 1),
@@ -109,16 +99,30 @@ export const TOUR_DETAIL_QUERY = groq`
     packageOptions[] {
       "id": _key,
       name,
+      
+      // ✅ [가격 정보] 판매가(price)와 정가(originalPrice) 모두 가져오기
       price,
+      originalPrice, 
+
       badge,
       details, 
+      
+      // ✅ [추가됨] 관리자 에디터(Portable Text) 내용 가져오기
+      note,
+
+      // ✅ [추가됨] 옵션별 미팅 포인트 배열 가져오기
+      meetingPoints[] {
+        name,
+        description,
+        "images": images[].asset->url
+      },
       
       itinerary[] {
         time,
         title,
         description,
         iconType,
-        "images": images[].asset->url // image -> images 로 변경됨
+        "images": images[].asset->url 
       }
     }
   }

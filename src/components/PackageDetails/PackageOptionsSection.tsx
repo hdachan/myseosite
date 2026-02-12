@@ -11,6 +11,7 @@ interface PackageOption {
   id: string;
   name: string;
   price: number;
+  originalPrice?: number;
   badge?: string;
   details?: string[];
 }
@@ -80,12 +81,9 @@ export default function PackageOptionsSection({
     (opt) => opt.id === selectedOption,
   );
 
-  // ✅ 1. 원화 합계 (DB 저장용 & KRW 결제용)
   const totalPriceKRW = selectedPackage
     ? selectedPackage.price * (adults + children)
     : 0;
-
-  // ✅ 2. 달러 합계 (USD 결제용 - 소수점 2자리 반올림)
   const totalPriceUSD = Number((totalPriceKRW / exchangeRate).toFixed(2));
 
   const totalPeople = adults + children;
@@ -129,8 +127,8 @@ export default function PackageOptionsSection({
       adults,
       children,
       pricePerPerson: selectedPackage?.price,
-      totalPrice: totalPriceKRW, // ✅ 항상 원화 기준 합계 전송
-      usdAmount: totalPriceUSD, // ✅ 달러 합계 별도 전송
+      totalPrice: totalPriceKRW,
+      usdAmount: totalPriceUSD,
       currency,
       exchangeRate,
       date: tourDate,
@@ -141,8 +139,6 @@ export default function PackageOptionsSection({
 
   const handleBookNow = () => {
     if (isButtonDisabled) return;
-
-    // ✅ URL 파라미터 구성 시 "원화 합계"와 "선택한 통화"를 확실히 구분해서 보냄
     const query = new URLSearchParams({
       tourId,
       slug: tourSlug,
@@ -150,17 +146,16 @@ export default function PackageOptionsSection({
       image: tourImage,
       optionId: selectedPackage!.id,
       optionName: selectedPackage!.name,
-      price: selectedPackage!.price.toString(), // 원화 단가
+      price: selectedPackage!.price.toString(),
       adults: adults.toString(),
       children: children.toString(),
-      totalPrice: totalPriceKRW.toString(), // ✅ 항상 원화 합계
-      usdAmount: totalPriceUSD.toString(), // ✅ 달러 합계 별도 포함
+      totalPrice: totalPriceKRW.toString(),
+      usdAmount: totalPriceUSD.toString(),
       date: tourDate,
       minPax: minPax.toString(),
-      currency: currency, // ✅ 현재 선택된 통화 (USD/KRW)
-      exchangeRate: exchangeRate.toString(), // ✅ 현재 환율
+      currency: currency,
+      exchangeRate: exchangeRate.toString(),
     }).toString();
-
     router.push(`/booking?${query}`);
   };
 
@@ -188,50 +183,90 @@ export default function PackageOptionsSection({
       {!isSuspended ? (
         <div className="mb-6">
           <div className="space-y-3">
-            {packageOptions?.map((opt) => (
-              <label
-                key={opt.id}
-                className={`block p-4 rounded-[6px] border cursor-pointer transition relative ${
-                  selectedOption === opt.id
-                    ? "border-orange-500 bg-white shadow-md ring-1 ring-orange-500"
-                    : "border-gray-200 bg-white hover:border-gray-300"
-                }`}
-              >
-                <div className="flex items-start gap-3">
-                  <input
-                    type="radio"
-                    name="package"
-                    value={opt.id}
-                    checked={selectedOption === opt.id}
-                    onChange={(e) => handleOptionChange(e.target.value)}
-                    className="mt-1 w-4 h-4 text-orange-600 focus:ring-orange-500 border-gray-300"
-                  />
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between gap-2 mb-1">
-                      <span className="font-bold text-gray-900 text-lg">
-                        {opt.name}
-                      </span>
-                      {opt.badge && (
-                        <span className="px-2 py-0.5 bg-red-100 text-red-600 text-xs rounded-[4px] font-bold uppercase whitespace-nowrap">
-                          {opt.badge}
+            {packageOptions?.map((opt) => {
+              // ✅ [엄격한 체크] Original Price가 Price보다 클 때만 할인으로 인정
+              const hasDiscount =
+                opt.originalPrice !== undefined &&
+                opt.originalPrice !== null &&
+                opt.originalPrice > opt.price;
+
+              // ✅ [엄격한 체크] Badge가 빈 문자열이 아닐 때만 표시
+              const hasBadge = opt.badge && opt.badge.trim().length > 0;
+
+              const discountRate = hasDiscount
+                ? Math.round(
+                    ((opt.originalPrice! - opt.price) / opt.originalPrice!) *
+                      100,
+                  )
+                : 0;
+
+              return (
+                <label
+                  key={opt.id}
+                  className={`block p-4 rounded-[6px] border cursor-pointer transition relative ${
+                    selectedOption === opt.id
+                      ? "border-orange-500 bg-white shadow-md ring-1 ring-orange-500"
+                      : "border-gray-200 bg-white hover:border-gray-300"
+                  }`}
+                >
+                  <div className="flex items-start gap-3">
+                    <input
+                      type="radio"
+                      name="package"
+                      value={opt.id}
+                      checked={selectedOption === opt.id}
+                      onChange={(e) => handleOptionChange(e.target.value)}
+                      className="mt-1 w-4 h-4 text-orange-600 focus:ring-orange-500 border-gray-300 flex-shrink-0"
+                    />
+                    <div className="flex-1">
+                      {/* 상단: 이름 + 뱃지 */}
+                      <div className="flex items-start justify-between gap-2 mb-1">
+                        <span className="font-bold text-gray-900 text-lg leading-tight">
+                          {opt.name}
                         </span>
-                      )}
-                    </div>
-                    <div className="text-sm text-gray-600 mt-2 leading-snug">
-                      <span className="font-semibold text-gray-800">
-                        Route:{" "}
-                      </span>
-                      {opt.details?.join(" → ") || "View schedule details"}
-                    </div>
-                    <div className="mt-2 text-right">
-                      <span className="text-lg font-bold text-gray-900">
-                        {formatPrice(opt.price)}
-                      </span>
+
+                        <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                          {/* 1. 커스텀 뱃지 (값이 있을 때만 렌더링) */}
+                          {hasBadge && (
+                            <span className="px-2 py-0.5 bg-blue-100 text-blue-600 text-[10px] rounded-[4px] font-bold uppercase whitespace-nowrap">
+                              {opt.badge}
+                            </span>
+                          )}
+
+                          {/* 2. 할인 뱃지 (할인 조건 충족 시에만 렌더링) */}
+                          {hasDiscount && (
+                            <span className="px-2 py-0.5 bg-red-100 text-red-600 text-[10px] rounded-[4px] font-bold uppercase whitespace-nowrap animate-pulse">
+                              SAVE {discountRate}%
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* 중간: 상세 설명 */}
+                      <div className="text-sm text-gray-600 mt-2 leading-snug">
+                        <span className="font-semibold text-gray-800">
+                          Route:{" "}
+                        </span>
+                        {opt.details?.join(" → ") || "View schedule details"}
+                      </div>
+
+                      {/* 하단: 가격 표시 */}
+                      <div className="mt-2 text-right flex flex-col items-end justify-end">
+                        {/* 할인 전 가격 (조건 충족 시에만 렌더링) */}
+                        {hasDiscount && (
+                          <span className="text-xs text-gray-400 line-through decoration-gray-400 mr-1">
+                            {formatPrice(opt.originalPrice!)}
+                          </span>
+                        )}
+                        <span className="text-lg font-bold text-gray-900">
+                          {formatPrice(opt.price)}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </label>
-            ))}
+                </label>
+              );
+            })}
           </div>
         </div>
       ) : (
@@ -244,7 +279,7 @@ export default function PackageOptionsSection({
 
       {selectedOption && !isSuspended && (
         <>
-          {/* 날짜/인원 선택부 (기존 로직 유지) */}
+          {/* 날짜/인원 선택부 */}
           <div className="space-y-6 mb-6 pt-6 border-t border-gray-200">
             <div>
               <p className="text-sm font-bold text-gray-900 uppercase tracking-wide mb-3">
@@ -319,11 +354,22 @@ export default function PackageOptionsSection({
             </div>
           </div>
 
+          {/* ✅ 총액 표시 부분: 할인 여부에 따라 렌더링 결정 */}
           <div className="flex items-baseline justify-between mb-6 pb-4 border-b border-gray-200">
             <div>
-              <span className="text-3xl font-bold text-gray-900">
-                {formatPrice(totalPriceKRW)}
-              </span>
+              <div className="flex items-baseline gap-2">
+                {selectedPackage?.originalPrice &&
+                selectedPackage.originalPrice > selectedPackage.price ? (
+                  <span className="text-lg text-gray-400 line-through decoration-gray-400">
+                    {formatPrice(
+                      selectedPackage.originalPrice * (adults + children),
+                    )}
+                  </span>
+                ) : null}
+                <span className="text-3xl font-bold text-gray-900">
+                  {formatPrice(totalPriceKRW)}
+                </span>
+              </div>
               <p className="text-xs text-gray-500 mt-1">
                 Total price for {adults + children} person(s)
               </p>

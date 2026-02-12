@@ -13,11 +13,16 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
+  Clock,
+  AlertCircle, // ⚠️ 아이콘 추가
 } from "lucide-react";
 import Image from "next/image";
 import { hangameFont } from "@/lib/fonts";
 import { useCurrency } from "@/app/context/CurrencyContext";
+// ✅ Portable Text 임포트
+import { PortableText } from "@portabletext/react";
 
+// ✅ 인터페이스 정의
 interface ScheduleItem {
   time?: string;
   title: string;
@@ -29,21 +34,59 @@ interface ScheduleItem {
 interface PackageOption {
   name: string;
   itinerary?: ScheduleItem[];
+  note?: any; // ✅ [추가됨] Portable Text 데이터
 }
 
 interface MeetingPoint {
+  name?: string;
   description: string;
   images?: string[];
 }
 
 interface PackageDetailSidebarProps {
   selectedPackage: PackageOption;
-  meetingPoint?: string | MeetingPoint;
+  meetingPoints?: MeetingPoint[];
 }
+
+// ✅ Portable Text 커스텀 스타일 정의
+const ptComponents = {
+  block: {
+    normal: ({ children }: any) => (
+      <p className="text-xs text-gray-600 leading-relaxed mb-2">{children}</p>
+    ),
+    h4: ({ children }: any) => (
+      <h4 className="text-sm font-bold text-gray-800 mt-4 mb-2">{children}</h4>
+    ),
+    blockquote: ({ children }: any) => (
+      <blockquote className="border-l-2 border-[#4A7C7E] pl-3 italic text-gray-500 my-2 text-xs">
+        {children}
+      </blockquote>
+    ),
+  },
+  list: {
+    bullet: ({ children }: any) => (
+      <ul className="list-disc ml-4 space-y-1 text-xs text-gray-600 mb-2">
+        {children}
+      </ul>
+    ),
+    number: ({ children }: any) => (
+      <ol className="list-decimal ml-4 space-y-1 text-xs text-gray-600 mb-2">
+        {children}
+      </ol>
+    ),
+  },
+  marks: {
+    strong: ({ children }: any) => (
+      <strong className="font-bold text-gray-900">{children}</strong>
+    ),
+    em: ({ children }: any) => <em className="italic">{children}</em>,
+    underline: ({ children }: any) => <u className="underline">{children}</u>,
+  },
+};
 
 export default function PackageDetailSidebar({
   selectedPackage,
-  meetingPoint,
+  meetingPoints,
 }: PackageDetailSidebarProps) {
   const { currency } = useCurrency();
 
@@ -51,7 +94,6 @@ export default function PackageDetailSidebar({
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [lightboxImages, setLightboxImages] = useState<string[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  // ✅ 클라이언트 사이드 렌더링 확인용
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -98,7 +140,7 @@ export default function PackageDetailSidebar({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isLightboxOpen]);
 
-  // 아이콘 헬퍼
+  // 아이콘 헬퍼 함수들
   const getIcon = (type: string) => {
     switch (type) {
       case "transport":
@@ -137,7 +179,6 @@ export default function PackageDetailSidebar({
       className="fixed inset-0 z-[99999] bg-black/95 flex items-center justify-center backdrop-blur-sm animate-in fade-in duration-200"
       onClick={closeLightbox}
     >
-      {/* 🚀 [수정 완료] X 버튼 디자인을 갤러리와 똑같이 맞춤 (w-8 h-8, top-4 right-4) */}
       <button
         onClick={closeLightbox}
         className="absolute top-4 right-4 text-white/70 hover:text-white p-2 z-[100000] transition-all hover:rotate-90"
@@ -145,7 +186,6 @@ export default function PackageDetailSidebar({
         <X className="w-8 h-8" />
       </button>
 
-      {/* 이미지 컨테이너 */}
       <div
         className="relative w-full h-full max-w-6xl max-h-[85vh] flex items-center justify-center px-4 md:px-12"
         onClick={(e) => e.stopPropagation()}
@@ -189,127 +229,167 @@ export default function PackageDetailSidebar({
     <>
       <aside className="lg:col-span-1">
         <div className="space-y-4 sticky top-24">
-          {/* 1. 투어 스케줄 */}
-          <section className="bg-white rounded-[6px] border border-gray-200 overflow-hidden shadow-sm">
-            <div className="p-5 border-b border-gray-100 bg-gray-50/50">
+          <section className="bg-white rounded-[6px] border border-gray-200 overflow-hidden shadow-sm flex flex-col">
+            {/* 1️⃣ [헤더] */}
+            <div className="p-5 border-b border-gray-100 bg-gray-50/80 backdrop-blur-sm z-10">
               <p className="text-[10px] uppercase tracking-[0.2em] text-[#4A7C7E] font-bold mb-2">
                 SELECTED OPTION
               </p>
               <h3
                 className={`${hangameFont.className} text-lg font-bold text-gray-900 leading-tight mb-1`}
               >
-                Tour Schedule
+                Tour Details
               </h3>
               <p className="text-sm text-gray-500 font-medium line-clamp-2">
                 {selectedPackage.name}
               </p>
             </div>
 
-            <div className="p-5">
-              {selectedPackage.itinerary &&
-              selectedPackage.itinerary.length > 0 ? (
-                <div className="relative border-l-2 border-gray-100 ml-3 space-y-8 pb-2">
-                  {selectedPackage.itinerary.map((item, index) => (
-                    <div key={index} className="relative pl-6">
-                      <div
-                        className={`absolute -left-[9px] top-1 w-5 h-5 rounded-full border border-white shadow-sm flex items-center justify-center ${getIconColor(item.iconType || "location")}`}
-                      >
-                        {getIcon(item.iconType || "location")}
-                      </div>
-                      <div className="flex flex-col gap-1">
-                        {item.time && (
-                          <span className="text-xs font-bold text-gray-900 bg-gray-100 px-1.5 py-0.5 rounded w-fit mb-0.5">
-                            {item.time}
-                          </span>
-                        )}
-                        <h4 className="text-sm font-bold text-gray-800 leading-tight">
-                          {item.title}
-                        </h4>
-                        {item.description && (
-                          <p className="text-xs text-gray-500 leading-snug mt-1 whitespace-pre-line">
-                            {item.description}
-                          </p>
-                        )}
-                        {item.images && item.images.length > 0 && (
-                          <div
-                            className="relative w-full h-24 mt-2 rounded-md overflow-hidden border border-gray-100 shadow-sm group cursor-pointer"
-                            onClick={() => openLightbox(item.images)}
-                          >
-                            <Image
-                              src={item.images[0]}
-                              alt={item.title}
-                              fill
-                              className="object-cover transition-transform duration-500 group-hover:scale-105"
-                            />
-                            {item.images.length > 1 && (
-                              <div className="absolute bottom-1 right-1 bg-black/60 text-white text-[10px] font-bold px-2 py-1 rounded-full backdrop-blur-sm z-10 flex items-center gap-1">
-                                +{item.images.length - 1} photos
-                              </div>
-                            )}
-                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
+            {/* 🚀 [스크롤 영역] */}
+            <div className="overflow-y-auto max-h-[600px] scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
+              {/* 2️⃣ [일정표] */}
+              <div className="p-5">
+                <div className="flex items-center gap-2 mb-4 text-gray-800 font-bold text-sm">
+                  <Clock className="w-4 h-4 text-[#4A7C7E]" />
+                  Itinerary
                 </div>
-              ) : (
-                <div className="text-center py-6 text-gray-400 text-sm flex flex-col items-center">
-                  <Map className="w-8 h-8 mb-2 opacity-30" />
-                  <p>No schedule details available.</p>
+
+                {selectedPackage.itinerary &&
+                selectedPackage.itinerary.length > 0 ? (
+                  <div className="relative border-l-2 border-gray-100 ml-3 space-y-8 pb-2">
+                    {selectedPackage.itinerary.map((item, index) => (
+                      <div key={index} className="relative pl-6">
+                        <div
+                          className={`absolute -left-[9px] top-1 w-5 h-5 rounded-full border border-white shadow-sm flex items-center justify-center ${getIconColor(item.iconType || "location")}`}
+                        >
+                          {getIcon(item.iconType || "location")}
+                        </div>
+                        <div className="flex flex-col gap-1">
+                          {item.time && (
+                            <span className="text-xs font-bold text-gray-900 bg-gray-100 px-1.5 py-0.5 rounded w-fit mb-0.5">
+                              {item.time}
+                            </span>
+                          )}
+                          <h4 className="text-sm font-bold text-gray-800 leading-tight">
+                            {item.title}
+                          </h4>
+                          {item.description && (
+                            <p className="text-xs text-gray-500 leading-snug mt-1 whitespace-pre-line">
+                              {item.description}
+                            </p>
+                          )}
+                          {item.images && item.images.length > 0 && (
+                            <div
+                              className="relative w-full h-24 mt-2 rounded-md overflow-hidden border border-gray-100 shadow-sm group cursor-pointer"
+                              onClick={() => openLightbox(item.images)}
+                            >
+                              <Image
+                                src={item.images[0]}
+                                alt={item.title}
+                                fill
+                                className="object-cover transition-transform duration-500 group-hover:scale-105"
+                              />
+                              {item.images.length > 1 && (
+                                <div className="absolute bottom-1 right-1 bg-black/60 text-white text-[10px] font-bold px-2 py-1 rounded-full backdrop-blur-sm z-10 flex items-center gap-1">
+                                  +{item.images.length - 1} photos
+                                </div>
+                              )}
+                              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-6 text-gray-400 text-sm flex flex-col items-center">
+                    <Map className="w-8 h-8 mb-2 opacity-30" />
+                    <p>No schedule details available.</p>
+                  </div>
+                )}
+              </div>
+
+              {/* 3️⃣ [미팅 포인트] */}
+              {meetingPoints &&
+                Array.isArray(meetingPoints) &&
+                meetingPoints.length > 0 && (
+                  <div className="border-t border-gray-100 p-5 bg-gray-50/30">
+                    <div className="flex items-center gap-2 mb-4 text-gray-800 font-bold text-sm">
+                      <MapPin className="w-4 h-4 text-[#4A7C7E]" />
+                      Meeting Points
+                    </div>
+
+                    <div className="space-y-6">
+                      {meetingPoints.map((point, index) => (
+                        <div
+                          key={index}
+                          className={
+                            index !== 0
+                              ? "pt-4 border-t border-gray-200/50"
+                              : ""
+                          }
+                        >
+                          {point.name && (
+                            <h4 className="font-bold text-gray-900 mb-1 text-sm">
+                              📍 {point.name}
+                            </h4>
+                          )}
+
+                          <p className="leading-relaxed text-gray-600 mb-3 whitespace-pre-line text-xs">
+                            {point.description}
+                          </p>
+
+                          {point.images && point.images.length > 0 && (
+                            <div className="grid grid-cols-3 gap-2">
+                              {point.images.map((img, imgIdx) => (
+                                <div
+                                  key={imgIdx}
+                                  className="relative aspect-square w-full rounded-md overflow-hidden border border-gray-200 cursor-pointer hover:opacity-90 transition shadow-sm"
+                                  onClick={() =>
+                                    openLightbox(point.images, imgIdx)
+                                  }
+                                >
+                                  <Image
+                                    src={img}
+                                    alt={`Meeting Point ${index + 1}`}
+                                    fill
+                                    className="object-cover"
+                                  />
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+              {/* 4️⃣ ✅ [추가됨] Important Notice (Note) */}
+              {selectedPackage.note && (
+                <div className="relative">
+                  <div className="absolute top-0 inset-x-5 border-t border-dashed border-gray-200"></div>
+                  <div className="p-5 pt-8 bg-red-50/30">
+                    <div className="flex items-center gap-2 mb-3 text-red-700 font-bold text-sm">
+                      <AlertCircle className="w-4 h-4" />
+                      Important Notice
+                    </div>
+                    <div className="text-xs text-gray-700 leading-relaxed">
+                      {/* PortableText 컴포넌트로 에디터 내용 렌더링 */}
+                      <PortableText
+                        value={selectedPackage.note}
+                        components={ptComponents}
+                      />
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
           </section>
-
-          {/* 2. 미팅 포인트 */}
-          {meetingPoint && (
-            <div className="bg-blue-50 p-5 rounded-[6px] border border-blue-100 text-sm text-blue-900">
-              <p className="font-bold flex items-center gap-2 mb-3 text-blue-800">
-                <MapPin className="w-4 h-4 text-blue-600" />
-                Meeting Point
-              </p>
-              {typeof meetingPoint === "object" ? (
-                <>
-                  <p className="leading-relaxed text-blue-800 mb-4 whitespace-pre-line text-sm">
-                    {(meetingPoint as MeetingPoint).description}
-                  </p>
-                  {(meetingPoint as MeetingPoint).images &&
-                    (meetingPoint as MeetingPoint).images!.length > 0 && (
-                      <div className="grid grid-cols-3 gap-2">
-                        {(meetingPoint as MeetingPoint).images!.map(
-                          (img, idx) => (
-                            <div
-                              key={idx}
-                              className="relative aspect-square w-full rounded-md overflow-hidden border border-blue-200 cursor-pointer hover:opacity-90 transition shadow-sm"
-                              onClick={() =>
-                                openLightbox(
-                                  (meetingPoint as MeetingPoint).images,
-                                  idx,
-                                )
-                              }
-                            >
-                              <Image
-                                src={img}
-                                alt="Meeting Point"
-                                fill
-                                className="object-cover"
-                              />
-                            </div>
-                          ),
-                        )}
-                      </div>
-                    )}
-                </>
-              ) : (
-                <p className="leading-relaxed text-blue-800">{meetingPoint}</p>
-              )}
-            </div>
-          )}
         </div>
       </aside>
 
-      {/* 🌀 팝업을 Portal로 내보내기 */}
+      {/* 🌀 Portal 팝업 */}
       {mounted &&
         isLightboxOpen &&
         createPortal(lightboxContent, document.body)}
