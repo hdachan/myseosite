@@ -1,4 +1,4 @@
-export const dynamic = "force-dynamic"; // ✅ 캐시 방지
+export const dynamic = "force-dynamic";
 
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
@@ -23,22 +23,16 @@ export async function POST(request: Request) {
       clientEmail,
     } = body;
 
-    // 1. 환경변수 로드
     const SMTP_HOST = process.env.SMTP_HOST;
     const SMTP_PORT = Number(process.env.SMTP_PORT);
     const SMTP_USER = process.env.SMTP_USER;
     const SMTP_PASS = process.env.SMTP_PASS;
 
-    // -----------------------------------------------------------------------
-    // 🔥 [수정 완료] 개발(내컴퓨터) vs 배포(Vercel) 환경 자동 감지 코드
-    // (리뷰 링크가 올바른 주소로 생성되도록 합니다)
-    // -----------------------------------------------------------------------
     const SITE_URL =
       process.env.NODE_ENV === "development"
         ? "http://localhost:3000"
         : process.env.NEXT_PUBLIC_SITE_URL || "https://myseosite.vercel.app";
 
-    // 2. 유효성 검사 (리뷰일 때만 토큰 필수)
     if (type === "REVIEW" && (!email || !token)) {
       return NextResponse.json(
         { error: "Review data missing" },
@@ -53,7 +47,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // 3. 우체부 설정
     const transporter = nodemailer.createTransport({
       host: SMTP_HOST,
       port: SMTP_PORT,
@@ -67,20 +60,18 @@ export async function POST(request: Request) {
       },
     });
 
-    // 4. 메일 내용 생성
     let subject = "";
     let htmlContent = "";
+    let textContent = "";
 
-    // 알림 메일은 사장님(SMTP_USER)에게, 리뷰 메일은 고객(email)에게
     const targetEmail = email || SMTP_USER;
 
-    // 메일 본문 스타일 정의
     const labelStyle =
       "color: #555; font-weight: bold; width: 120px; display: inline-block;";
     const valueStyle = "color: #000; font-weight: normal;";
 
     switch (type) {
-      case "NEW_BOOKING": // 🟢 [현장지불/예약]
+      case "NEW_BOOKING":
         subject = `[신규예약] ${customerName}님 (${tourDate || "날짜미정"})`;
         htmlContent = `
           <div style="border: 1px solid #ddd; padding: 30px; border-radius: 15px; max-width: 600px; font-family: sans-serif;">
@@ -101,9 +92,23 @@ export async function POST(request: Request) {
               ※ 아직 입금되지 않았거나 현장 지불 예정입니다. 고객에게 연락하여 예약을 확정해주세요.
             </div>
           </div>`;
+        textContent = `
+신규 예약 접수 (현장지불)
+
+고객명: ${customerName}
+투어일자: ${tourDate}
+투어상품: ${tourTitle}
+연락처: ${phone}
+이메일: ${clientEmail || "-"}
+호텔정보: ${hotelInfo || "미입력"}
+예상금액: ${currency} ${amount?.toLocaleString()}
+주문번호: ${orderNumber}
+
+※ 아직 입금되지 않았거나 현장 지불 예정입니다.
+        `;
         break;
 
-      case "PAYMENT_CONFIRMED": // 🔵 [결제완료]
+      case "PAYMENT_CONFIRMED":
         subject = `[결제완료] ${customerName}님 (${tourDate || "날짜미정"})`;
         htmlContent = `
           <div style="border: 1px solid #ddd; padding: 30px; border-radius: 15px; max-width: 600px; font-family: sans-serif;">
@@ -124,33 +129,149 @@ export async function POST(request: Request) {
               ※ 결제가 정상적으로 완료되었습니다.
             </div>
           </div>`;
+        textContent = `
+결제 완료 알림
+
+고객명: ${customerName}
+투어일자: ${tourDate}
+투어상품: ${tourTitle}
+연락처: ${phone}
+이메일: ${clientEmail || "-"}
+호텔정보: ${hotelInfo || "미입력"}
+결제금액: ${currency} ${amount?.toLocaleString()}
+주문번호: ${orderNumber}
+
+※ 결제가 정상적으로 완료되었습니다.
+        `;
         break;
 
-      case "REVIEW": // 🟡 [리뷰 요청]
+      case "REVIEW":
       default:
         const reviewLink = `${SITE_URL}/reviews?token=${token}`;
-        subject = `[Seoul City Tour] ${customerName}님, 서울 여행은 어떠셨나요?`;
+        subject = `${customerName}님, 서울 투어 후기를 남겨주세요`;
+
         htmlContent = `
-          <div style="padding: 20px; text-align: center;">
-            <h2>Your Memories in Seoul! 📸</h2>
-            <p><strong>${tourTitle}</strong> 투어는 즐거우셨나요?</p>
-            <a href="${reviewLink}" style="background-color: #000; color: #fff; padding: 15px 30px; text-decoration: none; border-radius: 5px;">리뷰 작성하기</a>
-          </div>`;
+          <!DOCTYPE html>
+          <html lang="ko">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          </head>
+          <body style="margin: 0; padding: 0; background-color: #f5f5f5;">
+            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f5f5f5; padding: 20px 0;">
+              <tr>
+                <td align="center">
+                  <table width="600" cellpadding="0" cellspacing="0" border="0" style="background-color: #ffffff; max-width: 600px;">
+                    
+                    <!-- 헤더 -->
+                    <tr>
+                      <td style="background-color: #991B1B; padding: 35px 30px; text-align: center;">
+                        <h1 style="color: #ffffff; margin: 0; font-size: 22px; font-weight: 600;">
+                          서울 여행은 어떠셨나요?
+                        </h1>
+                        <p style="color: #fca5a5; margin: 8px 0 0 0; font-size: 14px;">
+                          How was your Seoul adventure?
+                        </p>
+                      </td>
+                    </tr>
+
+                    <!-- 본문 -->
+                    <tr>
+                      <td style="padding: 35px 30px;">
+                        <p style="color: #1f2937; font-size: 15px; margin: 0 0 8px 0;">
+                          안녕하세요, <strong>${customerName}</strong>님
+                        </p>
+                        <p style="color: #6b7280; font-size: 14px; line-height: 1.6; margin: 0 0 20px 0;">
+                          <strong>${tourTitle}</strong> 투어에 참여해주셔서 감사합니다.
+                        </p>
+
+                        <p style="color: #374151; font-size: 14px; line-height: 1.6; margin: 0 0 25px 0; padding: 18px; background-color: #fef2f2; border-left: 3px solid #991B1B;">
+                          여러분의 소중한 피드백은 저희가 더 나은 서비스를 제공하는 데 큰 도움이 됩니다. 
+                          잠시 시간을 내어 후기를 남겨주시겠어요?
+                        </p>
+
+                        <!-- CTA 버튼 -->
+                        <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                          <tr>
+                            <td align="center" style="padding: 15px 0;">
+                              <a href="${reviewLink}" style="display: inline-block; background-color: #991B1B; color: #ffffff; padding: 13px 35px; text-decoration: none; border-radius: 5px; font-size: 14px; font-weight: 600;">
+                                리뷰 작성하기
+                              </a>
+                            </td>
+                          </tr>
+                        </table>
+
+                        <p style="color: #9ca3af; font-size: 12px; text-align: center; margin: 15px 0 0 0;">
+                          간편하게 작성하실 수 있습니다
+                        </p>
+
+                        <hr style="border: 0; border-top: 1px solid #e5e7eb; margin: 25px 0;">
+
+                        <p style="color: #9ca3af; font-size: 12px; text-align: center; line-height: 1.5; margin: 0;">
+                          서울에서의 멋진 추억이 오래도록 기억되길 바랍니다<br>
+                          Seoul City Tour
+                        </p>
+                      </td>
+                    </tr>
+
+                    <!-- 푸터 -->
+                    <tr>
+                      <td style="background-color: #f9fafb; padding: 18px 30px; text-align: center;">
+                        <p style="color: #9ca3af; font-size: 11px; margin: 0;">
+                          Seoul City Tour | Seoul, South Korea
+                        </p>
+                      </td>
+                    </tr>
+
+                  </table>
+                </td>
+              </tr>
+            </table>
+          </body>
+          </html>`;
+
+        textContent = `
+안녕하세요, ${customerName}님
+
+${tourTitle} 투어에 참여해주셔서 감사합니다.
+
+여러분의 소중한 피드백은 저희가 더 나은 서비스를 제공하는 데 큰 도움이 됩니다.
+잠시 시간을 내어 후기를 남겨주시겠어요?
+
+리뷰 작성하기: ${reviewLink}
+
+서울에서의 멋진 추억이 오래도록 기억되길 바랍니다
+Seoul City Tour
+
+---
+Seoul City Tour | Seoul, South Korea
+        `;
         break;
     }
 
-    // 5. 전송
-    const info = await transporter.sendMail({
+    // 🔥 스팸 방지 최적화된 전송 설정
+    const mailOptions = {
       from: `"Seoul City Tour" <${SMTP_USER}>`,
       to: targetEmail,
       subject: subject,
+      text: textContent,
       html: htmlContent,
-      replyTo: SMTP_USER,
-    });
+      headers: {
+        "X-Priority": "3",
+        Importance: "normal",
+        "X-Mailer": "Seoul City Tour",
+        "List-Unsubscribe": `<mailto:${SMTP_USER}?subject=unsubscribe>`,
+        Precedence: "bulk",
+        "Auto-Submitted": "auto-generated",
+        ...(type === "REVIEW" && { "Reply-To": SMTP_USER }),
+      },
+    };
 
+    const info = await transporter.sendMail(mailOptions);
+
+    console.log("✅ Email sent:", info.messageId);
     return NextResponse.json({ success: true, messageId: info.messageId });
   } catch (error: any) {
-    // 에러 로그는 남겨두는 것이 좋습니다 (문제 발생 시 확인용)
     console.error("❌ Email Error:", error.message);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

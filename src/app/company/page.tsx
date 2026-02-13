@@ -4,6 +4,7 @@ import { Metadata } from "next";
 import { Quote } from "lucide-react";
 import PageHero from "@/components/PageHero";
 import { hangameFont } from "@/lib/fonts";
+import TeamSlider from "@/components/TeamSlider";
 
 // ✅ 1법칙: 도메인 동적 할당
 const BASE_URL = process.env.NEXT_PUBLIC_URL || "https://myseosite.vercel.app";
@@ -63,24 +64,44 @@ const structuredData = {
 export default function CompanyPage() {
   const teamMembers = [
     {
-      name: "Walter White",
-      role: "Chief Executive Officer",
-      image: "/images/company/team_01.jpg",
+      name: "Sung-Won Kim",
+      role: "Sales Representative",
+      image: "/company/team_01.jpg",
     },
     {
-      name: "Sarah Johnson",
-      role: "Product Manager",
-      image: "/images/company/team_02.jpg",
+      name: "Jin-Wook Kim",
+      role: "Sales Representative",
+      image: "/company/team_02.jpg",
     },
     {
-      name: "William Anderson",
-      role: "Head of Operations",
-      image: "/images/company/team_03.jpg",
+      name: "Young-Moon Jin",
+      role: "Sales Representative",
+      image: "/company/team_03.jpg",
     },
     {
-      name: "Ji-Min Kim",
-      role: "Lead Guide",
-      image: "/images/company/team_04.jpg",
+      name: "Byung-Min Jung",
+      role: "Sales Representative",
+      image: "/company/team_04.jpg",
+    },
+    {
+      name: "Chun-Hee Kang",
+      role: "Deputy General Manager",
+      image: "/company/team_05.jpg",
+    },
+    {
+      name: "Su-Jung Lee",
+      role: "Staff",
+      image: "/company/team_06.jpg",
+    },
+    {
+      name: "Eun-Kyung Lee",
+      role: "Assistant Manager",
+      image: "/company/team_07.jpg",
+    },
+    {
+      name: "Jung-Sun Park",
+      role: "Deputy General Manager",
+      image: "/company/team_08.jpg",
     },
   ];
 
@@ -302,31 +323,7 @@ export default function CompanyPage() {
             </p>
           </div>
 
-          <div className="flex gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4 lg:grid lg:grid-cols-4 lg:gap-6 lg:overflow-visible lg:pb-0">
-            {teamMembers.map((member, index) => (
-              <div
-                key={index}
-                className="min-w-[260px] flex-shrink-0 snap-center lg:min-w-0 lg:w-auto bg-white rounded-[6px] overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 border border-gray-100"
-              >
-                <div className="relative h-64 bg-gray-200">
-                  {/* 실제 이미지가 없을 경우를 대비한 대체 텍스트(alt) 필수 */}
-                  <Image
-                    src={member.image}
-                    alt={`${member.name} - ${member.role}`}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 25vw, 20vw"
-                  />
-                </div>
-                <div className="p-5">
-                  <h3 className="text-base font-bold text-gray-900">
-                    {member.name}
-                  </h3>
-                  <p className="text-sm text-gray-500 mt-1">{member.role}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+          <TeamSlider teamMembers={teamMembers} />
         </div>
       </section>
 
