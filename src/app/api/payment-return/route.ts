@@ -83,34 +83,50 @@ export async function POST(request: Request) {
         );
       }
 
+      // 1. DB 상태 업데이트 (먼저 수행)
       await supabase
         .from("bookings")
         .update({ status: "paid" })
         .eq("order_number", mxIssueNo);
 
       // -----------------------------------------------------------------------
-      // 🔥 [결제완료] 메일 발송 (제목: [결제완료])
+      // 🔥 [중요] 'await'를 사용하여 이메일 발송이 완료될 때까지 대기합니다.
+      // 배포 환경(Vercel)에서 프로세스가 미리 종료되는 것을 방지합니다.
       // -----------------------------------------------------------------------
-      fetch(`${siteUrl}/api/email`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          type: "PAYMENT_CONFIRMED",
-          email: process.env.SMTP_USER,
+      try {
+        console.log(`📧 이메일 발송 시도: ${siteUrl}/api/email`);
+        const emailRes = await fetch(`${siteUrl}/api/email`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            type: "PAYMENT_CONFIRMED",
+            email: process.env.SMTP_USER, // 관리자에게 알림
 
-          clientEmail: order.customer_email,
-          customerName: order.customer_name,
-          phone: order.customer_phone,
-          tourTitle: order.tour_title,
-          tourDate: order.tour_date,
-          hotelInfo: order.hotel_info,
+            clientEmail: order.customer_email,
+            customerName: order.customer_name,
+            phone: order.customer_phone,
+            tourTitle: order.tour_title,
+            tourDate: order.tour_date,
+            hotelInfo: order.hotel_info,
 
-          orderNumber: mxIssueNo,
-          amount: paidAmount,
-          currency: paidCurrency,
-        }),
-      }).catch((err) => console.error("입금 알림 메일 발송 실패:", err));
+            orderNumber: mxIssueNo,
+            amount: paidAmount,
+            currency: paidCurrency,
+          }),
+        });
 
+        if (!emailRes.ok) {
+          const errorText = await emailRes.text();
+          console.error("⚠️ 이메일 API 응답 실패:", errorText);
+        } else {
+          console.log("✅ 결제 완료 메일 발송 성공!");
+        }
+      } catch (emailError) {
+        // 이메일 실패가 결제 완료 페이지 이동을 막지 않도록 catch 내부에서 로그만 남김
+        console.error("❌ 이메일 발송 중 네트워크 에러:", emailError);
+      }
+
+      // 모든 작업이 끝난 후 리다이렉트
       return NextResponse.redirect(
         new URL(
           `/booking/success?orderId=${mxIssueNo}&clearCart=true&type=PAYMENT`,
