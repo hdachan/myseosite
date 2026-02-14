@@ -52,7 +52,10 @@ export async function POST(request: Request) {
           customer_email, 
           tour_title, 
           tour_date, 
-          hotel_info
+          hotel_info,
+          option_name,
+          adults,
+          children
         `,
         )
         .eq("order_number", mxIssueNo)
@@ -112,6 +115,10 @@ export async function POST(request: Request) {
             orderNumber: mxIssueNo,
             amount: paidAmount,
             currency: paidCurrency,
+
+            optionName: order.option_name, // ← 추가
+            adults: order.adults, // ← 추가
+            children: order.children, // ← 추가
           }),
         });
 

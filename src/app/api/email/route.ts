@@ -21,6 +21,9 @@ export async function POST(request: Request) {
       tourDate,
       hotelInfo,
       clientEmail,
+      optionName, // ← 추가
+      adults, // ← 추가
+      children, // ← 추가
     } = body;
 
     const SMTP_HOST = process.env.SMTP_HOST;
@@ -82,6 +85,8 @@ export async function POST(request: Request) {
             <p><span style="${labelStyle}">고객명:</span> <span style="${valueStyle}">${customerName}</span></p>
             <p><span style="${labelStyle}">투어일자:</span> <span style="${valueStyle}">${tourDate}</span></p>
             <p><span style="${labelStyle}">투어상품:</span> <span style="${valueStyle}">${tourTitle}</span></p>
+            <p><span style="${labelStyle}">선택옵션:</span> <span style="${valueStyle}">${optionName || "-"}</span></p>
+            <p><span style="${labelStyle}">인원:</span> <span style="${valueStyle}">성인 ${adults || 0}명, 어린이 ${children || 0}명 (총 ${(adults || 0) + (children || 0)}명)</span></p>
             <p><span style="${labelStyle}">연락처:</span> <span style="${valueStyle}">${phone}</span></p>
             <p><span style="${labelStyle}">이메일:</span> <span style="${valueStyle}">${clientEmail || "-"}</span></p>
             <p><span style="${labelStyle}">호텔정보:</span> <span style="${valueStyle}">${hotelInfo || "미입력"}</span></p>
@@ -98,6 +103,8 @@ export async function POST(request: Request) {
 고객명: ${customerName}
 투어일자: ${tourDate}
 투어상품: ${tourTitle}
+선택옵션: ${optionName || "-"}
+인원: 성인 ${adults || 0}명, 어린이 ${children || 0}명 (총 ${(adults || 0) + (children || 0)}명)
 연락처: ${phone}
 이메일: ${clientEmail || "-"}
 호텔정보: ${hotelInfo || "미입력"}
@@ -119,6 +126,8 @@ export async function POST(request: Request) {
             <p><span style="${labelStyle}">고객명:</span> <span style="${valueStyle}">${customerName}</span></p>
             <p><span style="${labelStyle}">투어일자:</span> <span style="${valueStyle}">${tourDate}</span></p>
             <p><span style="${labelStyle}">투어상품:</span> <span style="${valueStyle}">${tourTitle}</span></p>
+            <p><span style="${labelStyle}">선택옵션:</span> <span style="${valueStyle}">${optionName || "-"}</span></p>
+            <p><span style="${labelStyle}">인원:</span> <span style="${valueStyle}">성인 ${adults || 0}명, 어린이 ${children || 0}명 (총 ${(adults || 0) + (children || 0)}명)</span></p>
             <p><span style="${labelStyle}">연락처:</span> <span style="${valueStyle}">${phone}</span></p>
             <p><span style="${labelStyle}">이메일:</span> <span style="${valueStyle}">${clientEmail || "-"}</span></p>
             <p><span style="${labelStyle}">호텔정보:</span> <span style="${valueStyle}">${hotelInfo || "미입력"}</span></p>
@@ -135,6 +144,8 @@ export async function POST(request: Request) {
 고객명: ${customerName}
 투어일자: ${tourDate}
 투어상품: ${tourTitle}
+선택옵션: ${optionName || "-"}
+인원: 성인 ${adults || 0}명, 어린이 ${children || 0}명 (총 ${(adults || 0) + (children || 0)}명)
 연락처: ${phone}
 이메일: ${clientEmail || "-"}
 호텔정보: ${hotelInfo || "미입력"}

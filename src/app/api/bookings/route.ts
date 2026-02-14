@@ -90,6 +90,9 @@ export async function POST(request: Request) {
             orderNumber: body.order_number,
             amount: body.totalPrice,
             currency: body.currency || "KRW",
+            optionName: cleanData.optionName, // ← 추가
+            adults: body.adults, // ← 추가
+            children: body.children, // ← 추가
           }),
         });
 
