@@ -49,6 +49,8 @@ const highlightComponents = {
 
 // 🛠️ 헬퍼 함수: Portable Text에서 순수 텍스트만 추출
 function toPlainText(blocks: any[] = []) {
+  if (!Array.isArray(blocks)) return "";
+
   return (
     blocks
       // 블록이 아니거나 자식이 없으면 패스
@@ -73,10 +75,19 @@ export default function TourHighlights({ content }: Props) {
     setMounted(true);
   }, []);
 
-  if (!content) return null;
+  // ✅ content가 없거나 배열이 아니거나 비어있으면 아무것도 렌더링 안함
+  if (!content || !Array.isArray(content) || content.length === 0) {
+    return null;
+  }
 
   // 1. 전체 텍스트 추출 및 길이 계산
   const plainText = toPlainText(content);
+
+  // ✅ 텍스트가 비어있으면 렌더링 안함
+  if (!plainText || plainText.trim().length === 0) {
+    return null;
+  }
+
   const maxLength = 200; // ✂️ 제한할 글자 수
   const isTooLong = plainText.length > maxLength;
 
