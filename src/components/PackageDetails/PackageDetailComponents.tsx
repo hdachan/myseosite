@@ -1,6 +1,5 @@
 import React from "react";
 import Image from "next/image";
-import { createPortal } from "react-dom";
 import {
   X,
   ChevronLeft,
