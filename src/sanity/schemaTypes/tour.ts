@@ -90,7 +90,7 @@ export default defineType({
     }),
     defineField({
       name: "description",
-      title: "Highlight", // 이름 변경
+      title: "Highlight",
       description:
         "투어의 핵심 포인트(이전에 Short Description) 를 적어주세요. (리스트, 굵게 사용 가능)",
       type: "array",
@@ -121,12 +121,53 @@ export default defineType({
       of: [{ type: "image" }],
       description: "상세 페이지 상단 슬라이더에 들어갈 이미지들입니다.",
     }),
+
+    // ✅ 수정된 부분: fullDescription을 Rich Text(Portable Text)로 변경
     defineField({
       name: "fullDescription",
       title: "Full Description (Overview)",
-      type: "text",
-      rows: 10,
-      description: "상세 페이지 하단 'Tour Overview'에 들어갈 긴 설명입니다.",
+      description:
+        "상세 페이지 하단 'Tour Overview'에 들어갈 긴 설명입니다. (제목, 리스트, 링크 등 사용 가능)",
+      type: "array", // 기존 text -> array 로 변경
+      of: [
+        {
+          type: "block",
+          // 1. 스타일 (제목 등)
+          styles: [
+            { title: "Normal", value: "normal" },
+            { title: "H3", value: "h3" }, // 소제목 필요할 수 있음
+            { title: "H4", value: "h4" },
+            { title: "Quote", value: "blockquote" },
+          ],
+          // 2. 리스트 (점, 숫자)
+          lists: [
+            { title: "Bullet", value: "bullet" },
+            { title: "Number", value: "number" },
+          ],
+          // 3. 텍스트 꾸미기 & 링크
+          marks: {
+            decorators: [
+              { title: "Strong", value: "strong" },
+              { title: "Emphasis", value: "em" },
+              { title: "Underline", value: "underline" },
+            ],
+            annotations: [
+              {
+                name: "link",
+                type: "object",
+                title: "Link",
+                fields: [
+                  {
+                    name: "href",
+                    type: "url",
+                    title: "URL",
+                  },
+                ],
+              },
+            ],
+          },
+        },
+      ],
     }),
 
     // =================================================
