@@ -15,7 +15,7 @@ import PackageDetailSidebar from "@/components/PackageDetails/PackageDetailSideb
 import TourOverviewSection from "@/components/PackageDetails/TourOverviewSection";
 import TourReviewsSection from "@/components/PackageDetails/TourReviewsSection";
 import TourImageGallery from "@/components/PackageDetails/TourImageGallery";
-import TourHighlights from "@/components/PackageDetails/TourHighlights"; // ✅ 하이라이트 컴포넌트
+import TourHighlights from "@/components/PackageDetails/TourHighlights";
 import { hangameFont } from "@/lib/fonts";
 
 interface Props {
@@ -26,9 +26,9 @@ export default function PackageDetailClient({ tour }: Props) {
   const addItem = useCartStore((state) => state.addItem);
   const [selectedPackage, setSelectedPackage] = useState<any | null>(null);
 
-  // 이미지 데이터 정리 (Main + Gallery)
+  // ✅ 안전한 이미지 배열 생성
   const allImages = Array.from(
-    new Set([tour.image, ...(tour.images || [])]),
+    new Set([tour.image, ...(Array.isArray(tour.images) ? tour.images : [])]),
   ).filter(Boolean);
 
   const isSuspended =
@@ -81,18 +81,19 @@ export default function PackageDetailClient({ tour }: Props) {
         <article className="space-y-8 md:space-y-10">
           <header>
             <div className="flex flex-wrap gap-2 mb-3">
-              {tour.tags?.map((tag: string, i: number) => (
-                <span
-                  key={i}
-                  className={`text-[10px] md:text-[11px] uppercase tracking-wider font-bold px-2 py-1 rounded ${
-                    tag === "Suspended"
-                      ? "bg-red-100 text-red-600"
-                      : "bg-orange-50 text-orange-600"
-                  }`}
-                >
-                  {tag}
-                </span>
-              ))}
+              {Array.isArray(tour.tags) &&
+                tour.tags.map((tag: string, i: number) => (
+                  <span
+                    key={i}
+                    className={`text-[10px] md:text-[11px] uppercase tracking-wider font-bold px-2 py-1 rounded ${
+                      tag === "Suspended"
+                        ? "bg-red-100 text-red-600"
+                        : "bg-orange-50 text-orange-600"
+                    }`}
+                  >
+                    {tag}
+                  </span>
+                ))}
             </div>
 
             <h1
@@ -177,18 +178,19 @@ export default function PackageDetailClient({ tour }: Props) {
           </section>
 
           {/* 5. Main Content Grid (Highlights + Options + Sidebar) */}
-          {/* ✅ [구조 변경] 하이라이트와 옵션을 하나의 그리드 섹션으로 묶었습니다. */}
           <section className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
             {/* ⬅️ [왼쪽 컬럼] : 하이라이트 + 옵션 선택 */}
             <div
               className={selectedPackage ? "lg:col-span-2" : "lg:col-span-3"}
             >
-              {/* ✅ [1] Highlights Section (여기 안으로 이동!) */}
+              {/* ✅ [1] Highlights Section */}
               <TourHighlights content={tour.description} />
 
               {/* ✅ [2] Package Options Section */}
               <PackageOptionsSection
-                packageOptions={tour.packageOptions || []}
+                packageOptions={
+                  Array.isArray(tour.packageOptions) ? tour.packageOptions : []
+                }
                 isSuspended={isSuspended ?? false}
                 onSelectPackage={setSelectedPackage}
                 onAddToCart={addItem}
@@ -201,7 +203,6 @@ export default function PackageDetailClient({ tour }: Props) {
             </div>
 
             {/* ➡️ [오른쪽 컬럼] : 사이드바 (옵션 선택 시 등장) */}
-            {/* 이제 사이드바는 하이라이트 섹션 높이부터 시작됩니다. */}
             {selectedPackage && (
               <div className="lg:col-span-1">
                 <div className="sticky top-24">
