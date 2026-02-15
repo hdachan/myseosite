@@ -77,9 +77,9 @@ export default function PackageOptionsSection({
     setTourDate(selected);
   };
 
-  const selectedPackage = packageOptions?.find(
-    (opt) => opt.id === selectedOption,
-  );
+  const selectedPackage = Array.isArray(packageOptions)
+    ? packageOptions.find((opt) => opt.id === selectedOption)
+    : undefined;
 
   const totalPriceKRW = selectedPackage
     ? selectedPackage.price * (adults + children)
@@ -101,7 +101,9 @@ export default function PackageOptionsSection({
 
   const handleOptionChange = (optionId: string) => {
     setSelectedOption(optionId);
-    const pkg = packageOptions.find((opt) => opt.id === optionId);
+    const pkg = Array.isArray(packageOptions)
+      ? packageOptions.find((opt) => opt.id === optionId)
+      : undefined;
     onSelectPackage(pkg || null);
   };
 
@@ -183,90 +185,93 @@ export default function PackageOptionsSection({
       {!isSuspended ? (
         <div className="mb-6">
           <div className="space-y-3">
-            {packageOptions?.map((opt) => {
-              // ✅ [엄격한 체크] Original Price가 Price보다 클 때만 할인으로 인정
-              const hasDiscount =
-                opt.originalPrice !== undefined &&
-                opt.originalPrice !== null &&
-                opt.originalPrice > opt.price;
+            {Array.isArray(packageOptions) &&
+              packageOptions.map((opt) => {
+                // ✅ [엄격한 체크] Original Price가 Price보다 클 때만 할인으로 인정
+                const hasDiscount =
+                  opt.originalPrice !== undefined &&
+                  opt.originalPrice !== null &&
+                  opt.originalPrice > opt.price;
 
-              // ✅ [엄격한 체크] Badge가 빈 문자열이 아닐 때만 표시
-              const hasBadge = opt.badge && opt.badge.trim().length > 0;
+                // ✅ [엄격한 체크] Badge가 빈 문자열이 아닐 때만 표시
+                const hasBadge = opt.badge && opt.badge.trim().length > 0;
 
-              const discountRate = hasDiscount
-                ? Math.round(
-                    ((opt.originalPrice! - opt.price) / opt.originalPrice!) *
-                      100,
-                  )
-                : 0;
+                const discountRate = hasDiscount
+                  ? Math.round(
+                      ((opt.originalPrice! - opt.price) / opt.originalPrice!) *
+                        100,
+                    )
+                  : 0;
 
-              return (
-                <label
-                  key={opt.id}
-                  className={`block p-4 rounded-[6px] border cursor-pointer transition relative ${
-                    selectedOption === opt.id
-                      ? "border-orange-500 bg-white shadow-md ring-1 ring-orange-500"
-                      : "border-gray-200 bg-white hover:border-gray-300"
-                  }`}
-                >
-                  <div className="flex items-start gap-3">
-                    <input
-                      type="radio"
-                      name="package"
-                      value={opt.id}
-                      checked={selectedOption === opt.id}
-                      onChange={(e) => handleOptionChange(e.target.value)}
-                      className="mt-1 w-4 h-4 text-orange-600 focus:ring-orange-500 border-gray-300 flex-shrink-0"
-                    />
-                    <div className="flex-1">
-                      {/* 상단: 이름 + 뱃지 */}
-                      <div className="flex items-start justify-between gap-2 mb-1">
-                        <span className="font-bold text-gray-900 text-lg leading-tight">
-                          {opt.name}
-                        </span>
+                return (
+                  <label
+                    key={opt.id}
+                    className={`block p-4 rounded-[6px] border cursor-pointer transition relative ${
+                      selectedOption === opt.id
+                        ? "border-orange-500 bg-white shadow-md ring-1 ring-orange-500"
+                        : "border-gray-200 bg-white hover:border-gray-300"
+                    }`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="radio"
+                        name="package"
+                        value={opt.id}
+                        checked={selectedOption === opt.id}
+                        onChange={(e) => handleOptionChange(e.target.value)}
+                        className="mt-1 w-4 h-4 text-orange-600 focus:ring-orange-500 border-gray-300 flex-shrink-0"
+                      />
+                      <div className="flex-1">
+                        {/* 상단: 이름 + 뱃지 */}
+                        <div className="flex items-start justify-between gap-2 mb-1">
+                          <span className="font-bold text-gray-900 text-lg leading-tight">
+                            {opt.name}
+                          </span>
 
-                        <div className="flex flex-col items-end gap-1 flex-shrink-0">
-                          {/* 1. 커스텀 뱃지 (값이 있을 때만 렌더링) */}
-                          {hasBadge && (
-                            <span className="px-2 py-0.5 bg-blue-100 text-blue-600 text-[10px] rounded-[4px] font-bold uppercase whitespace-nowrap">
-                              {opt.badge}
-                            </span>
-                          )}
+                          <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                            {/* 1. 커스텀 뱃지 (값이 있을 때만 렌더링) */}
+                            {hasBadge && (
+                              <span className="px-2 py-0.5 bg-blue-100 text-blue-600 text-[10px] rounded-[4px] font-bold uppercase whitespace-nowrap">
+                                {opt.badge}
+                              </span>
+                            )}
 
-                          {/* 2. 할인 뱃지 (할인 조건 충족 시에만 렌더링) */}
+                            {/* 2. 할인 뱃지 (할인 조건 충족 시에만 렌더링) */}
+                            {hasDiscount && (
+                              <span className="px-2 py-0.5 bg-red-100 text-red-600 text-[10px] rounded-[4px] font-bold uppercase whitespace-nowrap animate-pulse">
+                                SAVE {discountRate}%
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* 중간: 상세 설명 */}
+                        <div className="text-sm text-gray-600 mt-2 leading-snug">
+                          <span className="font-semibold text-gray-800">
+                            Route:{" "}
+                          </span>
+                          {Array.isArray(opt.details) && opt.details.length > 0
+                            ? opt.details.join(" → ")
+                            : "View schedule details"}
+                        </div>
+
+                        {/* 하단: 가격 표시 */}
+                        <div className="mt-2 text-right flex flex-col items-end justify-end">
+                          {/* 할인 전 가격 (조건 충족 시에만 렌더링) */}
                           {hasDiscount && (
-                            <span className="px-2 py-0.5 bg-red-100 text-red-600 text-[10px] rounded-[4px] font-bold uppercase whitespace-nowrap animate-pulse">
-                              SAVE {discountRate}%
+                            <span className="text-xs text-gray-400 line-through decoration-gray-400 mr-1">
+                              {formatPrice(opt.originalPrice!)}
                             </span>
                           )}
+                          <span className="text-lg font-bold text-gray-900">
+                            {formatPrice(opt.price)}
+                          </span>
                         </div>
                       </div>
-
-                      {/* 중간: 상세 설명 */}
-                      <div className="text-sm text-gray-600 mt-2 leading-snug">
-                        <span className="font-semibold text-gray-800">
-                          Route:{" "}
-                        </span>
-                        {opt.details?.join(" → ") || "View schedule details"}
-                      </div>
-
-                      {/* 하단: 가격 표시 */}
-                      <div className="mt-2 text-right flex flex-col items-end justify-end">
-                        {/* 할인 전 가격 (조건 충족 시에만 렌더링) */}
-                        {hasDiscount && (
-                          <span className="text-xs text-gray-400 line-through decoration-gray-400 mr-1">
-                            {formatPrice(opt.originalPrice!)}
-                          </span>
-                        )}
-                        <span className="text-lg font-bold text-gray-900">
-                          {formatPrice(opt.price)}
-                        </span>
-                      </div>
                     </div>
-                  </div>
-                </label>
-              );
-            })}
+                  </label>
+                );
+              })}
           </div>
         </div>
       ) : (
