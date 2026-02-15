@@ -1,17 +1,16 @@
 import { createClient } from "@supabase/supabase-js";
 import { notFound } from "next/navigation";
-import { AlertCircle, CheckCircle2 } from "lucide-react";
+import { AlertCircle, CheckCircle2, Home } from "lucide-react";
 import Link from "next/link";
 import ReviewForm from "@/components/reviews/ReviewForm";
 
-// ✅ [수정 핵심] ANON_KEY -> SERVICE_ROLE_KEY 로 변경
-// 이제 RLS 보안 정책을 무시하고 데이터를 조회할 수 있습니다.
+// ✅ ANON_KEY -> SERVICE_ROLE_KEY 사용 (보안 정책 무시 및 데이터 조회)
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!,
 );
 
-// 페이지 캐싱 방지 (항상 최신 상태 확인)
+// 페이지 캐싱 방지
 export const dynamic = "force-dynamic";
 
 interface PageProps {
@@ -30,62 +29,68 @@ export default async function ReviewWritePage({ searchParams }: PageProps) {
     .eq("review_token", token)
     .single();
 
-  // 디버깅용 로그 (혹시 또 안 되면 콘솔 확인용)
+  // 디버깅용 로그
   if (error) {
     console.error("DB Error:", error.message);
   }
 
-  // 유효하지 않은 토큰
+  // 1. 유효하지 않은 토큰 UI
   if (error || !booking) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-6 text-center">
-        <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 max-w-sm w-full flex flex-col items-center">
-          <AlertCircle className="w-16 h-16 text-red-500 mb-4" />
-          <h1 className="text-xl font-bold text-gray-900 mb-2">Invalid Link</h1>
-          <p className="text-gray-500 text-sm">
-            Review link is invalid or expired.
+      <div className="min-h-screen flex flex-col items-center justify-start bg-[#F8FAFC] pt-32 p-6 text-center">
+        <div className="bg-white p-10 rounded-[2.5rem] shadow-xl shadow-gray-200/50 border border-gray-100 max-w-sm w-full flex flex-col items-center scale-in-center">
+          <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mb-6">
+            <AlertCircle className="w-10 h-10 text-red-500" />
+          </div>
+          <h1 className="text-2xl font-black text-gray-900 mb-3 tracking-tight">
+            Invalid Link
+          </h1>
+          <p className="text-gray-500 text-sm leading-relaxed mb-8">
+            This review link is invalid or has expired.
             <br />
-            <span className="text-xs text-gray-400 mt-2 block">
-              (Token: {token.slice(0, 8)}...)
-            </span>
+            Please check your email again.
           </p>
           <Link
             href="/"
-            className="mt-6 text-sm font-bold text-gray-900 underline"
+            className="flex items-center gap-2 px-8 py-4 bg-gray-900 text-white rounded-2xl text-sm font-bold hover:bg-black transition-all shadow-lg active:scale-95"
           >
-            Go Home
+            <Home className="w-4 h-4" /> Go Home
           </Link>
         </div>
       </div>
     );
   }
 
-  // 이미 작성함
+  // 2. 이미 리뷰를 작성한 경우 UI
   if (booking.is_reviewed) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-6 text-center">
-        <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 max-w-sm w-full flex flex-col items-center">
-          <CheckCircle2 className="w-16 h-16 text-green-500 mb-4" />
-          <h1 className="text-xl font-bold text-gray-900 mb-2">
+      <div className="min-h-screen flex flex-col items-center justify-start bg-[#F8FAFC] pt-32 p-6 text-center">
+        <div className="bg-white p-10 rounded-[2.5rem] shadow-xl shadow-gray-200/50 border border-gray-100 max-w-sm w-full flex flex-col items-center scale-in-center">
+          <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mb-6">
+            <CheckCircle2 className="w-10 h-10 text-green-500" />
+          </div>
+          <h1 className="text-2xl font-black text-gray-900 mb-3 tracking-tight">
             Already Reviewed
           </h1>
-          <p className="text-gray-500 text-sm">
-            You have already submitted a review.
+          <p className="text-gray-500 text-sm leading-relaxed mb-8">
+            You've already shared your experience!
+            <br />
+            Thank you for your valuable feedback.
           </p>
           <Link
-            href={`/`}
-            className="mt-6 px-6 py-3 bg-gray-900 text-white rounded-xl text-sm font-bold"
+            href="/"
+            className="w-full py-4 bg-gray-900 text-white rounded-2xl text-sm font-bold hover:bg-black transition-all shadow-lg active:scale-95 text-center"
           >
-            View Tour Page
+            Go to Home
           </Link>
         </div>
       </div>
     );
   }
 
-  // 정상 접근 -> 폼 보여주기
+  // 3. 정상 접근 -> 폼 보여주기 (pt-32로 헤더 공간 확보)
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-4">
+    <main className="min-h-screen bg-[#F8FAFC] flex items-start justify-center pt-32 pb-20 px-4">
       <ReviewForm
         bookingId={booking.id}
         tourTitle={booking.tour_title}
@@ -93,6 +98,6 @@ export default async function ReviewWritePage({ searchParams }: PageProps) {
         customerName={booking.customer_name}
         token={token}
       />
-    </div>
+    </main>
   );
 }

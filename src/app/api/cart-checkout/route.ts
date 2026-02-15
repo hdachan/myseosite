@@ -97,6 +97,10 @@ export async function POST(request: Request) {
             orderNumber: booking.order_number,
             amount: booking.total_price,
             currency: booking.currency || "KRW",
+
+            optionName: booking.option_name, // ← 추가
+            adults: booking.adults, // ← 추가
+            children: booking.children, // ← 추가
           }),
         }).catch((err) =>
           console.error(`❌ 상품(${booking.tour_title}) 메일 실패:`, err),

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Star, Loader2 } from "lucide-react";
+import { Star, Loader2, Send } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { hangameFont } from "@/lib/fonts";
 
@@ -49,10 +49,9 @@ export default function ReviewForm({
       const result = await res.json();
       if (!res.ok) throw new Error(result.error || "저장 실패");
 
-      // ✅ [변경 1] 안내 문구 변경 (승인 대기 알림)
-      alert("리뷰가 등록되었습니다! 관리자 승인 후 게시됩니다. 감사합니다. 🎁");
-
-      // ✅ [변경 2] 홈 화면으로 이동
+      alert(
+        "Review submitted! It will be posted after a quick admin approval. Thank you! 🎁",
+      );
       router.push("/");
     } catch (error: any) {
       alert(error.message);
@@ -60,96 +59,102 @@ export default function ReviewForm({
     }
   };
 
-  // 텍스트 렌더링 오류 방지용 함수
   const getRatingText = (r: number) => {
-    switch (r) {
-      case 5:
-        return "It was amazing! 😍";
-      case 4:
-        return "Pretty good! 🙂";
-      case 3:
-        return "It was okay. 😐";
-      case 2:
-        return "Not as expected. 😞";
-      case 1:
-        return "Terrible. 😡";
-      default:
-        return "";
-    }
+    const labels = [
+      "",
+      "Terrible. 😡",
+      "Not as expected. 😞",
+      "It was okay. 😐",
+      "Pretty good! 🙂",
+      "It was amazing! 😍",
+    ];
+    return labels[r];
   };
 
   return (
-    <div className="bg-white w-full max-w-lg rounded-3xl shadow-xl p-8 md:p-10 border border-gray-100">
-      <div className="text-center mb-8">
-        <h1
-          className={`${hangameFont.className} text-2xl font-bold text-gray-900 mb-2`}
-        >
-          How was your trip?
-        </h1>
-        <p className="text-gray-500 text-sm">
-          <span className="font-bold text-orange-600 block mb-1 text-base">
-            {tourTitle}
-          </span>
-          Hi {customerName}, please share your experience.
-        </p>
-      </div>
+    <div className="w-full max-w-xl mx-auto">
+      {/* 카드 컨테이너 */}
+      <div className="bg-white/80 backdrop-blur-md rounded-[2.5rem] shadow-2xl shadow-gray-200/50 p-8 md:p-12 border border-white/20 relative overflow-hidden">
+        {/* 상단 장식 요소 */}
+        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-orange-300 via-orange-500 to-orange-300" />
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* 별점 선택 영역 */}
-        <div className="flex flex-col items-center gap-3">
-          <div className="flex gap-2">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <button
-                key={star}
-                type="button"
-                onClick={() => setRating(star)}
-                className="transition-transform hover:scale-110 focus:outline-none p-1"
-              >
-                <Star
-                  className={`w-10 h-10 ${
-                    star <= rating
-                      ? "fill-orange-400 text-orange-400 drop-shadow-sm"
-                      : "fill-gray-100 text-gray-200"
-                  }`}
-                />
-              </button>
-            ))}
+        <div className="text-center mb-10">
+          <h1
+            className={`${hangameFont.className} text-3xl md:text-4xl font-black text-gray-900 mb-4 tracking-tight`}
+          >
+            How was your trip?
+          </h1>
+          <div className="inline-block px-4 py-1.5 bg-orange-50 rounded-full mb-4">
+            <span className="text-orange-600 font-bold text-sm uppercase tracking-wider">
+              {tourTitle}
+            </span>
           </div>
-
-          <p className="text-sm font-medium text-gray-600 h-6">
-            <span>{getRatingText(rating)}</span>
+          <p className="text-gray-500 font-medium">
+            Hi <span className="text-gray-900 font-bold">{customerName}</span>,
+            please share your experience.
           </p>
         </div>
 
-        {/* 내용 입력 영역 */}
-        <div>
-          <textarea
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            className="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 h-40 focus:ring-2 focus:ring-orange-500 outline-none resize-none text-gray-700 transition-all"
-            placeholder="What did you like the most?"
-            required
-          />
-        </div>
+        <form onSubmit={handleSubmit} className="space-y-8">
+          {/* 별점 영역 */}
+          <div className="flex flex-col items-center p-6 bg-gray-50/50 rounded-3xl border border-gray-100">
+            <div className="flex gap-3 mb-4">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button
+                  key={star}
+                  type="button"
+                  onClick={() => setRating(star)}
+                  className="group transition-all duration-200 hover:scale-125 focus:outline-none"
+                >
+                  <Star
+                    className={`w-10 h-10 md:w-12 md:h-12 transition-all duration-300 ${
+                      star <= rating
+                        ? "fill-orange-400 text-orange-400 drop-shadow-[0_0_8px_rgba(251,146,60,0.4)]"
+                        : "fill-gray-200 text-gray-200 group-hover:text-gray-300"
+                    }`}
+                  />
+                </button>
+              ))}
+            </div>
+            <p className="text-base font-bold text-gray-700 animate-in fade-in slide-in-from-bottom-1">
+              {getRatingText(rating)}
+            </p>
+          </div>
 
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className={`w-full py-4 rounded-xl font-bold text-white shadow-md flex items-center justify-center gap-2 transition-all ${
-            isSubmitting
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-gray-900 hover:bg-black hover:shadow-lg active:scale-[0.98]"
-          }`}
-        >
-          {isSubmitting ? (
-            <>
-              <Loader2 className="w-5 h-5 animate-spin" /> Submitting...
-            </>
-          ) : (
-            "Submit Review"
-          )}
-        </button>
-      </form>
+          {/* 텍스트 영역 */}
+          <div className="relative group">
+            <textarea
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              className="w-full bg-white border-2 border-gray-100 rounded-2xl p-5 h-44 focus:border-orange-400 focus:ring-4 focus:ring-orange-100 outline-none resize-none text-gray-700 transition-all text-lg leading-relaxed shadow-sm"
+              placeholder="What did you like the most about this tour?"
+              required
+            />
+            <div className="absolute bottom-4 right-4 text-xs text-gray-400 font-medium">
+              {content.length} characters
+            </div>
+          </div>
+
+          {/* 버튼 */}
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className={`w-full py-5 rounded-2xl font-black text-lg shadow-xl flex items-center justify-center gap-3 transition-all duration-300 ${
+              isSubmitting
+                ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                : "bg-gray-900 text-white hover:bg-orange-600 hover:shadow-orange-200 active:scale-95"
+            }`}
+          >
+            {isSubmitting ? (
+              <Loader2 className="w-6 h-6 animate-spin" />
+            ) : (
+              <>
+                <Send className="w-5 h-5" /> Submit Review
+              </>
+            )}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

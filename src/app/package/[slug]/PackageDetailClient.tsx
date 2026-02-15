@@ -15,6 +15,7 @@ import PackageDetailSidebar from "@/components/PackageDetails/PackageDetailSideb
 import TourOverviewSection from "@/components/PackageDetails/TourOverviewSection";
 import TourReviewsSection from "@/components/PackageDetails/TourReviewsSection";
 import TourImageGallery from "@/components/PackageDetails/TourImageGallery";
+import TourHighlights from "@/components/PackageDetails/TourHighlights"; // ✅ 하이라이트 컴포넌트
 import { hangameFont } from "@/lib/fonts";
 
 interface Props {
@@ -129,9 +130,9 @@ export default function PackageDetailClient({ tour }: Props) {
                   <h3 className="text-red-800 font-bold text-[12px] md:text-sm uppercase mb-1">
                     Booking Suspended
                   </h3>
-                  <p className="text-red-700 text-sm leading-relaxed">
-                    {tour.description.replace("⛔ ", "")}
-                  </p>
+                  <div className="text-red-700 text-sm leading-relaxed">
+                    Booking is currently suspended for this tour.
+                  </div>
                 </div>
               </div>
             </div>
@@ -175,11 +176,17 @@ export default function PackageDetailClient({ tour }: Props) {
             ))}
           </section>
 
-          {/* 5. Package Options & Sidebar */}
+          {/* 5. Main Content Grid (Highlights + Options + Sidebar) */}
+          {/* ✅ [구조 변경] 하이라이트와 옵션을 하나의 그리드 섹션으로 묶었습니다. */}
           <section className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
+            {/* ⬅️ [왼쪽 컬럼] : 하이라이트 + 옵션 선택 */}
             <div
               className={selectedPackage ? "lg:col-span-2" : "lg:col-span-3"}
             >
+              {/* ✅ [1] Highlights Section (여기 안으로 이동!) */}
+              <TourHighlights content={tour.description} />
+
+              {/* ✅ [2] Package Options Section */}
               <PackageOptionsSection
                 packageOptions={tour.packageOptions || []}
                 isSuspended={isSuspended ?? false}
@@ -193,12 +200,13 @@ export default function PackageDetailClient({ tour }: Props) {
               />
             </div>
 
+            {/* ➡️ [오른쪽 컬럼] : 사이드바 (옵션 선택 시 등장) */}
+            {/* 이제 사이드바는 하이라이트 섹션 높이부터 시작됩니다. */}
             {selectedPackage && (
               <div className="lg:col-span-1">
                 <div className="sticky top-24">
                   <PackageDetailSidebar
                     selectedPackage={selectedPackage}
-                    // ✅ [수정됨] 스키마 변경 반영: tour.meetingPoint(전역) -> selectedPackage.meetingPoints(옵션별 배열)
                     meetingPoints={selectedPackage.meetingPoints}
                   />
                 </div>
@@ -208,7 +216,9 @@ export default function PackageDetailClient({ tour }: Props) {
 
           {/* 6. Tour Overview */}
           <TourOverviewSection
-            description={tour.fullDescription || tour.description}
+            description={
+              tour.fullDescription || "No detailed description available."
+            }
           />
 
           {/* 7. Reviews Section */}
