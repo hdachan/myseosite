@@ -114,7 +114,12 @@ export default function PackageDetailSidebar({
       window.addEventListener("keydown", handleKeyDown);
     }
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isLightboxOpen]);
+  }, [isLightboxOpen, lightboxImages]);
+
+  // 안전한 데이터 체크
+  if (!selectedPackage) {
+    return null;
+  }
 
   return (
     <>
@@ -132,7 +137,7 @@ export default function PackageDetailSidebar({
                 Tour Details
               </h3>
               <p className="text-sm text-gray-500 font-medium line-clamp-2">
-                {selectedPackage.name}
+                {selectedPackage?.name || "Tour Package"}
               </p>
             </div>
 
@@ -148,63 +153,68 @@ export default function PackageDetailSidebar({
                   Itinerary
                 </div>
 
-                {selectedPackage.itinerary &&
+                {selectedPackage?.itinerary &&
+                Array.isArray(selectedPackage.itinerary) &&
                 selectedPackage.itinerary.length > 0 ? (
                   <div className="relative border-l-2 border-gray-100 ml-3 space-y-8 pb-2">
                     {/* 📍 미팅 포인트 링크 */}
-                    {meetingPoints && meetingPoints.length > 0 && (
-                      <div className="relative pl-6">
-                        <div className="absolute -left-[9px] top-1 w-5 h-5 rounded-full border border-white shadow-sm flex items-center justify-center bg-[#4A7C7E]">
-                          <MapPin className="w-3.5 h-3.5 text-white" />
+                    {meetingPoints &&
+                      Array.isArray(meetingPoints) &&
+                      meetingPoints.length > 0 && (
+                        <div className="relative pl-6">
+                          <div className="absolute -left-[9px] top-1 w-5 h-5 rounded-full border border-white shadow-sm flex items-center justify-center bg-[#4A7C7E]">
+                            <MapPin className="w-3.5 h-3.5 text-white" />
+                          </div>
+                          <div className="flex flex-col gap-1">
+                            <button
+                              onClick={scrollToMeetingPoint}
+                              className="text-left group"
+                            >
+                              <h4 className="text-sm font-bold text-gray-800 leading-tight group-hover:text-[#4A7C7E] transition-colors flex items-center gap-2">
+                                Meeting Point
+                                <ChevronDown className="w-3.5 h-3.5 text-[#4A7C7E] group-hover:translate-y-0.5 transition-transform" />
+                              </h4>
+                              <p className="text-xs text-gray-500 leading-snug mt-1 group-hover:text-gray-700 transition-colors">
+                                Click to view meeting point details below
+                              </p>
+                            </button>
+                          </div>
                         </div>
-                        <div className="flex flex-col gap-1">
-                          <button
-                            onClick={scrollToMeetingPoint}
-                            className="text-left group"
-                          >
-                            <h4 className="text-sm font-bold text-gray-800 leading-tight group-hover:text-[#4A7C7E] transition-colors flex items-center gap-2">
-                              Meeting Point
-                              <ChevronDown className="w-3.5 h-3.5 text-[#4A7C7E] group-hover:translate-y-0.5 transition-transform" />
-                            </h4>
-                            <p className="text-xs text-gray-500 leading-snug mt-1 group-hover:text-gray-700 transition-colors">
-                              Click to view meeting point details below
-                            </p>
-                          </button>
-                        </div>
-                      </div>
-                    )}
+                      )}
 
                     {/* 일정 아이템들 */}
                     {selectedPackage.itinerary.map((item, index) => (
                       <div key={index} className="relative pl-6">
                         <div
-                          className={`absolute -left-[9px] top-1 w-5 h-5 rounded-full border border-white shadow-sm flex items-center justify-center ${getIconColor(item.iconType || "location")}`}
+                          className={`absolute -left-[9px] top-1 w-5 h-5 rounded-full border border-white shadow-sm flex items-center justify-center ${getIconColor(item?.iconType || "location")}`}
                         >
-                          {getIcon(item.iconType || "location")}
+                          {getIcon(item?.iconType || "location")}
                         </div>
                         <div className="flex flex-col gap-1">
-                          {item.time && (
+                          {item?.time && (
                             <span className="text-xs font-bold text-gray-900 bg-gray-100 px-1.5 py-0.5 rounded w-fit mb-0.5">
                               {item.time}
                             </span>
                           )}
                           <h4 className="text-sm font-bold text-gray-800 leading-tight">
-                            {item.title}
+                            {item?.title || "Untitled"}
                           </h4>
-                          {item.description && (
+                          {item?.description && (
                             <p className="text-xs text-gray-500 leading-snug mt-1 whitespace-pre-line">
                               {item.description}
                             </p>
                           )}
 
-                          {item.images && item.images.length > 0 && (
-                            <ImageGrid
-                              images={item.images}
-                              onImageClick={(imgIndex) =>
-                                openLightbox(item.images, imgIndex)
-                              }
-                            />
-                          )}
+                          {item?.images &&
+                            Array.isArray(item.images) &&
+                            item.images.length > 0 && (
+                              <ImageGrid
+                                images={item.images}
+                                onImageClick={(imgIndex) =>
+                                  openLightbox(item.images, imgIndex)
+                                }
+                              />
+                            )}
                         </div>
                       </div>
                     ))}
@@ -238,24 +248,26 @@ export default function PackageDetailSidebar({
                           </div>
 
                           <div className="flex flex-col gap-1">
-                            {point.name && (
+                            {point?.name && (
                               <h4 className="text-sm font-bold text-gray-800 leading-tight">
                                 {point.name}
                               </h4>
                             )}
 
                             <p className="text-xs text-gray-500 leading-snug mt-1 whitespace-pre-line">
-                              {point.description}
+                              {point?.description || "No description"}
                             </p>
 
-                            {point.images && point.images.length > 0 && (
-                              <ImageGrid
-                                images={point.images}
-                                onImageClick={(imgIndex) =>
-                                  openLightbox(point.images, imgIndex)
-                                }
-                              />
-                            )}
+                            {point?.images &&
+                              Array.isArray(point.images) &&
+                              point.images.length > 0 && (
+                                <ImageGrid
+                                  images={point.images}
+                                  onImageClick={(imgIndex) =>
+                                    openLightbox(point.images, imgIndex)
+                                  }
+                                />
+                              )}
                           </div>
                         </div>
                       ))}
@@ -264,7 +276,7 @@ export default function PackageDetailSidebar({
                 )}
 
               {/* 4️⃣ Important Notice */}
-              {selectedPackage.note && (
+              {selectedPackage?.note && (
                 <div className="relative">
                   <div className="absolute top-0 inset-x-5 border-t border-dashed border-gray-200"></div>
                   <div className="p-5 pt-8 bg-red-50/30">
