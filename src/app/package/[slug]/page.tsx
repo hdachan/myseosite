@@ -78,17 +78,19 @@ export default async function PackageDetailPage({ params }: PageProps) {
       ? reviews!.reduce((acc, curr) => acc + curr.rating, 0) / totalReviews
       : 0; // 리뷰 없으면 0점
 
-  // 4. 데이터 병합
+  // 4. 데이터 병합 - ✅ 안전한 배열 체크 추가
   const tour = {
     ...tourData,
     id: tourData._id,
     images:
-      tourData.images && tourData.images.length > 0
+      Array.isArray(tourData.images) && tourData.images.length > 0
         ? tourData.images
         : [tourData.image],
-    packageOptions: tourData.packageOptions || [],
+    packageOptions: Array.isArray(tourData.packageOptions)
+      ? tourData.packageOptions
+      : [],
     price: tourData.packageOptions?.[0]?.price || tourData.price || 0,
-    reviewsData: reviews || [],
+    reviewsData: Array.isArray(reviews) ? reviews : [],
     averageRating: averageRating,
     totalReviews: totalReviews,
   };
@@ -98,7 +100,10 @@ export default async function PackageDetailPage({ params }: PageProps) {
     "@context": "https://schema.org",
     "@type": "Product",
     name: tour.title,
-    image: [tour.image, ...(tour.images || [])],
+    image: [
+      tour.image,
+      ...(Array.isArray(tour.images) ? tour.images : []),
+    ].filter(Boolean),
     description: tour.description,
     brand: {
       "@type": "Brand",
