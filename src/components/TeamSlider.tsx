@@ -42,10 +42,10 @@ export default function TeamSlider({ teamMembers }: TeamSliderProps) {
 
   return (
     <div className="relative">
-      {/* 화살표 버튼 (PC만) */}
+      {/* 화살표 버튼: PC(Grid 모드)에서는 숨김 처리 (hidden) */}
       <button
         onClick={scrollLeft}
-        className="hidden lg:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-12 z-10 w-10 h-10 items-center justify-center bg-white rounded-full shadow-lg hover:bg-gray-50 transition-colors border border-gray-200"
+        className="hidden lg:hidden absolute left-0 top-1/2 -translate-y-1/2 -translate-x-12 z-10 w-10 h-10 items-center justify-center bg-white rounded-full shadow-lg hover:bg-gray-50 transition-colors border border-gray-200"
         aria-label="Previous"
       >
         <svg
@@ -65,7 +65,7 @@ export default function TeamSlider({ teamMembers }: TeamSliderProps) {
 
       <button
         onClick={scrollRight}
-        className="hidden lg:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-12 z-10 w-10 h-10 items-center justify-center bg-white rounded-full shadow-lg hover:bg-gray-50 transition-colors border border-gray-200"
+        className="hidden lg:hidden absolute right-0 top-1/2 -translate-y-1/2 translate-x-12 z-10 w-10 h-10 items-center justify-center bg-white rounded-full shadow-lg hover:bg-gray-50 transition-colors border border-gray-200"
         aria-label="Next"
       >
         <svg
@@ -83,15 +83,32 @@ export default function TeamSlider({ teamMembers }: TeamSliderProps) {
         </svg>
       </button>
 
-      {/* 슬라이더 */}
+      {/* 컨테이너: 모바일은 flex(슬라이더), PC는 grid(2줄) */}
       <div
         ref={sliderRef}
-        className="flex gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4"
+        className="
+          /* 공통 스타일 */
+          scrollbar-hide pb-4
+          
+          /* 모바일: 가로 슬라이더 */
+          flex gap-6 overflow-x-auto snap-x snap-mandatory
+          
+          /* PC (lg 이상): 4열 2줄 그리드 */
+          lg:grid lg:grid-cols-4 lg:grid-rows-2 lg:overflow-visible lg:gap-x-6 lg:gap-y-8
+        "
       >
         {teamMembers.map((member, index) => (
           <div
             key={index}
-            className="min-w-[260px] flex-shrink-0 snap-start lg:min-w-[calc(25%-18px)] bg-white rounded-[6px] overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 border border-gray-100"
+            className="
+              /* 모바일: 슬라이드 카드 크기 */
+              min-w-[260px] flex-shrink-0 snap-start 
+              
+              /* PC: 그리드 셀에 맞춤 */
+              lg:min-w-0 lg:w-full 
+              
+              bg-white rounded-[6px] overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 border border-gray-100
+            "
           >
             <div className="relative h-64 bg-gray-200">
               <Image

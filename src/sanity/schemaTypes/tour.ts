@@ -122,20 +122,20 @@ export default defineType({
       description: "상세 페이지 상단 슬라이더에 들어갈 이미지들입니다.",
     }),
 
-    // ✅ 수정된 부분: fullDescription을 Rich Text(Portable Text)로 변경
+    // ✅ 수정된 부분: fullDescription에 이미지 타입 추가
     defineField({
       name: "fullDescription",
       title: "Full Description (Overview)",
       description:
-        "상세 페이지 하단 'Tour Overview'에 들어갈 긴 설명입니다. (제목, 리스트, 링크 등 사용 가능)",
-      type: "array", // 기존 text -> array 로 변경
+        "상세 페이지 하단 'Tour Overview'에 들어갈 긴 설명입니다. (제목, 리스트, 링크, 이미지 등 사용 가능)",
+      type: "array",
       of: [
         {
           type: "block",
           // 1. 스타일 (제목 등)
           styles: [
             { title: "Normal", value: "normal" },
-            { title: "H3", value: "h3" }, // 소제목 필요할 수 있음
+            { title: "H3", value: "h3" },
             { title: "H4", value: "h4" },
             { title: "Quote", value: "blockquote" },
           ],
@@ -166,6 +166,29 @@ export default defineType({
               },
             ],
           },
+        },
+        // ✅ 이미지 타입 추가
+        {
+          type: "image",
+          title: "Image",
+          options: {
+            hotspot: true,
+          },
+          fields: [
+            {
+              name: "alt",
+              type: "string",
+              title: "Alternative Text",
+              description: "이미지 설명 (SEO & 접근성용)",
+              validation: (Rule) => Rule.required(),
+            },
+            {
+              name: "caption",
+              type: "string",
+              title: "Caption",
+              description: "이미지 아래 설명 안적어도 됩니다. (선택사항)",
+            },
+          ],
         },
       ],
     }),

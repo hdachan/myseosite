@@ -64,47 +64,46 @@ const structuredData = {
 export default function CompanyPage() {
   const teamMembers = [
     {
-      name: "Sung-Won Kim",
-      role: "Sales Representative",
-      image: "/company/team_01.jpg",
+      name: "Jung-Sun Park", // 박정선
+      role: "Deputy General Manager",
+      image: "/company/team_08.jpg",
     },
     {
-      name: "Jin-Wook Kim",
-      role: "Sales Representative",
-      image: "/company/team_02.jpg",
-    },
-    {
-      name: "Young-Moon Jin",
-      role: "Sales Representative",
-      image: "/company/team_03.jpg",
-    },
-    {
-      name: "Byung-Min Jung",
-      role: "Sales Representative",
-      image: "/company/team_04.jpg",
-    },
-    {
-      name: "Chun-Hee Kang",
+      name: "Chun-Hee Kang", // 강춘희
       role: "Deputy General Manager",
       image: "/company/team_05.jpg",
     },
     {
-      name: "Su-Jung Lee",
-      role: "Staff",
-      image: "/company/team_06.jpg",
-    },
-    {
-      name: "Eun-Kyung Lee",
+      name: "Eun-Kyung Lee", // 이은경
       role: "Assistant Manager",
       image: "/company/team_07.jpg",
     },
     {
-      name: "Jung-Sun Park",
-      role: "Deputy General Manager",
-      image: "/company/team_08.jpg",
+      name: "Su-Jung Lee", // 이수정
+      role: "Staff",
+      image: "/company/team_06.jpg",
+    },
+    {
+      name: "Young-Moon Jin", // 진영문
+      role: "Sales Representative",
+      image: "/company/team_03.jpg",
+    },
+    {
+      name: "Sung-Won Kim", // 김성원
+      role: "Sales Representative",
+      image: "/company/team_01.jpg",
+    },
+    {
+      name: "Jin-Wook Kim", // 김진욱
+      role: "Sales Representative",
+      image: "/company/team_02.jpg",
+    },
+    {
+      name: "Byung-Min Jung", // 정병민
+      role: "Sales Representative",
+      image: "/company/team_04.jpg",
     },
   ];
-
   const historyData = [
     {
       year: "2004 – 2008",
