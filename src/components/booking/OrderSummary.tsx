@@ -2,7 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
-import Link from "next/link"; // ✅ Link 컴포넌트 추가
+import Link from "next/link";
 import { Minus, Plus, CreditCard, CalendarCheck } from "lucide-react";
 import { useCurrency } from "@/app/context/CurrencyContext";
 
@@ -11,14 +11,15 @@ interface OrderSummaryProps {
     title: string;
     image: string;
     optionName: string;
-    price: number; // 원화 기준 단가
+    price: number;
+    childPrice?: number;
   };
   formData: {
     adults: number;
     children: number;
     agreed: boolean;
   };
-  currentTotalPrice: number; // 원화 기준 합계
+  currentTotalPrice: number;
   handlePaxChange: (type: "adults" | "children", delta: number) => void;
   handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   setSubmissionType: (type: "PAYMENT" | "RESERVATION") => void;
@@ -32,8 +33,9 @@ export default function OrderSummary({
   handleChange,
   setSubmissionType,
 }: OrderSummaryProps) {
-  // formatPrice 함수 가져오기
   const { formatPrice } = useCurrency();
+
+  const childPrice = tourBaseData.childPrice || tourBaseData.price;
 
   return (
     <div className="bg-white p-6 rounded-[6px] shadow-lg border border-gray-200 sticky top-24">
@@ -41,13 +43,12 @@ export default function OrderSummary({
         Order Summary
       </h3>
 
-      {/* 상품 썸네일 */}
       <div className="flex gap-4 mb-6">
         <div className="relative w-20 h-20 rounded-[6px] overflow-hidden flex-shrink-0 bg-gray-100">
           {tourBaseData.image ? (
             <Image
               src={tourBaseData.image}
-              alt={tourBaseData.title} // ✅ [1법칙: SEO] 실제 상품명으로 alt 속성 변경
+              alt={tourBaseData.title}
               fill
               className="object-cover"
             />
@@ -67,9 +68,7 @@ export default function OrderSummary({
         </div>
       </div>
 
-      {/* 인원수 수정 영역 */}
       <div className="space-y-4 mb-6 pb-4 border-b border-gray-100">
-        {/* Adult */}
         <div className="flex justify-between items-center">
           <div className="text-sm text-gray-700">
             <span className="block font-medium">
@@ -100,12 +99,11 @@ export default function OrderSummary({
           </div>
         </div>
 
-        {/* Child */}
         <div className="flex justify-between items-center">
           <div className="text-sm text-gray-700">
-            <span className="block font-medium">Children</span>
+            <span className="block font-medium">Children (Ages 3-9)</span>
             <span className="text-xs text-gray-400">
-              {formatPrice(tourBaseData.price)} / person
+              {formatPrice(childPrice)} / person
             </span>
           </div>
           <div className="flex items-center gap-2">
@@ -122,7 +120,7 @@ export default function OrderSummary({
             <button
               type="button"
               onClick={() => handlePaxChange("children", 1)}
-              className="w-7 h-7 rounded-[4px] border border-gray-300 flex items-center justify-center hover:bg-gray-50"
+              className="w-7 h-7 rounded-[6px] border border-gray-300 flex items-center justify-center hover:bg-gray-50"
             >
               <Plus className="w-3 h-3 text-gray-600" />
             </button>
@@ -130,7 +128,6 @@ export default function OrderSummary({
         </div>
       </div>
 
-      {/* 가격 계산 상세 */}
       <div className="space-y-2 text-sm text-gray-600 mb-4">
         <div className="flex justify-between">
           <span>Subtotal (Adults)</span>
@@ -142,13 +139,12 @@ export default function OrderSummary({
           <div className="flex justify-between">
             <span>Subtotal (Children)</span>
             <span className="font-medium">
-              {formatPrice(tourBaseData.price * formData.children)}
+              {formatPrice(childPrice * formData.children)}
             </span>
           </div>
         )}
       </div>
 
-      {/* 총 가격 */}
       <div className="flex justify-between items-center border-t border-gray-200 pt-4 mb-6">
         <span className="text-lg font-bold text-gray-900">Total</span>
         <span className="text-2xl font-bold text-red-600">
@@ -156,7 +152,6 @@ export default function OrderSummary({
         </span>
       </div>
 
-      {/* 약관 동의 */}
       <div className="flex items-start gap-3 mb-6 p-3 bg-gray-50 rounded-[6px]">
         <input
           type="checkbox"
@@ -171,7 +166,6 @@ export default function OrderSummary({
           className="text-xs text-gray-600 cursor-pointer leading-relaxed"
         >
           I have read and agree to the{" "}
-          {/* ✅ [2법칙: 법적 안전성] 실제 약관 페이지로 링크 연결 */}
           <Link
             href="/terms"
             className="underline hover:text-orange-600"
@@ -191,7 +185,6 @@ export default function OrderSummary({
         </label>
       </div>
 
-      {/* 버튼 그룹 */}
       <div className="flex flex-col gap-3">
         <button
           type="submit"

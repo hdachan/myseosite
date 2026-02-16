@@ -100,8 +100,9 @@ export const TOUR_DETAIL_QUERY = groq`
       "id": _key,
       name,
       
-      // ✅ [가격 정보] 판매가(price)와 정가(originalPrice) 모두 가져오기
+      // ✅ [가격 정보] 성인/어린이 판매가 및 정가
       price,
+      childPrice,
       originalPrice, 
 
       badge,

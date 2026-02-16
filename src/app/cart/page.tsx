@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState, useEffect, Suspense, useMemo } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link"; // Link 컴포넌트 추가
 import {
   Trash2,
   CreditCard,
@@ -11,7 +12,7 @@ import {
   CalendarCheck,
   Minus,
   Plus,
-  ArrowRight, // 🚀 아이콘 추가
+  ArrowRight,
 } from "lucide-react";
 import BookingForm from "@/components/booking/BookingForm";
 import FullScreenLoader from "@/components/FullScreenLoader";
@@ -20,7 +21,6 @@ import { hangameFont } from "@/lib/fonts";
 import toast from "react-hot-toast";
 import { useCurrency } from "@/app/context/CurrencyContext";
 
-// ✅ Type 정의
 interface ExtendedCartItem {
   slug: string;
   title: string;
@@ -30,8 +30,10 @@ interface ExtendedCartItem {
   adults: number;
   children: number;
   pricePerPerson: number;
+  adultPrice: number;
+  childPrice?: number;
   totalPrice: number;
-  date: string; // ✅ 각 아이템이 날짜를 가지고 있음
+  date: string;
   tourId?: string;
   minPax?: number;
 }
@@ -50,7 +52,6 @@ function CartContent() {
     (state: any) => state.updateItemQuantity,
   );
 
-  // ✅ formData에서 tourDate 삭제됨 (개별 상품 날짜 사용)
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -148,7 +149,6 @@ function CartContent() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          // ✅ item.date(각 상품 날짜)를 보냄
           cartItems: items.map((item) => ({
             tourId: item.tourId || item.slug,
             title: item.title,
@@ -156,6 +156,8 @@ function CartContent() {
             optionName: item.optionName,
             adults: item.adults,
             children: item.children,
+            adultPrice: item.adultPrice,
+            childPrice: item.childPrice || item.adultPrice,
             totalPrice: item.totalPrice,
           })),
           order_number: orderNumber,
@@ -245,7 +247,6 @@ function CartContent() {
     }
   };
 
-  // 🚀 [수정 완료] 장바구니가 비었을 때 '빈 화면(null)'이 아니라 '안내 화면'을 보여줌
   if (items.length === 0) {
     return (
       <div
@@ -271,7 +272,6 @@ function CartContent() {
     );
   }
 
-  // 장바구니에 아이템이 있을 때의 화면 (기존과 동일)
   return (
     <div
       className={`min-h-screen bg-white pb-24 relative ${hangameFont.variable} font-hangame`}
@@ -289,88 +289,127 @@ function CartContent() {
               <h2 className="font-bold text-base sm:text-lg text-gray-900 mb-4">
                 Items ({items.length})
               </h2>
-              {items.map((item, idx) => (
-                <div
-                  key={`${item.slug}-${item.optionId}-${item.date}-${idx}`}
-                  className="flex flex-col sm:flex-row gap-4 sm:gap-6 border-b border-gray-100 py-4 sm:py-6 last:border-0"
-                >
-                  <div className="relative w-full sm:w-24 h-32 sm:h-24 rounded-[6px] overflow-hidden flex-shrink-0 bg-gray-100">
-                    {item.image && (
-                      <Image
-                        src={item.image}
-                        alt={item.title}
-                        fill
-                        className="object-cover"
-                      />
-                    )}
-                  </div>
-                  <div className="flex-1 flex flex-col justify-between">
-                    <div>
-                      <h3 className="font-bold text-gray-800 text-base sm:text-lg mb-1 leading-snug">
-                        {item.title}
-                      </h3>
-                      <div className="flex items-center text-sm text-orange-600 font-medium mb-1">
-                        <Calendar className="w-4 h-4 mr-1" />{" "}
-                        {/* ✅ 개별 날짜 표시 */}
-                        {item.date}
-                      </div>
-                      <p className="text-xs text-gray-500">
-                        Option:{" "}
-                        <span className="text-gray-700 font-medium">
-                          {item.optionName}
-                        </span>
-                      </p>
+              {items.map((item, idx) => {
+                const childPrice = item.childPrice || item.adultPrice;
+
+                return (
+                  <div
+                    key={`${item.slug}-${item.optionId}-${item.date}-${idx}`}
+                    className="flex flex-col sm:flex-row gap-4 sm:gap-6 border-b border-gray-100 py-4 sm:py-6 last:border-0"
+                  >
+                    <div className="relative w-full sm:w-24 h-32 sm:h-24 rounded-[6px] overflow-hidden flex-shrink-0 bg-gray-100">
+                      {item.image && (
+                        <Image
+                          src={item.image}
+                          alt={item.title}
+                          fill
+                          className="object-cover"
+                        />
+                      )}
                     </div>
-                    <div className="space-y-3 mt-2">
-                      <div className="flex items-center justify-between gap-4">
-                        <div className="flex items-center gap-2 text-sm text-gray-700">
-                          <span className="font-medium w-14 sm:w-16">
-                            Adults
+                    <div className="flex-1 flex flex-col justify-between">
+                      <div>
+                        <h3 className="font-bold text-gray-800 text-base sm:text-lg mb-1 leading-snug">
+                          {item.title}
+                        </h3>
+                        <div className="flex items-center text-sm text-orange-600 font-medium mb-1">
+                          <Calendar className="w-4 h-4 mr-1" />
+                          {item.date}
+                        </div>
+                        <p className="text-xs text-gray-500">
+                          Option:{" "}
+                          <span className="text-gray-700 font-medium">
+                            {item.optionName}
                           </span>
-                          <div className="flex items-center gap-1">
-                            <button
-                              onClick={() =>
-                                handlePaxChange(item, "adults", -1)
-                              }
-                              className="w-6 h-6 rounded-[4px] border border-gray-300 flex items-center justify-center hover:bg-gray-50 bg-white"
-                            >
-                              <Minus className="w-3" />
-                            </button>
-                            <span className="w-6 text-center font-bold text-gray-900">
-                              {item.adults}
+                        </p>
+                      </div>
+                      <div className="space-y-3 mt-2">
+                        <div className="flex items-center justify-between gap-4">
+                          <div className="flex items-center gap-2 text-sm text-gray-700">
+                            <span className="font-medium w-14 sm:w-16">
+                              Adults
                             </span>
-                            <button
-                              onClick={() => handlePaxChange(item, "adults", 1)}
-                              className="w-6 h-6 rounded-[4px] border border-gray-300 flex items-center justify-center hover:bg-gray-50 bg-white"
-                            >
-                              <Plus className="w-3" />
-                            </button>
+                            <div className="flex items-center gap-1">
+                              <button
+                                onClick={() =>
+                                  handlePaxChange(item, "adults", -1)
+                                }
+                                className="w-6 h-6 rounded-[4px] border border-gray-300 flex items-center justify-center hover:bg-gray-50 bg-white"
+                              >
+                                <Minus className="w-3" />
+                              </button>
+                              <span className="w-6 text-center font-bold text-gray-900">
+                                {item.adults}
+                              </span>
+                              <button
+                                onClick={() =>
+                                  handlePaxChange(item, "adults", 1)
+                                }
+                                className="w-6 h-6 rounded-[4px] border border-gray-300 flex items-center justify-center hover:bg-gray-50 bg-white"
+                              >
+                                <Plus className="w-3" />
+                              </button>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <span className="block font-bold text-gray-900 text-sm">
+                              {formatItemPrice(item.adults * item.adultPrice)}
+                            </span>
                           </div>
                         </div>
-                        <div className="text-right">
-                          <span className="block font-bold text-gray-900 text-sm">
-                            {formatItemPrice(item.adults * item.pricePerPerson)}
-                          </span>
+
+                        <div className="flex items-center justify-between gap-4">
+                          <div className="flex items-center gap-2 text-sm text-gray-700">
+                            <span className="font-medium w-14 sm:w-16">
+                              Children
+                            </span>
+                            <div className="flex items-center gap-1">
+                              <button
+                                onClick={() =>
+                                  handlePaxChange(item, "children", -1)
+                                }
+                                className="w-6 h-6 rounded-[4px] border border-gray-300 flex items-center justify-center hover:bg-gray-50 bg-white"
+                              >
+                                <Minus className="w-3" />
+                              </button>
+                              <span className="w-6 text-center font-bold text-gray-900">
+                                {item.children}
+                              </span>
+                              <button
+                                onClick={() =>
+                                  handlePaxChange(item, "children", 1)
+                                }
+                                className="w-6 h-6 rounded-[4px] border border-gray-300 flex items-center justify-center hover:bg-gray-50 bg-white"
+                              >
+                                <Plus className="w-3" />
+                              </button>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <span className="block font-bold text-gray-900 text-sm">
+                              {formatItemPrice(item.children * childPrice)}
+                            </span>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="text-right flex flex-row sm:flex-col justify-between items-center sm:items-end">
-                    <button
-                      onClick={() => handleRemove(item)}
-                      className="text-gray-400 hover:text-red-500 p-1"
-                    >
-                      <Trash2 className="w-5" />
-                    </button>
-                    <div>
-                      <p className="text-xs text-gray-400 mb-1">Subtotal</p>
-                      <p className="font-bold text-gray-900 text-lg sm:text-xl">
-                        {formatItemPrice(item.totalPrice)}
-                      </p>
+                    <div className="text-right flex flex-row sm:flex-col justify-between items-center sm:items-end">
+                      <button
+                        onClick={() => handleRemove(item)}
+                        className="text-gray-400 hover:text-red-500 p-1"
+                      >
+                        <Trash2 className="w-5" />
+                      </button>
+                      <div>
+                        <p className="text-xs text-gray-400 mb-1">Subtotal</p>
+                        <p className="font-bold text-gray-900 text-lg sm:text-xl">
+                          {formatItemPrice(item.totalPrice)}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             <BookingForm formData={formData} handleChange={handleChange} />
@@ -389,21 +428,21 @@ function CartContent() {
                 className="text-xs text-gray-600 cursor-pointer leading-tight"
               >
                 I have read and agree to the{" "}
-                <a
+                <Link
                   href="/terms"
                   target="_blank"
                   className="underline text-gray-800"
                 >
                   Terms
-                </a>{" "}
+                </Link>{" "}
                 and{" "}
-                <a
+                <Link
                   href="/cancellation-policy"
                   target="_blank"
                   className="underline text-gray-800"
                 >
                   Cancellation Policy
-                </a>
+                </Link>
                 .
               </label>
             </div>
@@ -427,7 +466,11 @@ function CartContent() {
                 <button
                   onClick={() => processCheckout("PAYMENT")}
                   disabled={isSubmitting || isCartInvalid}
-                  className={`w-full font-bold py-3 sm:py-4 rounded-lg shadow-md flex items-center justify-center gap-2 text-sm sm:text-base ${isSubmitting || isCartInvalid ? "bg-gray-300 text-gray-500" : "bg-orange-600 hover:bg-orange-700 text-white"}`}
+                  className={`w-full font-bold py-3 sm:py-4 rounded-lg shadow-md flex items-center justify-center gap-2 text-sm sm:text-base ${
+                    isSubmitting || isCartInvalid
+                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      : "bg-orange-600 hover:bg-orange-700 text-white"
+                  }`}
                 >
                   <CreditCard className="w-5 h-5" />{" "}
                   {isSubmitting ? "Processing..." : "Pay Now"}
@@ -435,7 +478,11 @@ function CartContent() {
                 <button
                   onClick={() => processCheckout("RESERVATION")}
                   disabled={isSubmitting || isCartInvalid}
-                  className={`w-full font-bold py-3 sm:py-4 rounded-lg shadow-md flex items-center justify-center gap-2 text-sm sm:text-base ${isSubmitting || isCartInvalid ? "bg-gray-300 text-gray-500" : "bg-gray-800 hover:bg-gray-900 text-white"}`}
+                  className={`w-full font-bold py-3 sm:py-4 rounded-lg shadow-md flex items-center justify-center gap-2 text-sm sm:text-base ${
+                    isSubmitting || isCartInvalid
+                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      : "bg-gray-800 hover:bg-gray-900 text-white"
+                  }`}
                 >
                   <CalendarCheck className="w-5 h-5" />{" "}
                   {isSubmitting ? "Processing..." : "Make a Reservation"}

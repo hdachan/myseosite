@@ -9,7 +9,6 @@ import FullScreenLoader from "@/components/FullScreenLoader";
 import { hangameFont } from "@/lib/fonts";
 import { useCurrency } from "@/app/context/CurrencyContext";
 
-// ✅ [추가] 결제 페이지는 정적 캐싱되면 안 되므로 동적 렌더링 강제
 export const dynamic = "force-dynamic";
 
 function BookingContent() {
@@ -17,19 +16,15 @@ function BookingContent() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // 환율 정보 가져오기
   const { currency: currentCurrency, exchangeRate: currentExchangeRate } =
     useCurrency();
 
-  // ✅ [1법칙: SEO] 검색 엔진 수집 차단 (noindex) & 결제 스크립트 로드
   useEffect(() => {
-    // 1. KPN 스크립트
     const script = document.createElement("script");
     script.src = "https://dev.firstpay.co.kr/js/firstpay.js";
     script.async = true;
     document.body.appendChild(script);
 
-    // 2. 검색 차단 태그 삽입
     const meta = document.createElement("meta");
     meta.name = "robots";
     meta.content = "noindex, nofollow";
@@ -58,6 +53,9 @@ function BookingContent() {
     image: searchParams.get("image") || "",
     optionName: searchParams.get("optionName") || "Standard Option",
     price: Number(searchParams.get("price")) || 0,
+    childPrice: searchParams.get("childPrice")
+      ? Number(searchParams.get("childPrice"))
+      : undefined,
   };
 
   const [formData, setFormData] = useState({
@@ -71,11 +69,12 @@ function BookingContent() {
     agreed: false,
   });
 
-  // 원화 기준 합계
-  const totalPriceKRW =
-    (formData.adults + formData.children) * tourBaseData.price;
+  const adultPrice = tourBaseData.price;
+  const childPrice = tourBaseData.childPrice || adultPrice;
 
-  // 달러 결제 금액 계산 (정의서 p.7 규격: 소수점 2자리 문자열)
+  const totalPriceKRW =
+    adultPrice * formData.adults + childPrice * formData.children;
+
   const totalPriceUSDString = (totalPriceKRW / currentExchangeRate).toFixed(2);
   const totalPriceUSDNum = Number(totalPriceUSDString);
 
@@ -161,6 +160,8 @@ function BookingContent() {
         body: JSON.stringify({
           ...tourBaseData,
           ...formData,
+          adultPrice: adultPrice,
+          childPrice: childPrice,
           totalPrice: totalPriceKRW,
           currency: currentCurrency,
           exchangeRate: currentExchangeRate,
@@ -183,7 +184,6 @@ function BookingContent() {
           return;
         }
 
-        // ✅ KPN 규격: amount 필드는 정수(Integer)만 허용
         const commonAmount =
           currentCurrency === "USD"
             ? Math.max(1, Math.floor(totalPriceUSDNum))

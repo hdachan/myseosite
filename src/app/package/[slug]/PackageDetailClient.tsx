@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import {
   Star,
@@ -26,15 +26,47 @@ export default function PackageDetailClient({ tour }: Props) {
   const addItem = useCartStore((state) => state.addItem);
   const [selectedPackage, setSelectedPackage] = useState<any | null>(null);
 
-  // ✅ 안전한 이미지 배열 생성
-  const allImages = Array.from(
-    new Set([tour.image, ...(Array.isArray(tour.images) ? tour.images : [])]),
-  ).filter(Boolean);
+  const baseImages = useMemo(() => {
+    return Array.from(
+      new Set([tour.image, ...(Array.isArray(tour.images) ? tour.images : [])]),
+    ).filter(Boolean);
+  }, [tour.image, tour.images]);
+
+  const itineraryImages = useMemo(() => {
+    if (!tour.packageOptions || !Array.isArray(tour.packageOptions)) return [];
+
+    const images: string[] = [];
+
+    tour.packageOptions.forEach((pkg: any) => {
+      if (pkg.itinerary && Array.isArray(pkg.itinerary)) {
+        pkg.itinerary.forEach((item: any) => {
+          if (item.images && Array.isArray(item.images)) {
+            images.push(...item.images);
+          }
+        });
+      }
+
+      if (pkg.meetingPoints && Array.isArray(pkg.meetingPoints)) {
+        pkg.meetingPoints.forEach((point: any) => {
+          if (point.images && Array.isArray(point.images)) {
+            images.push(...point.images);
+          }
+        });
+      }
+    });
+
+    return images;
+  }, [tour.packageOptions]);
+
+  const allImages = useMemo(() => {
+    return Array.from(new Set([...baseImages, ...itineraryImages])).filter(
+      Boolean,
+    );
+  }, [baseImages, itineraryImages]);
 
   const isSuspended =
     tour.bookings === "Suspended" || tour.tags?.includes("Suspended");
 
-  // 평점 클릭 시 리뷰 섹션으로 이동
   const scrollToReviews = () => {
     const reviewSection = document.getElementById("reviews");
     if (reviewSection) {
@@ -44,7 +76,6 @@ export default function PackageDetailClient({ tour }: Props) {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* 1. Breadcrumb Navigation */}
       <nav
         aria-label="Breadcrumb"
         className="max-w-6xl mx-auto px-6 md:px-8 lg:px-12 pt-20 md:pt-28 pb-4 md:pb-6"
@@ -69,14 +100,12 @@ export default function PackageDetailClient({ tour }: Props) {
         </ol>
       </nav>
 
-      {/* 2. ✨ New Image Gallery Component */}
       <TourImageGallery
         images={allImages}
         title={tour.title}
         isSuspended={isSuspended}
       />
 
-      {/* Main Content Area */}
       <main className="max-w-6xl mx-auto px-6 md:px-8 lg:px-12 pb-24">
         <article className="space-y-8 md:space-y-10">
           <header>
@@ -122,7 +151,6 @@ export default function PackageDetailClient({ tour }: Props) {
             </div>
           </header>
 
-          {/* Suspended Alert */}
           {isSuspended && tour.description && (
             <div className="bg-red-50 border-l-4 border-red-500 p-4 md:p-5 rounded-r-md">
               <div className="flex items-start gap-3">
@@ -139,7 +167,6 @@ export default function PackageDetailClient({ tour }: Props) {
             </div>
           )}
 
-          {/* 4. Trust Badges */}
           <section className="grid grid-cols-1 md:grid-cols-3 gap-4 border-y border-gray-100 py-6">
             {[
               {
@@ -150,7 +177,7 @@ export default function PackageDetailClient({ tour }: Props) {
               },
               {
                 icon: Shield,
-                title: "Licensed Operator",
+                title: "Licensed Tour Guide",
                 desc: "Registered",
                 color: "bg-blue-50 text-blue-600",
               },
@@ -177,16 +204,12 @@ export default function PackageDetailClient({ tour }: Props) {
             ))}
           </section>
 
-          {/* 5. Main Content Grid (Highlights + Options + Sidebar) */}
           <section className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
-            {/* ⬅️ [왼쪽 컬럼] : 하이라이트 + 옵션 선택 */}
             <div
               className={selectedPackage ? "lg:col-span-2" : "lg:col-span-3"}
             >
-              {/* ✅ [1] Highlights Section */}
               <TourHighlights content={tour.description} />
 
-              {/* ✅ [2] Package Options Section */}
               <PackageOptionsSection
                 packageOptions={
                   Array.isArray(tour.packageOptions) ? tour.packageOptions : []
@@ -202,7 +225,6 @@ export default function PackageDetailClient({ tour }: Props) {
               />
             </div>
 
-            {/* ➡️ [오른쪽 컬럼] : 사이드바 (옵션 선택 시 등장) */}
             {selectedPackage && (
               <div className="lg:col-span-1">
                 <div className="sticky top-24">
@@ -215,14 +237,12 @@ export default function PackageDetailClient({ tour }: Props) {
             )}
           </section>
 
-          {/* 6. Tour Overview */}
           <TourOverviewSection
             description={
               tour.fullDescription || "No detailed description available."
             }
           />
 
-          {/* 7. Reviews Section */}
           <TourReviewsSection
             reviews={tour.reviewsData}
             averageRating={tour.averageRating}

@@ -217,20 +217,30 @@ export default defineType({
             // ✅ 할인 전 정가 (취소선 표시용)
             defineField({
               name: "originalPrice",
-              title: "Original Price (Before Discount)",
+              title: "Original Adult Price (Before Discount)",
               type: "number",
               description:
-                "할인 전 정가입니다. (입력 시 $100 -> $80 처럼 표시됨) 할인가 없으면 비워주세요! ",
+                "할인 전 성인 정가입니다. (입력 시 $100 -> $80 처럼 표시됨) 할인가 없으면 비워주세요!",
             }),
 
-            // ✅ 실제 판매가
+            // ✅ 성인 판매가
             {
               name: "price",
-              title: "Sale Price (Final)",
+              title: "Adult Price (Final)",
               type: "number",
-              description: "고객이 실제로 결제할 최종 가격입니다.",
+              description: "성인 1명당 최종 판매가 (카드/상세 페이지에 표시됨)",
               validation: (Rule) => Rule.required(),
             },
+
+            // ✅ 어린이 판매가 (새로 추가)
+            {
+              name: "childPrice",
+              title: "Child Price (Ages 3-9)",
+              type: "number",
+              description:
+                "어린이 1명당 가격 (비워두면 성인과 동일 가격 적용됩니다)",
+            },
+
             {
               name: "badge",
               title: "Badge",
@@ -396,14 +406,17 @@ export default defineType({
             select: {
               title: "name",
               price: "price",
+              childPrice: "childPrice",
               original: "originalPrice",
             },
-            prepare({ title, price, original }) {
+            prepare({ title, price, childPrice, original }) {
+              const priceDisplay = original
+                ? `Adult: $${price} (was $${original})`
+                : `Adult: $${price}`;
+              const childDisplay = childPrice ? ` | Child: $${childPrice}` : "";
               return {
                 title: title,
-                subtitle: original
-                  ? `$${price} (was $${original})`
-                  : `$${price}`,
+                subtitle: priceDisplay + childDisplay,
               };
             },
           },
