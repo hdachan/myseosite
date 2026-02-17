@@ -24,8 +24,23 @@ export default defineType({
       title: "Slug (URL)",
       type: "slug",
       description:
-        "웹사이트 주소 뒤에 붙을 고유 ID입니다. (Generate 버튼 클릭)",
-      options: { source: "title", maxLength: 96 },
+        "버튼을 누르면 'Seoul', 'with' 등 불필요한 단어는 자동으로 삭제됩니다.",
+      options: {
+        source: "title",
+        maxLength: 96,
+        // 👇 [핵심] 이 부분이 '필터' 역할을 합니다.
+        slugify: (input) => {
+          return input
+            .toLowerCase() // 1. 소문자로 변환 (SEO 필수)
+            .replace(/seoul/g, "") // 2. 'seoul' 단어 무조건 삭제 (도메인 중복 방지)
+            .replace(/\b(with|the|a|an|to|for|of)\b/g, "") // 3. 불필요한 조사/전치사 삭제
+            .replace(/[^a-z0-9\s-]/g, "") // 4. 특수문자 제거
+            .trim() // 5. 앞뒤 공백 제거
+            .replace(/\s+/g, "-") // 6. 띄어쓰기는 하이픈(-)으로
+            .replace(/-+/g, "-") // 7. 중복 하이픈 제거
+            .replace(/^-+|-+$/g, ""); // 8. 처음과 끝 하이픈 제거
+        },
+      },
       validation: (Rule) => Rule.required(),
     }),
     defineField({
