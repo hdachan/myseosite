@@ -1,10 +1,37 @@
+import { Metadata } from "next";
 import Link from "next/link";
 import { hangameFont } from "@/lib/fonts";
 
-export const metadata = {
-  title: "Cancellation & Refund Policy | Seoul City Tour",
+// ✅ 배포 주소 자동 대응
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL || "https://myseosite.vercel.app";
+
+// ✅ SEO 최적화 메타데이터
+export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
+
+  title: "Cancellation & Refund Policy",
+
   description:
-    "Read the cancellation and refund policy for Seoul City Tour. Free cancellation is available until 3:00 PM (KST) on the day before the tour.",
+    "Read the official cancellation and refund policy for Seoul City Tour. Free cancellation is available until 3:00 PM (KST) on the day before the tour.",
+
+  alternates: {
+    canonical: "/cancellation-policy",
+  },
+
+  openGraph: {
+    title: "Cancellation & Refund Policy | Seoul City Tour",
+    description:
+      "Free cancellation is available until 3:00 PM (KST) on the day before the tour.",
+    url: `${SITE_URL}/cancellation-policy`,
+    siteName: "Seoul City Tour",
+    type: "website",
+  },
+
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 export default function CancellationPolicyPage() {
@@ -12,13 +39,7 @@ export default function CancellationPolicyPage() {
     <main
       className={`min-h-screen bg-gray-50 pt-28 pb-20 ${hangameFont.className}`}
     >
-      {/* 레이아웃 규격 통일: max-w-6xl, px-8, lg:px-12 
-         왼쪽 정렬 기준선을 FAQ 등 다른 페이지와 일치시킴
-      */}
       <div className="max-w-6xl mx-auto px-8 lg:px-12">
-        {/* 텍스트 가독성을 위한 내부 너비 제한 
-           (왼쪽 시작점은 6xl 컨테이너에 맞추고, 오른쪽으로 너무 길어지지 않게 함) 
-        */}
         <div className="max-w-3xl">
           {/* Title */}
           <h1 className="text-3xl font-bold text-gray-900 mb-6">
