@@ -1,4 +1,3 @@
-// next.config.js
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -23,11 +22,12 @@ const nextConfig = {
       },
     ],
   },
-  // experimental 옵션은 껐습니다. (optimizeCss 오류 방지)
+  // 👇 experimental 안에 있던 reactCompiler는 버전이 안 맞으니 삭제했습니다.
   // experimental: {
   //   optimizeCss: true,
   //   typedRoutes: false,
   // },
 };
 
-export default nextConfig;
+// 👇 'export default' 대신 이걸 쓰면 'Reparsing' 경고도 사라집니다.
+module.exports = nextConfig;

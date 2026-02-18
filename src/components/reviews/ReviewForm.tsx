@@ -27,7 +27,7 @@ export default function ReviewForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!content.trim()) return alert("리뷰 내용을 입력해주세요.");
+    if (!content.trim()) return alert("Please enter your review.");
 
     setIsSubmitting(true);
 
@@ -47,11 +47,9 @@ export default function ReviewForm({
       });
 
       const result = await res.json();
-      if (!res.ok) throw new Error(result.error || "저장 실패");
+      if (!res.ok) throw new Error(result.error || "Submission failed");
 
-      alert(
-        "Review submitted! It will be posted after a quick admin approval. Thank you! 🎁",
-      );
+      alert("Review submitted! Thank you 🙌");
       router.push("/");
     } catch (error: any) {
       alert(error.message);
@@ -62,94 +60,92 @@ export default function ReviewForm({
   const getRatingText = (r: number) => {
     const labels = [
       "",
-      "Terrible. 😡",
-      "Not as expected. 😞",
-      "It was okay. 😐",
-      "Pretty good! 🙂",
-      "It was amazing! 😍",
+      "Very bad 😡",
+      "Not great 😞",
+      "It was okay 😐",
+      "Pretty good 🙂",
+      "Amazing experience 😍",
     ];
     return labels[r];
   };
 
   return (
-    <div className="w-full max-w-xl mx-auto">
-      {/* 카드 컨테이너 */}
-      <div className="bg-white/80 backdrop-blur-md rounded-[2.5rem] shadow-2xl shadow-gray-200/50 p-8 md:p-12 border border-white/20 relative overflow-hidden">
-        {/* 상단 장식 요소 */}
-        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-orange-300 via-orange-500 to-orange-300" />
-
-        <div className="text-center mb-10">
+    <div className="w-full max-w-lg mx-auto px-6 py-16">
+      <div className="bg-white border border-gray-200 rounded-md p-10 space-y-10 shadow-sm">
+        {/* Header */}
+        <div className="text-center space-y-3">
           <h1
-            className={`${hangameFont.className} text-3xl md:text-4xl font-black text-gray-900 mb-4 tracking-tight`}
+            className={`${hangameFont.className} text-2xl font-bold text-gray-900`}
           >
-            How was your trip?
+            Share your experience
           </h1>
-          <div className="inline-block px-4 py-1.5 bg-orange-50 rounded-full mb-4">
-            <span className="text-orange-600 font-bold text-sm uppercase tracking-wider">
-              {tourTitle}
-            </span>
-          </div>
-          <p className="text-gray-500 font-medium">
-            Hi <span className="text-gray-900 font-bold">{customerName}</span>,
-            please share your experience.
+
+          <p className="text-gray-500 text-sm">
+            <span className="font-semibold text-gray-800">{customerName}</span>{" "}
+            · {tourTitle}
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-8">
-          {/* 별점 영역 */}
-          <div className="flex flex-col items-center p-6 bg-gray-50/50 rounded-3xl border border-gray-100">
-            <div className="flex gap-3 mb-4">
+          {/* Rating */}
+          <div className="flex flex-col items-center space-y-3">
+            <div className="flex gap-2">
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
                   key={star}
                   type="button"
                   onClick={() => setRating(star)}
-                  className="group transition-all duration-200 hover:scale-125 focus:outline-none"
+                  className="transition-transform hover:scale-110"
                 >
                   <Star
-                    className={`w-10 h-10 md:w-12 md:h-12 transition-all duration-300 ${
+                    className={`w-8 h-8 transition-colors ${
                       star <= rating
-                        ? "fill-orange-400 text-orange-400 drop-shadow-[0_0_8px_rgba(251,146,60,0.4)]"
-                        : "fill-gray-200 text-gray-200 group-hover:text-gray-300"
+                        ? "fill-amber-400 text-amber-400" // 별은 표준적인 황금색 유지
+                        : "fill-gray-200 text-gray-300"
                     }`}
                   />
                 </button>
               ))}
             </div>
-            <p className="text-base font-bold text-gray-700 animate-in fade-in slide-in-from-bottom-1">
+
+            {/* 🟢 신뢰감의 Green 적용: 별점 상태 텍스트 */}
+            <span className="text-sm font-medium text-[#2F6F6D]">
               {getRatingText(rating)}
-            </p>
+            </span>
           </div>
 
-          {/* 텍스트 영역 */}
-          <div className="relative group">
+          {/* Textarea */}
+          <div className="space-y-2">
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              className="w-full bg-white border-2 border-gray-100 rounded-2xl p-5 h-44 focus:border-orange-400 focus:ring-4 focus:ring-orange-100 outline-none resize-none text-gray-700 transition-all text-lg leading-relaxed shadow-sm"
-              placeholder="What did you like the most about this tour?"
+              // 🟢 신뢰감의 Green 적용: 입력창 포커스 시 테두리 컬러
+              className="w-full border border-gray-300 rounded-md p-4 h-40 text-gray-700 text-base resize-none focus:outline-none focus:ring-2 focus:ring-[#2F6F6D]/20 focus:border-[#2F6F6D] transition"
+              placeholder="What did you like most about this tour?"
               required
             />
-            <div className="absolute bottom-4 right-4 text-xs text-gray-400 font-medium">
+            <div className="text-right text-xs text-gray-400">
               {content.length} characters
             </div>
           </div>
 
-          {/* 버튼 */}
+          {/* Submit */}
+          {/* 🔴 강렬한 Red 적용: 최종 액션 버튼 */}
           <button
             type="submit"
             disabled={isSubmitting}
-            className={`w-full py-5 rounded-2xl font-black text-lg shadow-xl flex items-center justify-center gap-3 transition-all duration-300 ${
+            className={`w-full py-4 rounded-md font-semibold flex items-center justify-center gap-2 transition transform active:scale-[0.98] ${
               isSubmitting
                 ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                : "bg-gray-900 text-white hover:bg-orange-600 hover:shadow-orange-200 active:scale-95"
+                : "bg-[#B80D12] text-white hover:bg-[#9a0b0f] shadow-md hover:shadow-lg"
             }`}
           >
             {isSubmitting ? (
-              <Loader2 className="w-6 h-6 animate-spin" />
+              <Loader2 className="w-5 h-5 animate-spin" />
             ) : (
               <>
-                <Send className="w-5 h-5" /> Submit Review
+                <Send className="w-4 h-4" />
+                Submit Review
               </>
             )}
           </button>
