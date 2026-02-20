@@ -46,6 +46,16 @@ function BookingContent() {
 
   const minPax = Number(searchParams.get("minPax")) || 1;
 
+  // ✅ meetingPoints URL에서 파싱
+  const meetingPoints = useMemo(() => {
+    try {
+      const raw = searchParams.get("meetingPoints");
+      return raw ? JSON.parse(raw) : [];
+    } catch {
+      return [];
+    }
+  }, [searchParams]);
+
   const tourBaseData = {
     tourId: searchParams.get("tourId") || "",
     slug: searchParams.get("slug") || "",
@@ -66,6 +76,7 @@ function BookingContent() {
     adults: Math.max(Number(searchParams.get("adults")) || 1, minPax),
     children: Number(searchParams.get("children")) || 0,
     hotelInfo: "",
+    meetingPoint: "", // ✅ 추가
     agreed: false,
   });
 
@@ -83,7 +94,9 @@ function BookingContent() {
   >("PAYMENT");
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
   ) => {
     const { name, value, type } = e.target;
     if (type === "checkbox") {
@@ -168,6 +181,7 @@ function BookingContent() {
           usdAmount: totalPriceUSDNum,
           type: submissionType,
           order_number: orderNumber,
+          meetingPoint: formData.meetingPoint, // ✅ 명시적으로 포함
         }),
       });
 
@@ -283,6 +297,7 @@ function BookingContent() {
                 formData={formData}
                 handleChange={handleChange}
                 minDate={minDate}
+                meetingPoints={meetingPoints} // ✅ 추가
               />
             </div>
           </div>

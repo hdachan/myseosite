@@ -1,24 +1,35 @@
 "use client";
 
 import React from "react";
-import { User, Mail, Phone, Calendar, MapPin } from "lucide-react";
+import { User, Mail, Phone, MapPin } from "lucide-react";
+
+interface MeetingPoint {
+  name: string;
+  description?: string;
+}
 
 interface BookingFormProps {
   formData: {
     fullName: string;
     email: string;
     phone: string;
-    tourDate?: string; // ✅ 선택적으로 변경 (장바구니에서는 없음)
+    tourDate?: string;
     hotelInfo: string;
+    meetingPoint?: string;
   };
-  handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  minDate?: string; // ✅ 선택적으로 변경
+  // ✅ HTMLSelectElement 타입 추가
+  handleChange: (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => void;
+  minDate?: string;
+  meetingPoints?: MeetingPoint[];
 }
 
 export default function BookingForm({
   formData,
   handleChange,
   minDate,
+  meetingPoints = [],
 }: BookingFormProps) {
   const inputStyle = `
     w-full border p-3 rounded-[6px] outline-none transition-all
@@ -33,6 +44,8 @@ export default function BookingForm({
 
   const sectionStyle =
     "bg-white dark:bg-gray-900 p-5 md:p-6 rounded-[8px] shadow-sm border border-gray-200 dark:border-gray-800";
+
+  const hasMeetingPoints = meetingPoints && meetingPoints.length > 0;
 
   return (
     <div className="space-y-6">
@@ -99,7 +112,7 @@ export default function BookingForm({
         </div>
       </div>
 
-      {/* 2. Tour Details & Pickup (장바구니일 때는 날짜만 숨김) */}
+      {/* 2. Tour Details & Pickup */}
       <div className={sectionStyle}>
         <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-5 border-b dark:border-gray-800 pb-3 flex items-center gap-2">
           <MapPin className="w-5 h-5 text-orange-500" />
@@ -110,7 +123,7 @@ export default function BookingForm({
         </h2>
 
         <div className="space-y-5">
-          {/* ✅ tourDate가 데이터에 있을 때만 날짜 입력창 렌더링 */}
+          {/* 날짜 (booking 페이지에서만 표시) */}
           {formData.tourDate !== undefined && (
             <div>
               <label htmlFor="tourDate" className={labelStyle}>
@@ -131,6 +144,43 @@ export default function BookingForm({
             </div>
           )}
 
+          {/* ✅ 미팅 포인트 선택 */}
+          {hasMeetingPoints && (
+            <div>
+              <label htmlFor="meetingPoint" className={labelStyle}>
+                Meeting Point{" "}
+                <span className="text-gray-400 dark:text-gray-500 font-normal ml-1 text-xs uppercase tracking-wide">
+                  (Optional)
+                </span>
+              </label>
+              <div className="relative">
+                <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500 pointer-events-none" />
+                <select
+                  id="meetingPoint"
+                  name="meetingPoint"
+                  value={formData.meetingPoint || ""}
+                  onChange={handleChange}
+                  className={`${inputStyle} pl-11 cursor-pointer`}
+                >
+                  <option value="">-- Select meeting point --</option>
+                  {meetingPoints.map((mp, i) => (
+                    <option key={i} value={mp.name}>
+                      {mp.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              {/* 선택된 미팅 포인트 설명 */}
+              {formData.meetingPoint && (
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 leading-relaxed">
+                  {meetingPoints.find((mp) => mp.name === formData.meetingPoint)
+                    ?.description || ""}
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* 호텔 정보 */}
           <div>
             <label htmlFor="hotelInfo" className={labelStyle}>
               Hotel Information (Name & Address){" "}

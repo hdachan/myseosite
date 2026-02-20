@@ -7,6 +7,12 @@ import toast from "react-hot-toast";
 import { hangameFont } from "@/lib/fonts";
 import { useCurrency } from "@/app/context/CurrencyContext";
 
+interface MeetingPoint {
+  name: string;
+  description?: string;
+  images?: string[];
+}
+
 interface PackageOption {
   id: string;
   name: string;
@@ -15,6 +21,7 @@ interface PackageOption {
   originalPrice?: number;
   badge?: string;
   details?: string[];
+  meetingPoints?: MeetingPoint[]; // ✅ 추가
 }
 
 interface PackageOptionsSectionProps {
@@ -137,12 +144,19 @@ export default function PackageOptionsSection({
       exchangeRate,
       date: tourDate,
       minPax,
+      // ✅ 미팅 포인트 목록 같이 저장 (카트에서 선택하게 하려고)
+      meetingPoints: selectedPackage?.meetingPoints || [],
+      meetingPoint: "",
     });
     toast.success(`Added to cart!`);
   };
 
   const handleBookNow = () => {
     if (isButtonDisabled) return;
+
+    // ✅ 미팅 포인트 목록을 JSON으로 직렬화해서 URL에 포함
+    const meetingPoints = selectedPackage?.meetingPoints || [];
+
     const query = new URLSearchParams({
       tourId,
       slug: tourSlug,
@@ -160,6 +174,8 @@ export default function PackageOptionsSection({
       minPax: minPax.toString(),
       currency: currency,
       exchangeRate: exchangeRate.toString(),
+      // ✅ 미팅 포인트 목록 추가
+      meetingPoints: JSON.stringify(meetingPoints),
     }).toString();
     router.push(`/booking?${query}`);
   };

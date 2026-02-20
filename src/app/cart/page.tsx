@@ -1,9 +1,8 @@
 "use client";
-
 import React, { useState, useEffect, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import Link from "next/link"; // Link 컴포넌트 추가
+import Link from "next/link";
 import {
   Trash2,
   CreditCard,
@@ -13,6 +12,7 @@ import {
   Minus,
   Plus,
   ArrowRight,
+  MapPin,
 } from "lucide-react";
 import BookingForm from "@/components/booking/BookingForm";
 import FullScreenLoader from "@/components/FullScreenLoader";
@@ -20,6 +20,12 @@ import { useCartStore } from "@/store/cartStore";
 import { hangameFont } from "@/lib/fonts";
 import toast from "react-hot-toast";
 import { useCurrency } from "@/app/context/CurrencyContext";
+
+interface MeetingPoint {
+  name: string;
+  description?: string;
+  images?: string[];
+}
 
 interface ExtendedCartItem {
   slug: string;
@@ -36,6 +42,8 @@ interface ExtendedCartItem {
   date: string;
   tourId?: string;
   minPax?: number;
+  meetingPoints?: MeetingPoint[];
+  meetingPoint?: string;
 }
 
 function CartContent() {
@@ -50,6 +58,9 @@ function CartContent() {
   const clearCart = useCartStore((state: any) => state.clearCart);
   const updateItemQuantity = useCartStore(
     (state: any) => state.updateItemQuantity,
+  );
+  const updateMeetingPoint = useCartStore(
+    (state: any) => state.updateMeetingPoint,
   );
 
   const [formData, setFormData] = useState({
@@ -81,7 +92,10 @@ function CartContent() {
     };
   }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // ✅ HTMLSelectElement 타입 추가
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
     const { name, value, type } = e.target;
     if (type === "checkbox") {
       setFormData((prev) => ({
@@ -111,6 +125,10 @@ function CartContent() {
 
   const handleRemove = (item: ExtendedCartItem) => {
     removeItem(item.slug, item.optionId, item.date);
+  };
+
+  const handleMeetingPointChange = (item: ExtendedCartItem, value: string) => {
+    updateMeetingPoint(item.slug, item.optionId, item.date, value);
   };
 
   const invalidItems = items.filter(
@@ -159,6 +177,7 @@ function CartContent() {
             adultPrice: item.adultPrice,
             childPrice: item.childPrice || item.adultPrice,
             totalPrice: item.totalPrice,
+            meetingPoint: item.meetingPoint || "",
           })),
           order_number: orderNumber,
           total_price: totalAmountKRW,
@@ -291,6 +310,8 @@ function CartContent() {
               </h2>
               {items.map((item, idx) => {
                 const childPrice = item.childPrice || item.adultPrice;
+                const hasMeetingPoints =
+                  item.meetingPoints && item.meetingPoints.length > 0;
 
                 return (
                   <div
@@ -322,7 +343,34 @@ function CartContent() {
                             {item.optionName}
                           </span>
                         </p>
+
+                        {/* ✅ 미팅 포인트 선택 드롭다운 */}
+                        {hasMeetingPoints && (
+                          <div className="mt-3">
+                            <label className="flex items-center gap-1 text-xs font-bold text-gray-700 mb-1">
+                              <MapPin className="w-3 h-3 text-orange-500" />
+                              Meeting Point
+                            </label>
+                            <select
+                              value={item.meetingPoint || ""}
+                              onChange={(e) =>
+                                handleMeetingPointChange(item, e.target.value)
+                              }
+                              className="w-full text-xs border border-gray-300 rounded-[6px] px-2 py-1.5 bg-white text-gray-800 focus:ring-2 focus:ring-orange-500 outline-none"
+                            >
+                              <option value="">
+                                -- Select meeting point --
+                              </option>
+                              {item.meetingPoints!.map((mp, i) => (
+                                <option key={i} value={mp.name}>
+                                  {mp.name}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        )}
                       </div>
+
                       <div className="space-y-3 mt-2">
                         <div className="flex items-center justify-between gap-4">
                           <div className="flex items-center gap-2 text-sm text-gray-700">
@@ -393,6 +441,7 @@ function CartContent() {
                         </div>
                       </div>
                     </div>
+
                     <div className="text-right flex flex-row sm:flex-col justify-between items-center sm:items-end">
                       <button
                         onClick={() => handleRemove(item)}

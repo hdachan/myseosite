@@ -7,9 +7,6 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { cartItems, order_number, customer_info, submissionType } = body;
 
-    // -----------------------------------------------------------------------
-    // 🔥 [수정 완료] 개발(내컴퓨터) vs 배포(Vercel) 환경 자동 감지 코드
-    // -----------------------------------------------------------------------
     const siteUrl =
       process.env.NODE_ENV === "development"
         ? "http://localhost:3000"
@@ -37,9 +34,18 @@ export async function POST(request: Request) {
     // 2. 데이터 가공
     const bookingsToInsert = cartItems.map((item: any) => {
       const cleanOptionName = sanitizeHtml(item.optionName || "");
+      const cleanMeetingPoint = sanitizeHtml(item.meetingPoint || "");
+
+      // ✅ 빈 문자열도 처리하도록 수정
+      const tourId =
+        item.tourId && item.tourId.trim()
+          ? item.tourId.trim()
+          : item.slug && item.slug.trim()
+            ? item.slug.trim()
+            : "unknown";
 
       return {
-        tour_id: item.tourId || item.slug || "unknown-id",
+        tour_id: tourId, // ✅ 빈문자열 폴백 처리
         tour_title: item.title,
         customer_name: cleanCustomer.fullName,
         customer_email: cleanCustomer.email,
@@ -47,10 +53,11 @@ export async function POST(request: Request) {
         tour_date: item.date || new Date().toISOString().split("T")[0],
         option_name: cleanOptionName,
         hotel_info: cleanCustomer.hotelInfo,
+        meeting_point: cleanMeetingPoint, // ✅ 추가
         adults: item.adults,
         children: item.children,
         total_price: item.totalPrice,
-        currency: item.currency || "KRW", // 장바구니 아이템의 통화 정보 사용
+        currency: item.currency || "KRW",
         submission_type: submissionType || "PAYMENT",
         status: "pending",
         order_number: order_number,
@@ -61,7 +68,7 @@ export async function POST(request: Request) {
     const { data, error } = await supabase
       .from("bookings")
       .insert(bookingsToInsert)
-      .select(); // ✅ 저장된 데이터를 다시 받아옵니다 (이메일 보낼 때 쓰려고)
+      .select();
 
     if (error) {
       console.error("❌ Supabase 저장 실패:", error);
@@ -70,37 +77,30 @@ export async function POST(request: Request) {
 
     console.log("✅ DB 저장 성공:", data.length, "건");
 
-    // -----------------------------------------------------------------------
-    // 🔥 장바구니 예약(RESERVATION)일 때만 메일 발송
-    // (결제는 PG사 갔다가 돌아오면 payment-return에서 보냄)
-    // -----------------------------------------------------------------------
+    // 장바구니 예약(RESERVATION)일 때만 메일 발송
     if (submissionType !== "PAYMENT") {
       console.log("📧 [RESERVATION] 장바구니 예약 알림 발송 시작...");
 
-      // 저장된 예약 건수만큼 반복해서 이메일 발송
       for (const booking of data) {
         fetch(`${siteUrl}/api/email`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             type: "NEW_BOOKING",
-            email: process.env.SMTP_USER, // 사장님께 발송
-
-            // 👇 상세 정보 연결
+            email: process.env.SMTP_USER,
             clientEmail: booking.customer_email,
             customerName: booking.customer_name,
             phone: booking.customer_phone,
             tourTitle: booking.tour_title,
             tourDate: booking.tour_date,
             hotelInfo: booking.hotel_info,
-
+            meetingPoint: booking.meeting_point, // ✅ 추가
             orderNumber: booking.order_number,
             amount: booking.total_price,
             currency: booking.currency || "KRW",
-
-            optionName: booking.option_name, // ← 추가
-            adults: booking.adults, // ← 추가
-            children: booking.children, // ← 추가
+            optionName: booking.option_name,
+            adults: booking.adults,
+            children: booking.children,
           }),
         }).catch((err) =>
           console.error(`❌ 상품(${booking.tour_title}) 메일 실패:`, err),

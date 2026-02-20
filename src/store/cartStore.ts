@@ -1,6 +1,12 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
+export interface MeetingPoint {
+  name: string;
+  description?: string;
+  images?: string[];
+}
+
 export interface CartItem {
   slug: string;
   title: string;
@@ -10,23 +16,32 @@ export interface CartItem {
   adults: number;
   children: number;
   pricePerPerson: number;
+  adultPrice: number; // ✅ 추가
+  childPrice?: number; // ✅ 추가
   totalPrice: number;
   tourId: string;
   date: string;
+  meetingPoints?: MeetingPoint[]; // ✅ 추가: 선택 가능한 미팅 포인트 목록
+  meetingPoint?: string; // ✅ 추가: 유저가 선택한 미팅 포인트 이름
 }
 
 interface CartState {
   items: CartItem[];
   addItem: (item: CartItem) => void;
-  // 🚀 [수정 1] 삭제 시 날짜(date)도 받도록 변경
   removeItem: (slug: string, optionId: string, date: string) => void;
-  // 🚀 [수정 2] 수량 변경 시 날짜(date)도 받도록 변경
   updateItemQuantity: (
     slug: string,
     optionId: string,
-    date: string, // ✅ 추가됨
+    date: string,
     type: "adults" | "children",
     delta: number,
+  ) => void;
+  // ✅ 추가: 미팅 포인트 선택
+  updateMeetingPoint: (
+    slug: string,
+    optionId: string,
+    date: string,
+    meetingPoint: string,
   ) => void;
   clearCart: () => void;
   getTotalItems: () => number;
@@ -40,7 +55,6 @@ export const useCartStore = create<CartState>()(
 
       addItem: (item) =>
         set((state) => {
-          // 중복 체크: 상품 + 옵션 + 날짜까지 같아야 같은 상품으로 취급
           const existingIndex = state.items.findIndex(
             (i) =>
               i.slug === item.slug &&
@@ -52,7 +66,6 @@ export const useCartStore = create<CartState>()(
             const updated = [...state.items];
             const existingItem = updated[existingIndex];
 
-            // 수량 합산
             const newAdults = existingItem.adults + item.adults;
             const newChildren = existingItem.children + item.children;
 
@@ -60,7 +73,6 @@ export const useCartStore = create<CartState>()(
               ...existingItem,
               adults: newAdults,
               children: newChildren,
-              // 가격 재계산
               totalPrice:
                 (newAdults + newChildren) * existingItem.pricePerPerson,
             };
@@ -69,24 +81,17 @@ export const useCartStore = create<CartState>()(
           return { items: [...state.items, item] };
         }),
 
-      // 🚀 [로직 수정] slug + optionId + date 3가지가 다 맞아야 삭제
       removeItem: (slug, optionId, date) =>
         set((state) => ({
           items: state.items.filter(
             (i) =>
-              !(
-                i.slug === slug &&
-                i.optionId === optionId &&
-                i.date === date // ✅ 날짜 조건 추가 (이제 다른 날짜 예약은 안 지워짐)
-              ),
+              !(i.slug === slug && i.optionId === optionId && i.date === date),
           ),
         })),
 
-      // 🚀 [로직 수정] slug + optionId + date 3가지가 다 맞는 녀석만 수량 변경
       updateItemQuantity: (slug, optionId, date, type, delta) =>
         set((state) => ({
           items: state.items.map((item) => {
-            // ✅ 날짜까지 확인 (다른 날짜 예약 건은 건드리지 않음)
             if (
               item.slug === slug &&
               item.optionId === optionId &&
@@ -95,18 +100,29 @@ export const useCartStore = create<CartState>()(
               const currentQty = item[type];
               const newQty = currentQty + delta;
 
-              // 0명 미만으로 내려가지 않게 방지
               if (newQty < 0) return item;
 
-              // 성인/아동 수 변경
               const updatedItem = { ...item, [type]: newQty };
-
-              // 총 가격 재계산 ( (성인+아동) * 단가 )
               updatedItem.totalPrice =
                 (updatedItem.adults + updatedItem.children) *
                 updatedItem.pricePerPerson;
 
               return updatedItem;
+            }
+            return item;
+          }),
+        })),
+
+      // ✅ 추가: 미팅 포인트 업데이트
+      updateMeetingPoint: (slug, optionId, date, meetingPoint) =>
+        set((state) => ({
+          items: state.items.map((item) => {
+            if (
+              item.slug === slug &&
+              item.optionId === optionId &&
+              item.date === date
+            ) {
+              return { ...item, meetingPoint };
             }
             return item;
           }),
