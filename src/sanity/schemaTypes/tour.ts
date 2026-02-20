@@ -28,17 +28,16 @@ export default defineType({
       options: {
         source: "title",
         maxLength: 96,
-        // 👇 [핵심] 이 부분이 '필터' 역할을 합니다.
         slugify: (input) => {
           return input
-            .toLowerCase() // 1. 소문자로 변환 (SEO 필수)
-            .replace(/seoul/g, "") // 2. 'seoul' 단어 무조건 삭제 (도메인 중복 방지)
-            .replace(/\b(with|the|a|an|to|for|of)\b/g, "") // 3. 불필요한 조사/전치사 삭제
-            .replace(/[^a-z0-9\s-]/g, "") // 4. 특수문자 제거
-            .trim() // 5. 앞뒤 공백 제거
-            .replace(/\s+/g, "-") // 6. 띄어쓰기는 하이픈(-)으로
-            .replace(/-+/g, "-") // 7. 중복 하이픈 제거
-            .replace(/^-+|-+$/g, ""); // 8. 처음과 끝 하이픈 제거
+            .toLowerCase()
+            .replace(/seoul/g, "")
+            .replace(/\b(with|the|a|an|to|for|of)\b/g, "")
+            .replace(/[^a-z0-9\s-]/g, "")
+            .trim()
+            .replace(/\s+/g, "-")
+            .replace(/-+/g, "-")
+            .replace(/^-+|-+$/g, "");
         },
       },
       validation: (Rule) => Rule.required(),
@@ -83,19 +82,16 @@ export default defineType({
       name: "minPax",
       title: "Minimum Travelers (최소 출발 인원)",
       type: "number",
-      initialValue: 1, // 기본값 1명
+      initialValue: 1,
       description: "이 투어를 예약하기 위한 최소 인원입니다. (예: 2명 이상)",
       validation: (Rule) => Rule.required().min(1),
     }),
-
-    // ⚠️ 카드(리스트)용 할인 전 가격
     defineField({
       name: "originalPrice",
       title: "Original Price",
       type: "number",
       description: "할인 전 가격 (할인 표시가 필요할 때만 입력)",
     }),
-
     defineField({
       name: "tags",
       title: "Marketing Tags",
@@ -112,14 +108,12 @@ export default defineType({
       of: [
         {
           type: "block",
-          styles: [{ title: "Normal", value: "normal" }], // 카드 디자인 보호를 위해 Normal만 허용
-          lists: [
-            { title: "Bullet", value: "bullet" }, // ✅ 점 리스트 허용
-          ],
+          styles: [{ title: "Normal", value: "normal" }],
+          lists: [{ title: "Bullet", value: "bullet" }],
           marks: {
             decorators: [
-              { title: "Strong", value: "strong" }, // ✅ 굵게
-              { title: "Emphasis", value: "em" }, // ✅ 기울임
+              { title: "Strong", value: "strong" },
+              { title: "Emphasis", value: "em" },
             ],
           },
         },
@@ -136,8 +130,6 @@ export default defineType({
       of: [{ type: "image" }],
       description: "상세 페이지 상단 슬라이더에 들어갈 이미지들입니다.",
     }),
-
-    // ✅ 수정된 부분: fullDescription에 이미지 타입 추가
     defineField({
       name: "fullDescription",
       title: "Full Description (Overview)",
@@ -147,19 +139,16 @@ export default defineType({
       of: [
         {
           type: "block",
-          // 1. 스타일 (제목 등)
           styles: [
             { title: "Normal", value: "normal" },
             { title: "H3", value: "h3" },
             { title: "H4", value: "h4" },
             { title: "Quote", value: "blockquote" },
           ],
-          // 2. 리스트 (점, 숫자)
           lists: [
             { title: "Bullet", value: "bullet" },
             { title: "Number", value: "number" },
           ],
-          // 3. 텍스트 꾸미기 & 링크
           marks: {
             decorators: [
               { title: "Strong", value: "strong" },
@@ -171,24 +160,15 @@ export default defineType({
                 name: "link",
                 type: "object",
                 title: "Link",
-                fields: [
-                  {
-                    name: "href",
-                    type: "url",
-                    title: "URL",
-                  },
-                ],
+                fields: [{ name: "href", type: "url", title: "URL" }],
               },
             ],
           },
         },
-        // ✅ 이미지 타입 추가
         {
           type: "image",
           title: "Image",
-          options: {
-            hotspot: true,
-          },
+          options: { hotspot: true },
           fields: [
             {
               name: "alt",
@@ -228,8 +208,6 @@ export default defineType({
               type: "string",
               description: "옵션 이름 (예: DMZ Morning Tour)",
             },
-
-            // ✅ 할인 전 정가 (취소선 표시용)
             defineField({
               name: "originalPrice",
               title: "Original Adult Price (Before Discount)",
@@ -237,8 +215,6 @@ export default defineType({
               description:
                 "할인 전 성인 정가입니다. (입력 시 $100 -> $80 처럼 표시됨) 할인가 없으면 비워주세요!",
             }),
-
-            // ✅ 성인 판매가
             {
               name: "price",
               title: "Adult Price (Final)",
@@ -246,8 +222,6 @@ export default defineType({
               description: "성인 1명당 최종 판매가 (카드/상세 페이지에 표시됨)",
               validation: (Rule) => Rule.required(),
             },
-
-            // ✅ 어린이 판매가 (새로 추가)
             {
               name: "childPrice",
               title: "Child Price (Ages 3-9)",
@@ -255,15 +229,12 @@ export default defineType({
               description:
                 "어린이 1명당 가격 (비워두면 성인과 동일 가격 적용됩니다)",
             },
-
             {
               name: "badge",
               title: "Badge",
               type: "string",
               description: "옵션 옆에 붙을 뱃지 (예: Popular, 20% OFF)",
             },
-
-            // ✅ Meeting Points (여러 개 가능)
             defineField({
               name: "meetingPoints",
               title: "Meeting Points Info",
@@ -298,15 +269,11 @@ export default defineType({
                     },
                   ],
                   preview: {
-                    select: {
-                      title: "name",
-                      media: "images.0",
-                    },
+                    select: { title: "name", media: "images.0" },
                   },
                 },
               ],
             }),
-
             defineField({
               name: "details",
               title: "Simple Course List (For Card)",
@@ -315,7 +282,6 @@ export default defineType({
               type: "array",
               of: [{ type: "string" }],
             }),
-
             defineField({
               name: "itinerary",
               title: "Tour Schedule (For Sidebar)",
@@ -377,17 +343,15 @@ export default defineType({
                     },
                     prepare({ title, subtitle, media }) {
                       return {
-                        title: title,
+                        title,
                         subtitle: subtitle || "No time specified",
-                        media: media,
+                        media,
                       };
                     },
                   },
                 },
               ],
             }),
-
-            // ✅ Portable Text (Note)
             defineField({
               name: "note",
               title: "Additional Note / Important Notice",
@@ -429,10 +393,68 @@ export default defineType({
                 ? `Adult: $${price} (was $${original})`
                 : `Adult: $${price}`;
               const childDisplay = childPrice ? ` | Child: $${childPrice}` : "";
-              return {
-                title: title,
-                subtitle: priceDisplay + childDisplay,
-              };
+              return { title, subtitle: priceDisplay + childDisplay };
+            },
+          },
+        },
+      ],
+    }),
+
+    // =================================================
+    // ✅ 4️⃣ 추가 옵션 (체크박스 - 여러 개 선택 가능)
+    // =================================================
+    defineField({
+      name: "addOnOptions",
+      title: "Add-on Options (체크박스 - 여러 개 선택 가능)",
+      description:
+        "탈북자 만남, 점심, 박물관 입장권 등 메인 투어에 추가할 수 있는 유료 옵션. 없으면 비워두세요.",
+      type: "array",
+      of: [
+        {
+          type: "object",
+          name: "addOn",
+          title: "Add-on Option",
+          fields: [
+            {
+              name: "name",
+              title: "Option Name",
+              type: "string",
+              description:
+                "추가 옵션 이름 (예: Defector Meetup, Lunch, Museum Ticket)",
+              validation: (Rule) => Rule.required(),
+            },
+            {
+              name: "price",
+              title: "Adult Price",
+              type: "number",
+              description: "성인 1명당 추가 금액",
+              validation: (Rule) => Rule.required(),
+            },
+            {
+              name: "childPrice",
+              title: "Child Price (Ages 3-9)",
+              type: "number",
+              description: "어린이 1명당 추가 금액 (비워두면 성인과 동일)",
+            },
+            {
+              name: "description",
+              title: "Description",
+              type: "text",
+              rows: 2,
+              description: "추가 옵션에 대한 간단한 설명",
+            },
+            {
+              name: "badge",
+              title: "Badge",
+              type: "string",
+              description: "뱃지 (예: Recommended, Limited)",
+            },
+          ],
+          preview: {
+            select: { title: "name", price: "price", childPrice: "childPrice" },
+            prepare({ title, price, childPrice }) {
+              const childDisplay = childPrice ? ` | Child: ₩${childPrice}` : "";
+              return { title, subtitle: `+₩${price}` + childDisplay };
             },
           },
         },

@@ -37,12 +37,23 @@ export default function OrderSummary({
 
   const childPrice = tourBaseData.childPrice || tourBaseData.price;
 
+  // ✅ optionName을 "+"로 split → [메인옵션, 추가옵션1, 추가옵션2, ...]
+  const optionParts = tourBaseData.optionName
+    ? tourBaseData.optionName
+        .split(" + ")
+        .map((s) => s.trim())
+        .filter(Boolean)
+    : [];
+  const mainOption = optionParts[0] || "";
+  const addOnOptions = optionParts.slice(1);
+
   return (
     <div className="bg-white p-6 rounded-[6px] shadow-lg border border-gray-200 sticky top-24">
       <h3 className="text-lg font-bold text-gray-900 mb-4 border-b pb-2">
         Order Summary
       </h3>
 
+      {/* 투어 이미지 + 제목 */}
       <div className="flex gap-4 mb-6">
         <div className="relative w-20 h-20 rounded-[6px] overflow-hidden flex-shrink-0 bg-gray-100">
           {tourBaseData.image ? (
@@ -58,16 +69,35 @@ export default function OrderSummary({
             </div>
           )}
         </div>
-        <div>
-          <h4 className="font-bold text-gray-800 text-sm leading-snug line-clamp-2">
+        <div className="flex-1 min-w-0">
+          <h4 className="font-bold text-gray-800 text-sm leading-snug line-clamp-2 mb-2">
             {tourBaseData.title}
           </h4>
-          <p className="text-xs text-orange-600 font-medium mt-1 bg-orange-50 inline-block px-1.5 py-0.5 rounded-[4px]">
-            {tourBaseData.optionName}
-          </p>
+
+          {/* ✅ 메인 옵션 */}
+          {mainOption && (
+            <span className="text-xs text-orange-600 font-medium bg-orange-50 inline-block px-1.5 py-0.5 rounded-[4px] mb-1">
+              {mainOption}
+            </span>
+          )}
+
+          {/* ✅ 추가 옵션들 */}
+          {addOnOptions.length > 0 && (
+            <div className="flex flex-col gap-1 mt-1">
+              {addOnOptions.map((addOn, i) => (
+                <span
+                  key={i}
+                  className="text-xs text-teal-700 font-medium bg-teal-50 inline-block px-1.5 py-0.5 rounded-[4px]"
+                >
+                  + {addOn}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
+      {/* 인원 선택 */}
       <div className="space-y-4 mb-6 pb-4 border-b border-gray-100">
         <div className="flex justify-between items-center">
           <div className="text-sm text-gray-700">
@@ -128,6 +158,7 @@ export default function OrderSummary({
         </div>
       </div>
 
+      {/* 소계 */}
       <div className="space-y-2 text-sm text-gray-600 mb-4">
         <div className="flex justify-between">
           <span>Subtotal (Adults)</span>
@@ -145,6 +176,7 @@ export default function OrderSummary({
         )}
       </div>
 
+      {/* 합계 */}
       <div className="flex justify-between items-center border-t border-gray-200 pt-4 mb-6">
         <span className="text-lg font-bold text-gray-900">Total</span>
         <span className="text-2xl font-bold text-red-600">
@@ -152,6 +184,7 @@ export default function OrderSummary({
         </span>
       </div>
 
+      {/* 약관 동의 */}
       <div className="flex items-start gap-3 mb-6 p-3 bg-gray-50 rounded-[6px]">
         <input
           type="checkbox"
@@ -185,6 +218,7 @@ export default function OrderSummary({
         </label>
       </div>
 
+      {/* 버튼 */}
       <div className="flex flex-col gap-3">
         <button
           type="submit"

@@ -79,7 +79,7 @@ export const TOURS_BY_CATEGORY_QUERY = groq`
   }
 `;
 
-// ✅ [3] 투어 상세 페이지용 쿼리 (구조 변경 반영)
+// ✅ [3] 투어 상세 페이지용 쿼리
 export const TOUR_DETAIL_QUERY = groq`
   *[_type == "tour" && slug.current == $slug][0] {
     _id,
@@ -95,29 +95,21 @@ export const TOUR_DETAIL_QUERY = groq`
     // 최소 인원
     "minPax": coalesce(minPax, 1),
     
-    // 옵션 데이터
+    // 메인 옵션 (라디오 - 하나만 선택)
     packageOptions[] {
       "id": _key,
       name,
-      
-      // ✅ [가격 정보] 성인/어린이 판매가 및 정가
       price,
       childPrice,
       originalPrice, 
-
       badge,
       details, 
-      
-      // ✅ [추가됨] 관리자 에디터(Portable Text) 내용 가져오기
       note,
-
-      // ✅ [추가됨] 옵션별 미팅 포인트 배열 가져오기
       meetingPoints[] {
         name,
         description,
         "images": images[].asset->url
       },
-      
       itinerary[] {
         time,
         title,
@@ -125,6 +117,16 @@ export const TOUR_DETAIL_QUERY = groq`
         iconType,
         "images": images[].asset->url 
       }
+    },
+
+    // ✅ 추가 옵션 (체크박스 - 여러 개 선택 가능)
+    addOnOptions[] {
+      "id": _key,
+      name,
+      price,
+      childPrice,
+      description,
+      badge
     }
   }
 `;

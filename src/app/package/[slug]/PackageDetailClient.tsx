@@ -214,6 +214,9 @@ export default function PackageDetailClient({ tour }: Props) {
                 packageOptions={
                   Array.isArray(tour.packageOptions) ? tour.packageOptions : []
                 }
+                addOnOptions={
+                  Array.isArray(tour.addOnOptions) ? tour.addOnOptions : []
+                } // ✅ 추가
                 isSuspended={isSuspended ?? false}
                 onSelectPackage={setSelectedPackage}
                 onAddToCart={addItem}

@@ -337,12 +337,21 @@ function CartContent() {
                           <Calendar className="w-4 h-4 mr-1" />
                           {item.date}
                         </div>
-                        <p className="text-xs text-gray-500">
-                          Option:{" "}
-                          <span className="text-gray-700 font-medium">
-                            {item.optionName}
-                          </span>
-                        </p>
+                        <div className="mt-1">
+                          {item.optionName?.split(" + ").map((part, i) => (
+                            <span
+                              key={i}
+                              className={`inline-block text-xs font-medium px-1.5 py-0.5 rounded-[4px] mr-1 mb-1 ${
+                                i === 0
+                                  ? "bg-orange-50 text-orange-600" // 메인 옵션 - 주황
+                                  : "bg-teal-50 text-teal-700" // 추가 옵션 - 청록
+                              }`}
+                            >
+                              {i > 0 ? "+ " : ""}
+                              {part.trim()}
+                            </span>
+                          ))}
+                        </div>
 
                         {/* ✅ 미팅 포인트 선택 드롭다운 */}
                         {hasMeetingPoints && (

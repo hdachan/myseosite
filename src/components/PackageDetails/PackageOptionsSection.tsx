@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Minus, Plus, Calendar, AlertCircle } from "lucide-react";
+import { Minus, Plus, Calendar, AlertCircle, PlusCircle } from "lucide-react";
 import toast from "react-hot-toast";
 import { hangameFont } from "@/lib/fonts";
 import { useCurrency } from "@/app/context/CurrencyContext";
@@ -21,11 +21,22 @@ interface PackageOption {
   originalPrice?: number;
   badge?: string;
   details?: string[];
-  meetingPoints?: MeetingPoint[]; // ✅ 추가
+  meetingPoints?: MeetingPoint[];
+}
+
+// ✅ 추가 옵션 인터페이스
+interface AddOnOption {
+  id: string;
+  name: string;
+  price: number;
+  childPrice?: number;
+  description?: string;
+  badge?: string;
 }
 
 interface PackageOptionsSectionProps {
   packageOptions: PackageOption[];
+  addOnOptions?: AddOnOption[]; // ✅ 추가
   isSuspended: boolean;
   onSelectPackage: (pkg: PackageOption | null) => void;
   onAddToCart: (data: any) => void;
@@ -38,6 +49,7 @@ interface PackageOptionsSectionProps {
 
 export default function PackageOptionsSection({
   packageOptions,
+  addOnOptions = [], // ✅ 추가
   isSuspended,
   onSelectPackage,
   onAddToCart,
@@ -51,6 +63,7 @@ export default function PackageOptionsSection({
   const { currency, exchangeRate, formatPrice } = useCurrency();
 
   const [selectedOption, setSelectedOption] = useState("");
+  const [selectedAddOns, setSelectedAddOns] = useState<string[]>([]); // ✅ 선택된 추가옵션 ID 배열
   const [tourDate, setTourDate] = useState("");
   const [adults, setAdults] = useState(Math.max(1, minPax));
   const [children, setChildren] = useState(0);
@@ -92,7 +105,25 @@ export default function PackageOptionsSection({
   const adultPrice = selectedPackage?.price || 0;
   const childPrice = selectedPackage?.childPrice || adultPrice;
 
-  const totalPriceKRW = adultPrice * adults + childPrice * children;
+  // ✅ 선택된 추가옵션 객체 배열
+  const selectedAddOnItems = addOnOptions.filter((a) =>
+    selectedAddOns.includes(a.id),
+  );
+
+  // ✅ 추가옵션 가격 합산
+  const addOnAdultPrice = selectedAddOnItems.reduce(
+    (sum, a) => sum + a.price,
+    0,
+  );
+  const addOnChildPrice = selectedAddOnItems.reduce(
+    (sum, a) => sum + (a.childPrice ?? a.price),
+    0,
+  );
+
+  // ✅ 최종 총액 = 메인 + 추가옵션
+  const totalPriceKRW =
+    (adultPrice + addOnAdultPrice) * adults +
+    (childPrice + addOnChildPrice) * children;
   const totalPriceUSD = Number((totalPriceKRW / exchangeRate).toFixed(2));
 
   const totalPeople = adults + children;
@@ -100,8 +131,18 @@ export default function PackageOptionsSection({
   const isPaxMet = totalPeople >= minPax;
   const isButtonDisabled = !isDateSelected || !isPaxMet;
 
+  // ✅ 추가옵션 토글
+  const handleAddOnToggle = (addOnId: string) => {
+    setSelectedAddOns((prev) =>
+      prev.includes(addOnId)
+        ? prev.filter((id) => id !== addOnId)
+        : [...prev, addOnId],
+    );
+  };
+
   const handleReset = () => {
     setSelectedOption("");
+    setSelectedAddOns([]);
     setTourDate("");
     setAdults(minPax);
     setChildren(0);
@@ -110,6 +151,7 @@ export default function PackageOptionsSection({
 
   const handleOptionChange = (optionId: string) => {
     setSelectedOption(optionId);
+    setSelectedAddOns([]); // 메인 옵션 바꾸면 추가옵션 초기화
     const pkg = packageOptions.find((opt) => opt.id === optionId);
     onSelectPackage(pkg || null);
   };
@@ -124,6 +166,13 @@ export default function PackageOptionsSection({
     else setChildren(Math.max(0, children - 1));
   };
 
+  // ✅ optionName: "메인옵션 + 추가옵션1 + 추가옵션2" 형태로 합치기
+  const buildOptionName = () => {
+    const mainName = selectedPackage?.name || "";
+    if (selectedAddOnItems.length === 0) return mainName;
+    return mainName + " + " + selectedAddOnItems.map((a) => a.name).join(" + ");
+  };
+
   const handleAddToCart = () => {
     if (isButtonDisabled) return;
     onAddToCart({
@@ -132,19 +181,18 @@ export default function PackageOptionsSection({
       title: tourTitle,
       image: tourImage,
       optionId: selectedPackage?.id,
-      optionName: selectedPackage?.name,
+      optionName: buildOptionName(), // ✅ 합쳐진 옵션명
       adults,
       children,
-      adultPrice: adultPrice,
-      childPrice: childPrice,
-      pricePerPerson: adultPrice,
+      adultPrice: adultPrice + addOnAdultPrice, // ✅ 추가옵션 포함
+      childPrice: childPrice + addOnChildPrice,
+      pricePerPerson: adultPrice + addOnAdultPrice,
       totalPrice: totalPriceKRW,
       usdAmount: totalPriceUSD,
       currency,
       exchangeRate,
       date: tourDate,
       minPax,
-      // ✅ 미팅 포인트 목록 같이 저장 (카트에서 선택하게 하려고)
       meetingPoints: selectedPackage?.meetingPoints || [],
       meetingPoint: "",
     });
@@ -154,7 +202,6 @@ export default function PackageOptionsSection({
   const handleBookNow = () => {
     if (isButtonDisabled) return;
 
-    // ✅ 미팅 포인트 목록을 JSON으로 직렬화해서 URL에 포함
     const meetingPoints = selectedPackage?.meetingPoints || [];
 
     const query = new URLSearchParams({
@@ -163,9 +210,9 @@ export default function PackageOptionsSection({
       title: tourTitle,
       image: tourImage,
       optionId: selectedPackage!.id,
-      optionName: selectedPackage!.name,
-      price: adultPrice.toString(),
-      childPrice: childPrice.toString(),
+      optionName: buildOptionName(), // ✅ 합쳐진 옵션명
+      price: (adultPrice + addOnAdultPrice).toString(), // ✅ 추가옵션 포함
+      childPrice: (childPrice + addOnChildPrice).toString(),
       adults: adults.toString(),
       children: children.toString(),
       totalPrice: totalPriceKRW.toString(),
@@ -174,7 +221,6 @@ export default function PackageOptionsSection({
       minPax: minPax.toString(),
       currency: currency,
       exchangeRate: exchangeRate.toString(),
-      // ✅ 미팅 포인트 목록 추가
       meetingPoints: JSON.stringify(meetingPoints),
     }).toString();
     router.push(`/booking?${query}`);
@@ -209,9 +255,7 @@ export default function PackageOptionsSection({
                 opt.originalPrice !== undefined &&
                 opt.originalPrice !== null &&
                 opt.originalPrice > opt.price;
-
               const hasBadge = opt.badge && opt.badge.trim().length > 0;
-
               const discountRate = hasDiscount
                 ? Math.round(
                     ((opt.originalPrice! - opt.price) / opt.originalPrice!) *
@@ -242,14 +286,12 @@ export default function PackageOptionsSection({
                         <span className="font-bold text-gray-900 text-lg leading-tight">
                           {opt.name}
                         </span>
-
                         <div className="flex flex-col items-end gap-1 flex-shrink-0">
                           {hasBadge && (
                             <span className="px-2 py-0.5 bg-blue-100 text-blue-600 text-[10px] rounded-[4px] font-bold uppercase whitespace-nowrap">
                               {opt.badge}
                             </span>
                           )}
-
                           {hasDiscount && (
                             <span className="px-2 py-0.5 bg-red-100 text-red-600 text-[10px] rounded-[4px] font-bold uppercase whitespace-nowrap animate-pulse">
                               SAVE {discountRate}%
@@ -257,14 +299,12 @@ export default function PackageOptionsSection({
                           )}
                         </div>
                       </div>
-
                       <div className="text-sm text-gray-600 mt-2 leading-snug">
                         <span className="font-semibold text-gray-800">
                           Route:{" "}
                         </span>
                         {opt.details?.join(" → ") || "View schedule details"}
                       </div>
-
                       <div className="mt-2 text-right flex flex-col items-end justify-end">
                         {hasDiscount && (
                           <span className="text-xs text-gray-400 line-through decoration-gray-400 mr-1">
@@ -292,7 +332,65 @@ export default function PackageOptionsSection({
 
       {selectedOption && !isSuspended && (
         <>
-          <div className="space-y-6 mb-6 pt-6 border-t border-gray-200">
+          {/* ✅ 추가 옵션 섹션 (addOnOptions가 있을 때만 표시) */}
+          {addOnOptions.length > 0 && (
+            <div className="mb-6 pt-4 border-t border-gray-200">
+              <div className="flex items-center gap-2 mb-3">
+                <PlusCircle className="w-4 h-4 text-[#4A7C7E]" />
+                <p className="text-sm font-bold text-gray-900 uppercase tracking-wide">
+                  Add-on Options
+                </p>
+                <span className="text-xs text-gray-400">(Optional)</span>
+              </div>
+              <div className="space-y-2">
+                {addOnOptions.map((addOn) => {
+                  const isChecked = selectedAddOns.includes(addOn.id);
+                  const hasBadge = addOn.badge && addOn.badge.trim().length > 0;
+                  return (
+                    <label
+                      key={addOn.id}
+                      className={`flex items-start gap-3 p-3 rounded-[6px] border cursor-pointer transition ${
+                        isChecked
+                          ? "border-orange-500 bg-orange-50 ring-1 ring-orange-500"
+                          : "border-gray-200 bg-white hover:border-gray-300"
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={() => handleAddOnToggle(addOn.id)}
+                        className="mt-0.5 w-4 h-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded flex-shrink-0"
+                      />
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="font-bold text-gray-900 text-sm">
+                            {addOn.name}
+                          </span>
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            {hasBadge && (
+                              <span className="px-2 py-0.5 bg-blue-100 text-blue-600 text-[10px] rounded-[4px] font-bold uppercase whitespace-nowrap">
+                                {addOn.badge}
+                              </span>
+                            )}
+                            <span className="font-bold text-orange-600 text-sm">
+                              +{formatPrice(addOn.price)}
+                            </span>
+                          </div>
+                        </div>
+                        {addOn.description && (
+                          <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">
+                            {addOn.description}
+                          </p>
+                        )}
+                      </div>
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          <div className="space-y-6 mb-6 pt-4 border-t border-gray-200">
             <div>
               <p className="text-sm font-bold text-gray-900 uppercase tracking-wide mb-3">
                 Select Tour Date
@@ -366,26 +464,52 @@ export default function PackageOptionsSection({
             </div>
           </div>
 
-          <div className="flex items-baseline justify-between mb-6 pb-4 border-b border-gray-200">
-            <div>
-              <div className="flex items-baseline gap-2">
-                {selectedPackage?.originalPrice &&
-                selectedPackage.originalPrice > selectedPackage.price ? (
-                  <span className="text-lg text-gray-400 line-through decoration-gray-400">
-                    {formatPrice(
-                      selectedPackage.originalPrice * adults +
-                        (selectedPackage?.childPrice || selectedPackage.price) *
-                          children,
-                    )}
-                  </span>
-                ) : null}
-                <span className="text-3xl font-bold text-gray-900">
-                  {formatPrice(totalPriceKRW)}
+          {/* ✅ 가격 내역 + 합계 */}
+          <div className="mb-6 pb-4 border-b border-gray-200">
+            <div className="space-y-1 mb-3">
+              <div className="flex justify-between text-sm text-gray-600">
+                <span>{selectedPackage?.name}</span>
+                <span>
+                  {formatPrice(adultPrice * adults + childPrice * children)}
                 </span>
               </div>
-              <p className="text-xs text-gray-500 mt-1">
-                Total price for {adults + children} person(s)
-              </p>
+              {selectedAddOnItems.map((addOn) => (
+                <div
+                  key={addOn.id}
+                  className="flex justify-between text-sm text-gray-600"
+                >
+                  <span>+ {addOn.name}</span>
+                  <span>
+                    {formatPrice(
+                      addOn.price * adults +
+                        (addOn.childPrice ?? addOn.price) * children,
+                    )}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <div className="flex items-baseline justify-between pt-2 border-t border-gray-100">
+              <div>
+                <div className="flex items-baseline gap-2">
+                  {selectedPackage?.originalPrice &&
+                  selectedPackage.originalPrice > selectedPackage.price ? (
+                    <span className="text-lg text-gray-400 line-through decoration-gray-400">
+                      {formatPrice(
+                        selectedPackage.originalPrice * adults +
+                          (selectedPackage?.childPrice ||
+                            selectedPackage.price) *
+                            children,
+                      )}
+                    </span>
+                  ) : null}
+                  <span className="text-3xl font-bold text-gray-900">
+                    {formatPrice(totalPriceKRW)}
+                  </span>
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  Total price for {adults + children} person(s)
+                </p>
+              </div>
             </div>
           </div>
 
