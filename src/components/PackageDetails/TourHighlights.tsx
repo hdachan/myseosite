@@ -51,59 +51,53 @@ const highlightComponents = {
 function toPlainText(blocks: any[] = []) {
   if (!Array.isArray(blocks)) return "";
 
-  return (
-    blocks
-      // 블록이 아니거나 자식이 없으면 패스
-      .map((block) => {
-        if (block._type !== "block" || !block.children) {
-          return "";
-        }
-        // 자식들의 텍스트를 이어 붙임
-        return block.children.map((child: any) => child.text).join("");
-      })
-      // 블록끼리는 줄바꿈으로 연결
-      .join("\n\n")
-  );
+  return blocks
+    .map((block) => {
+      if (block._type !== "block" || !block.children) {
+        return "";
+      }
+      return block.children.map((child: any) => child.text).join("");
+    })
+    .join("\n\n");
 }
 
 export default function TourHighlights({ content }: Props) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
 
-  // Hydration 에러 방지용
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // ✅ content가 없거나 배열이 아니거나 비어있으면 아무것도 렌더링 안함
   if (!content || !Array.isArray(content) || content.length === 0) {
     return null;
   }
 
-  // 1. 전체 텍스트 추출 및 길이 계산
   const plainText = toPlainText(content);
 
-  // ✅ 텍스트가 비어있으면 렌더링 안함
   if (!plainText || plainText.trim().length === 0) {
     return null;
   }
 
-  const maxLength = 200; // ✂️ 제한할 글자 수
+  const maxLength = 200;
   const isTooLong = plainText.length > maxLength;
 
-  // 2. 프리뷰용 텍스트 (200자 + ...)
   const previewText = isTooLong
     ? plainText.slice(0, maxLength).trim() + "..."
     : plainText;
 
-  // 🌀 모달 닫기 핸들러
   const closeModal = () => setIsModalOpen(false);
 
   return (
     <>
-      {/* ===== 메인 화면 표시 영역 ===== */}
       <section className="mb-10 p-6 bg-gray-50 rounded-xl border border-gray-100 shadow-sm relative">
-        {/* 🗑️ [삭제됨] Tour Highlights 제목 헤더 영역 */}
+        {/* 🚀 [SEO 특급 비법] 구글 봇 전용 숨김 영역 
+            사용자 눈에는 절대 안 보이지만, 구글 로봇은 이걸 긁어갑니다! */}
+        {isTooLong && (
+          <div className="sr-only" aria-hidden="true">
+            <PortableText value={content} components={highlightComponents} />
+          </div>
+        )}
 
         {/* 길이가 짧으면 바로 리스트 보여주기 */}
         {!isTooLong ? (
@@ -111,7 +105,6 @@ export default function TourHighlights({ content }: Props) {
         ) : (
           // 길이가 길면 텍스트 프리뷰 + 버튼 보여주기
           <div>
-            {/* 체크 아이콘 느낌을 주기 위해 프리뷰에도 가짜 아이콘 하나 배치 */}
             <div className="flex items-start gap-3 mb-2">
               <div className="mt-1 min-w-[18px]">
                 <Check className="w-4.5 h-4.5 text-gray-400" strokeWidth={3} />
@@ -140,12 +133,10 @@ export default function TourHighlights({ content }: Props) {
             className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
             onClick={closeModal}
           >
-            {/* 모달 컨텐츠 박스 */}
             <div
               className="bg-white w-full max-w-2xl max-h-[80vh] rounded-2xl shadow-2xl overflow-hidden flex flex-col relative animate-in zoom-in-95 duration-200"
-              onClick={(e) => e.stopPropagation()} // 박스 클릭 시 닫힘 방지
+              onClick={(e) => e.stopPropagation()}
             >
-              {/* 모달 헤더 (팝업창에는 제목 유지 - 필요 없으면 이 부분도 삭제 가능) */}
               <div className="p-5 border-b border-gray-100 flex items-center justify-between bg-gray-50">
                 <div className="flex items-center gap-2">
                   <Sparkles className="w-5 h-5 text-[#4A7C7E]" />
@@ -161,7 +152,6 @@ export default function TourHighlights({ content }: Props) {
                 </button>
               </div>
 
-              {/* 모달 스크롤 영역 */}
               <div className="p-6 overflow-y-auto custom-scrollbar">
                 <PortableText
                   value={content}
@@ -169,7 +159,6 @@ export default function TourHighlights({ content }: Props) {
                 />
               </div>
 
-              {/* 모달 하단 닫기 버튼 (모바일 편의성) */}
               <div className="p-4 border-t border-gray-100 bg-gray-50 text-right md:hidden">
                 <button
                   onClick={closeModal}

@@ -88,7 +88,8 @@ export default function TourImageGallery({
       <div className="md:hidden relative w-full h-72 rounded-xl overflow-hidden bg-gray-100">
         <Image
           src={images[photoIndex]}
-          alt={title}
+          // ✅ [SEO 최적화] 모바일 뷰어용 동적 alt
+          alt={`${title} - Tour Highlight ${photoIndex + 1}`}
           fill
           sizes="100vw"
           className={`object-cover ${isSuspended ? "grayscale opacity-50" : ""}`}
@@ -127,10 +128,10 @@ export default function TourImageGallery({
         >
           <Image
             src={images[0]}
-            alt="Main"
+            // ✅ [SEO 최적화] 메인 이미지 동적 alt
+            alt={`${title} - Main Attraction`}
             fill
             priority
-            // 🚀 [S등급 포인트] PC에서 큰 영역은 화면의 50~75% 정도 차지함
             sizes="(max-width: 768px) 100vw, 75vw"
             className={getImageClass()}
           />
@@ -147,9 +148,9 @@ export default function TourImageGallery({
               >
                 <Image
                   src={img}
-                  alt={`Gallery ${idx}`}
+                  // ✅ [SEO 최적화] 갤러리 썸네일 동적 alt
+                  alt={`${title} - Gallery View ${idx + 1}`}
                   fill
-                  // 🚀 [S등급 포인트] 작은 썸네일은 화면의 25% 정도만 차지함
                   sizes="(max-width: 768px) 100vw, 25vw"
                   className={getImageClass()}
                 />
@@ -181,7 +182,8 @@ export default function TourImageGallery({
           >
             <Image
               src={images[photoIndex]}
-              alt={`Full size ${photoIndex}`}
+              // ✅ [SEO 최적화] 팝업 고해상도 이미지 동적 alt
+              alt={`${title} - High Resolution View ${photoIndex + 1}`}
               fill
               className="object-contain"
               priority

@@ -12,10 +12,11 @@ import {
   ShoppingBag,
 } from "lucide-react";
 
-// ✅ 인터페이스
+// ✅ 인터페이스 (altPrefix 추가!)
 interface ImageGridProps {
   images: string[];
   onImageClick: (index: number) => void;
+  altPrefix?: string; // 🚀 [SEO 최적화] 부모가 넘겨주는 자동 Alt 텍스트 (에러 해결!)
 }
 
 interface ImageLightboxProps {
@@ -28,7 +29,11 @@ interface ImageLightboxProps {
 }
 
 // 🖼️ 이미지 그리드 컴포넌트
-export const ImageGrid = ({ images, onImageClick }: ImageGridProps) => {
+export const ImageGrid = ({
+  images,
+  onImageClick,
+  altPrefix = "Tour Image",
+}: ImageGridProps) => {
   if (!images || images.length === 0) return null;
 
   // Case 1: 이미지 1개
@@ -40,7 +45,8 @@ export const ImageGrid = ({ images, onImageClick }: ImageGridProps) => {
       >
         <Image
           src={images[0]}
-          alt="Schedule Image"
+          // 🚀 [SEO]
+          alt={`${altPrefix} 1`}
           fill
           className="object-cover transition-transform duration-500 group-hover:scale-105"
         />
@@ -61,7 +67,8 @@ export const ImageGrid = ({ images, onImageClick }: ImageGridProps) => {
           >
             <Image
               src={img}
-              alt={`Schedule Image ${idx + 1}`}
+              // 🚀 [SEO]
+              alt={`${altPrefix} ${idx + 1}`}
               fill
               className="object-cover transition-transform duration-500 group-hover:scale-105"
             />
@@ -82,7 +89,8 @@ export const ImageGrid = ({ images, onImageClick }: ImageGridProps) => {
       >
         <Image
           src={images[0]}
-          alt="Main Schedule Image"
+          // 🚀 [SEO]
+          alt={`${altPrefix} 1`}
           fill
           className="object-cover transition-transform duration-500 group-hover:scale-105"
         />
@@ -96,7 +104,8 @@ export const ImageGrid = ({ images, onImageClick }: ImageGridProps) => {
       >
         <Image
           src={images[1]}
-          alt="Sub Image 1"
+          // 🚀 [SEO]
+          alt={`${altPrefix} 2`}
           fill
           className="object-cover transition-transform duration-500 group-hover:scale-105"
         />
@@ -110,7 +119,8 @@ export const ImageGrid = ({ images, onImageClick }: ImageGridProps) => {
       >
         <Image
           src={images[2]}
-          alt="Sub Image 2"
+          // 🚀 [SEO]
+          alt={`${altPrefix} 3`}
           fill
           className="object-cover transition-transform duration-500 group-hover:scale-105"
         />

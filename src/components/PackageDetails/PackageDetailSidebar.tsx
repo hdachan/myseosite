@@ -71,7 +71,7 @@ export default function PackageDetailSidebar({
     setMounted(true);
   }, []);
 
-  // 📍 미팅 포인트로 스크롤 (기존 기능 유지!)
+  // 📍 미팅 포인트로 스크롤
   const scrollToMeetingPoint = () => {
     if (meetingPointRef.current && scrollContainerRef.current) {
       const container = scrollContainerRef.current;
@@ -190,7 +190,7 @@ export default function PackageDetailSidebar({
                     </p>
                   )}
 
-                  {/* 🎨 팝업용: 이미지 가로 스크롤 - 성능 최적화 */}
+                  {/* 🎨 팝업용: 이미지 가로 스크롤 */}
                   {item?.images &&
                     Array.isArray(item.images) &&
                     item.images.length > 0 && (
@@ -203,7 +203,8 @@ export default function PackageDetailSidebar({
                           >
                             <img
                               src={img}
-                              alt={`Image ${imgIdx + 1}`}
+                              // 🚀 [SEO 최적화 1] 패키지명 + 일정 제목으로 자동 Alt 생성
+                              alt={`${selectedPackage.name} - ${item?.title || "Itinerary"} View ${imgIdx + 1}`}
                               loading="lazy"
                               className="w-full h-full object-cover"
                             />
@@ -251,7 +252,7 @@ export default function PackageDetailSidebar({
                       {point?.description || "No description"}
                     </p>
 
-                    {/* 🎨 팝업용: 이미지 가로 스크롤 - 성능 최적화 */}
+                    {/* 🎨 팝업용: 이미지 가로 스크롤 */}
                     {point?.images &&
                       Array.isArray(point.images) &&
                       point.images.length > 0 && (
@@ -264,7 +265,8 @@ export default function PackageDetailSidebar({
                             >
                               <img
                                 src={img}
-                                alt={`Meeting point image ${imgIdx + 1}`}
+                                // 🚀 [SEO 최적화 2] 패키지명 + 미팅포인트 이름으로 자동 Alt 생성
+                                alt={`${selectedPackage.name} - ${point?.name || "Meeting Point"} Location ${imgIdx + 1}`}
                                 loading="lazy"
                                 className="w-full h-full object-cover"
                               />
@@ -331,7 +333,7 @@ export default function PackageDetailSidebar({
               </button>
             </div>
 
-            {/* 🚀 스크롤 영역 - 높이만 450px로 축소 */}
+            {/* 🚀 스크롤 영역 */}
             <div
               ref={scrollContainerRef}
               className="overflow-y-auto max-h-[450px] scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent"
@@ -347,7 +349,7 @@ export default function PackageDetailSidebar({
                 Array.isArray(selectedPackage.itinerary) &&
                 selectedPackage.itinerary.length > 0 ? (
                   <div className="relative border-l-2 border-gray-100 ml-3 space-y-8 pb-2">
-                    {/* 📍 미팅 포인트 링크 - 기존 기능 유지! */}
+                    {/* 📍 미팅 포인트 링크 */}
                     {meetingPoints &&
                       Array.isArray(meetingPoints) &&
                       meetingPoints.length > 0 && (
@@ -403,6 +405,8 @@ export default function PackageDetailSidebar({
                                 onImageClick={(imgIndex) =>
                                   openLightbox(item.images, imgIndex)
                                 }
+                                // 🚀 [SEO 최적화 3] 자식 컴포넌트(ImageGrid)로 자동 Alt 데이터 전달
+                                altPrefix={`${selectedPackage.name} - ${item?.title || "Itinerary"} View`}
                               />
                             )}
                         </div>
@@ -456,6 +460,8 @@ export default function PackageDetailSidebar({
                                   onImageClick={(imgIndex) =>
                                     openLightbox(point.images, imgIndex)
                                   }
+                                  // 🚀 [SEO 최적화 4] 자식 컴포넌트(ImageGrid)로 자동 Alt 데이터 전달
+                                  altPrefix={`${selectedPackage.name} - ${point?.name || "Meeting Point"} Location`}
                                 />
                               )}
                           </div>
@@ -518,7 +524,7 @@ export default function PackageDetailSidebar({
                 </button>
               </div>
 
-              {/* 팝업 콘텐츠 - 스크롤 가능 - 성능 최적화 */}
+              {/* 팝업 콘텐츠 - 스크롤 가능 */}
               <div className="overflow-y-auto flex-1 overscroll-contain">
                 {renderPopupContent()}
               </div>
